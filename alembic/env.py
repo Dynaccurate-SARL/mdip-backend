@@ -1,7 +1,7 @@
 import alembic_postgresql_enum
 from app.db.repositories.models import *
 from app.db.engine import Base
-from app.config import get_config
+from src.config.settings import get_config
 
 from logging.config import fileConfig
 
@@ -19,7 +19,7 @@ config = context.config
 if config.config_file_name is not None:
     fileConfig(config.config_file_name)
 
-config.set_main_option("sqlalchemy.url", get_config().ASYNC_DATABASE_URL.replace(
+config.set_main_option("sqlalchemy.url", get_config().DATABASE_URL.replace(
     '+aiosqlite', '').replace('+asyncpg', ''))
 
 # add your model's MetaData object here
