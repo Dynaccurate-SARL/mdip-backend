@@ -2,6 +2,7 @@ from functools import lru_cache
 from snowflake import SnowflakeGenerator
 from sqlalchemy.orm import declarative_base
 
+
 Base = declarative_base()
 
 

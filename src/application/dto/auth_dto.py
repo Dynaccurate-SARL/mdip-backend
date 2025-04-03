@@ -1,10 +1,10 @@
-from pydantic import EmailStr
+from pydantic import EmailStr, Field
 from src.application.dto import BaseSchema
 
 
 class LoginDto(BaseSchema):
-    username: EmailStr
-    password: str
+    username: EmailStr = Field(examples=["johndoe@example.com"])
+    password: str = Field(examples=["mysecretpassword"])
 
 class LoginResponseDto(BaseSchema):
     access_token: str | None = None
