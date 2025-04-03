@@ -1,7 +1,7 @@
 from typing import Annotated
 from sqlalchemy.ext.asyncio import AsyncSession
 from fastapi.security import OAuth2PasswordRequestForm
-from fastapi import APIRouter, Depends, HTTPException, Header, status
+from fastapi import APIRouter, Depends, Header, status
 
 from src.config.settings import get_config
 from src.utils.exc import UnauthorizedAccessError
@@ -35,11 +35,7 @@ async def auth_token(
         return await login_use_case.execute(
             LoginDto(username=data.username, password=data.password))
     except UnauthorizedAccessError as e:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Invalid credentials",
-            headers={"WWW-Authenticate": "Bearer"},
-        )
+        return e.as_response(status_code=status.HTTP_401_UNAUTHORIZED)
 
 
 @auth_router.post('/login', response_model=LoginResponseDto)
@@ -55,11 +51,7 @@ async def login(data: LoginDto,
         return await login_use_case.execute(
             LoginDto(username=data.username, password=data.password))
     except UnauthorizedAccessError as e:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Invalid credentials",
-            headers={"WWW-Authenticate": "Bearer"},
-        )
+        return e.as_response(status_code=status.HTTP_401_UNAUTHORIZED)
 
 
 @auth_router.post('/refresh')
@@ -78,8 +70,4 @@ async def refresh(
             user_repository, access_token_service, refresh_token_service)
         return await refresh_token_use_case.execute(refresh_token)
     except UnauthorizedAccessError as e:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Invalid credentials",
-            headers={"WWW-Authenticate": "Bearer"},
-        )
+        return e.as_response(status_code=status.HTTP_401_UNAUTHORIZED)

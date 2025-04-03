@@ -1,5 +1,5 @@
 from typing import Annotated
-from fastapi import Depends
+from fastapi import Depends, status
 from sqlalchemy.ext.asyncio import AsyncSession
 from fastapi.security import OAuth2PasswordBearer, SecurityScopes
 
@@ -9,6 +9,7 @@ from src.infrastructure.db.engine import get_session
 from src.infrastructure.services.token_service import IAccessTokenService
 from src.infrastructure.repositories.iuser_repository import UserRepository
 from src.application.use_cases.auth.api_authorization import ApiAuthorizationUseCase
+from src.utils.exc import UnauthorizedAccessError
 
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl=f'{C.API_PREFIX}/docs/jwt')
@@ -22,6 +23,8 @@ async def manager(
     # Dependencies
     user_repository = UserRepository(session)
     access_token_service = IAccessTokenService(get_config().JWT_SECRET)
-
-    api_auth = ApiAuthorizationUseCase(user_repository, access_token_service)
-    return await api_auth.execute(security_scopes, token)
+    try:
+        api_auth = ApiAuthorizationUseCase(user_repository, access_token_service)
+        return await api_auth.execute(token, security_scopes)
+    except UnauthorizedAccessError as e:
+        return e.as_http_exception(status_code=status.HTTP_401_UNAUTHORIZED)

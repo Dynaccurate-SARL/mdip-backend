@@ -1,8 +1,7 @@
 import alembic_postgresql_enum
-from app.db.repositories.models import *
-from app.db.engine import Base
 from src.config.settings import get_config
-
+from src.infrastructure.repositories.contract import *
+from src.domain.entities import Base
 from logging.config import fileConfig
 
 from sqlalchemy import engine_from_config

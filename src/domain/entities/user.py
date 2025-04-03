@@ -1,11 +1,10 @@
-import uuid
 import hashlib
 import sqlalchemy as sq
 from pydantic import EmailStr
 from sqlalchemy.orm import Mapped
 from sqlalchemy.orm import mapped_column
 
-from src.domain.entities import Base
+from src.domain.entities import Base, generate_snowflake_id
 
 
 class User(Base):
@@ -16,14 +15,15 @@ class User(Base):
     name: Mapped[str] = mapped_column(sq.String(255), nullable=False)
     email: Mapped[str] = mapped_column(
         sq.String(255), unique=True, nullable=False)
-    _password: Mapped[str] = mapped_column("password", sq.String, nullable=False)
+    _password: Mapped[str] = mapped_column(
+        "password", sq.String, nullable=False)
 
     def __init__(self, name: str, email: EmailStr, password: str):
         self.name = name
         self.email = email
         self.password = hashlib.sha256(
             password.encode('utf-8')).hexdigest()
-        self.sub = str(uuid.uuid4())
+        self.sub = generate_snowflake_id()
 
     @property
     def password(self):
@@ -39,3 +39,11 @@ class User(Base):
         hashed_password = hashlib.sha256(
             raw_password.encode('utf-8')).hexdigest()
         return hashed_password == self._password
+
+    def _alembic_user(self):
+        return {
+            'sub': self.sub,
+            'name': self.name,
+            'email': self.email,
+            'password': self.password
+        }
