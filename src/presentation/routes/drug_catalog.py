@@ -1,0 +1,69 @@
+from typing import Annotated
+import uuid
+from fastapi import APIRouter, Depends, status
+from fastapi import Form, UploadFile, File
+from sqlalchemy.ext.asyncio import AsyncSession
+
+from src.application.dto.drug_catalog_dto import (
+    CountryCode, DrugCatalogCreateDto, DrugCatalogCreatedDto)
+from src.config.settings import get_config
+from src.domain.entities.user import User
+from src.domain.services.auth_service import manager
+from src.infrastructure.db.engine import get_session
+from src.infrastructure.repositories.idrug_catalog_repository import IDrugCatalogRepository
+from src.infrastructure.repositories.iledger_transaction_repository import ILedgerTransactionRepository
+from src.application.use_cases.drug_catalog.drug_catalog_create import DrugCatalogCreateUseCase
+from src.infrastructure.services.blob_storage.azure_storage import AzureFileService
+from src.infrastructure.services.blob_storage.disk_storage import DiskFileService
+from src.infrastructure.services.confidential_ledger import get_confidential_ledger
+
+
+drug_catalog_router = APIRouter()
+
+
+@drug_catalog_router.post("/drugs/catalog",
+                          status_code=status.HTTP_201_CREATED,
+                          response_model=DrugCatalogCreatedDto)
+async def create_catalog(
+        user: Annotated[User, Depends(manager)],
+        session: Annotated[AsyncSession, Depends(get_session)],
+        name: Annotated[str, Form(examples=["Pharmaceutical Catalog"])],
+        country: Annotated[CountryCode, Form(examples=["US"])],
+        version: Annotated[str, Form(examples=["1.0"])],
+        notes: Annotated[str, Form(examples=["Initial release"])],
+        file: Annotated[UploadFile, File(...)]):
+    # rename filename to ensure uniqueness
+    file.filename = f"{str(uuid.uuid4())}_{file.filename}"
+
+    # Upload file to the appropriate storage strategy
+    if get_config().UPLOAD_STRATEGY == "AZURE":
+        AzureFileService(
+            get_config().AZURE_BLOB_CONTAINER_NAME,
+            get_config().AZURE_BLOB_STORAGE_CONNECTION_STRING).upload_file(
+            file.filename, file.file.read())
+    if get_config().UPLOAD_STRATEGY == "DISK":
+        DiskFileService(get_config().DOCUMENTS_STORAGE_PATH).upload_file(
+            file.filename, file.file.read())
+        
+    # Prepare the repository and service for the use case
+    drug_catalog_repository = IDrugCatalogRepository(session)
+    lt_repository = ILedgerTransactionRepository(session)
+    ledger_service = get_confidential_ledger(
+        get_config().LEDGER_STRATEGY,
+        lt_repository,
+        get_config().AZURE_LEDGER_URL, get_config().AZURE_CERTIFICATE_PATH
+    )
+
+    # Create a new drug catalog entry in the database and ledger
+    drug_catalog_use_case = DrugCatalogCreateUseCase(
+        drug_catalog_repository,
+        ledger_service
+    )
+    data = DrugCatalogCreateDto(
+        name=name,
+        country=country,
+        version=version,
+        notes=notes,
+        file=file
+    )
+    return await drug_catalog_use_case.execute(data)

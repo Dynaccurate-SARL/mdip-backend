@@ -14,11 +14,15 @@ class DBLedgerService(Ledger):
     async def insert_transaction(self, data: TransactionData):
         ltransaction = LedgerTransaction(
             transaction_id=str(uuid.uuid4()),
-            content=data.model_dump(exclude_none=True)
+            entity_name=data.entity_name,
+            entity_id=data.entity_id,
+            content=data.model_dump(exclude_none=True, exclude={
+                                    'entity_name', 'entity_id'}),
         )
         ltransaction = await self.lt_repository.save(ltransaction)
 
         return TransactionInserted(
+            status='ready',
             content=ltransaction.content,
             transaction_id=ltransaction.transaction_id
         )
@@ -28,6 +32,7 @@ class DBLedgerService(Ledger):
             transaction_id)
         if ltransaction:
             return TransactionInserted(
+                status='ready',
                 content=json.loads(ltransaction.content),
                 transaction_id=ltransaction.transaction_id
             )

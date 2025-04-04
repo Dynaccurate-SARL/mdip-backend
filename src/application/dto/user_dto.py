@@ -1,4 +1,5 @@
 from pydantic import EmailStr
+
 from src.application.dto import BaseSchema
 
 
