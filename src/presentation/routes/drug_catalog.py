@@ -1,5 +1,5 @@
-from typing import Annotated
 import uuid
+from typing import Annotated
 from fastapi import APIRouter, Depends, status
 from fastapi import Form, UploadFile, File
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -30,8 +30,8 @@ async def create_catalog(
         name: Annotated[str, Form(examples=["Pharmaceutical Catalog"])],
         country: Annotated[CountryCode, Form(examples=["US"])],
         version: Annotated[str, Form(examples=["1.0"])],
-        notes: Annotated[str, Form(examples=["Initial release"])],
-        file: Annotated[UploadFile, File(...)]):
+        file: Annotated[UploadFile, File(...)],
+        notes: Annotated[str, Form(examples=["Initial release"])] = ''):
     # rename filename to ensure uniqueness
     file.filename = f"{str(uuid.uuid4())}_{file.filename}"
 
@@ -66,4 +66,7 @@ async def create_catalog(
         notes=notes,
         file=file
     )
-    return await drug_catalog_use_case.execute(data)
+    drug_catalog = await drug_catalog_use_case.execute(data)
+    
+    # TODO: Create celery task to parse and insert data
+    return drug_catalog

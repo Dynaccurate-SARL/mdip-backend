@@ -6,6 +6,8 @@ from sqlalchemy.orm import mapped_column
 from src.domain.entities import Base, generate_snowflake_id
 from src.application.dto.drug_catalog_dto import CountryCode
 
+ImportStatus = Literal['created', 'processing', 'completed']
+
 
 class DrugCatalog(Base):
     __tablename__ = 'drug_catalogs'
@@ -16,8 +18,10 @@ class DrugCatalog(Base):
     country: Mapped[CountryCode] = mapped_column(sq.String(2), nullable=False)
     version: Mapped[str] = mapped_column(sq.String(25), nullable=False)
     notes: Mapped[str] = mapped_column(sq.Text, nullable=True)
+    status: Mapped[ImportStatus] = mapped_column(
+        sq.String(10), nullable=False, default='created')
 
-    def __init__(self, name: str, country: CountryCode, 
+    def __init__(self, name: str, country: CountryCode,
                  version: str, notes: str):
         self.id = generate_snowflake_id()
         self.name = name

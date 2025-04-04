@@ -24,7 +24,6 @@ class DrugCatalogCreateUseCase:
             notes=data.notes,
         )
         drug_catalog = await self.drug_catalog_repository.save(drug_catalog)
-        result = DrugCatalogCreatedDto.model_validate(drug_catalog)
 
         # Send the drug catalog to the ledger
         transaction_data = TransactionData(
@@ -33,7 +32,13 @@ class DrugCatalogCreateUseCase:
             status='created',
             filename=data.file.filename,
             file_checksum=file_checksum(data.file),
-            catatag_hash=dict_hash(result.model_dump())
+            catatag_hash=dict_hash({
+                'id': drug_catalog.id,
+                'name': drug_catalog.name,
+                'country': drug_catalog.country,
+                'version': drug_catalog.version,
+                'notes': drug_catalog.notes,
+            })
         )
         transaction = await self.ledger_service.insert_transaction(
             transaction_data)

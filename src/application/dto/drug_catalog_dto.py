@@ -29,4 +29,5 @@ class DrugCatalogCreatedDto(BaseSchema):
     country: CountryCode
     version: str
     notes: str
+    status: str
     transaction_id: str = ''

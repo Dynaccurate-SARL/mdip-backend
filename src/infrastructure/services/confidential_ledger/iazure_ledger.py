@@ -31,7 +31,8 @@ class AzureLedger(Ledger):
 
     async def insert_transaction(self, data: TransactionData):
         sample_entry = {"contents": json.dumps(
-            data.model_dump(exclude_none=True))}
+            data.model_dump(exclude_none=True, exclude={
+                'entity_name', 'entity_id'}))}
 
         self.ledger_client.create_ledger_entry(entry=sample_entry)
         latest_entry: LedgerEntry = self.ledger_client.get_current_ledger_entry()
