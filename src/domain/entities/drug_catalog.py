@@ -1,15 +1,30 @@
 import sqlalchemy as sq
+from typing import Literal
+from sqlalchemy.orm import Mapped
+from sqlalchemy.orm import mapped_column
 
 from src.domain.entities import Base, generate_snowflake_id
+from src.application.dto.drug_catalog_dto import CountryCode
+
+ImportStatus = Literal['created', 'processing', 'completed']
 
 
 class DrugCatalog(Base):
     __tablename__ = 'drug_catalogs'
 
-    id = sq.Column(sq.BigInteger, primary_key=True,
-                   default=generate_snowflake_id)
-    name = sq.Column(sq.String(255), nullable=False)
-    country = sq.Column(sq.String(100), nullable=False)
-    version = sq.Column(sq.Integer, nullable=False, default=1)
-    notes = sq.Column(sq.Text, nullable=True)
-    file_transaction_id = sq.Column(sq.String(36), nullable=True)
+    id: Mapped[int] = mapped_column(
+        sq.BigInteger, primary_key=True, nullable=False)
+    name: Mapped[str] = mapped_column(sq.String(255), nullable=False)
+    country: Mapped[CountryCode] = mapped_column(sq.String(2), nullable=False)
+    version: Mapped[str] = mapped_column(sq.String(25), nullable=False)
+    notes: Mapped[str] = mapped_column(sq.Text, nullable=True)
+    status: Mapped[ImportStatus] = mapped_column(
+        sq.String(10), nullable=False, default='created')
+
+    def __init__(self, name: str, country: CountryCode,
+                 version: str, notes: str):
+        self.id = generate_snowflake_id()
+        self.name = name
+        self.country = country
+        self.version = version
+        self.notes = notes

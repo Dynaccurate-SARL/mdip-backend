@@ -7,7 +7,8 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.domain.entities.user import User
 from src.domain.entities.drug_catalog import DrugCatalog
-from src.domain.entities.ledger_transaction import LedgerTransaction
+from src.domain.entities.ledger_transaction import (
+    LedgerTransaction)
 
 
 T = TypeVar('T')
