@@ -1,0 +1,39 @@
+FROM python:3.11
+
+# Create a non-root user
+RUN useradd --create-home --shell /bin/bash appuser
+
+# Set the working directory
+WORKDIR /app
+
+# Copy only the necessary files
+COPY ./docker/entrypoint.sh /app/entrypoint.sh
+#  - migrations
+COPY ./alembic /app/alembic
+COPY ./alembic.ini /app/alembic.ini
+#  - app
+COPY ./src /app/src
+COPY ./poetry.lock /app/poetry.lock
+COPY ./pyproject.toml /app/pyproject.toml
+
+# Create directory and set correct permissions
+RUN mkdir -p /app/documents && chown -R appuser:appuser /app
+
+# Set environment variables
+ENV PYTHONPATH=${PYTHONPATH}:/app
+ENV DOCUMENTS_STORAGE_PATH=/app/documents
+
+# Install Poetry and dependencies
+RUN pip install --upgrade pip \
+    && pip install poetry \
+    && poetry config virtualenvs.create false \
+    && poetry install --without dev
+
+# Expose the application port
+EXPOSE 8000
+
+# Switch to the non-root user
+USER appuser
+
+# Set the entrypoint
+ENTRYPOINT ["/bin/bash", "entrypoint.sh"]

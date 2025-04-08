@@ -2,4 +2,6 @@ class C:
     """
     API constants
     """
-    API_PREFIX = '/api'
+    TITLE='Sargasso - API'
+    PROJECT_VERSION='0.0.1'
+    URL_PREFIX = '/api'

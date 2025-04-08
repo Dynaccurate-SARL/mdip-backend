@@ -12,7 +12,7 @@ from src.application.use_cases.auth.api_authorization import ApiAuthorizationUse
 from src.utils.exc import UnauthorizedAccessError
 
 
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl=f'{C.API_PREFIX}/docs/jwt')
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl=f'{C.URL_PREFIX}/docs/jwt')
 
 
 async def manager(

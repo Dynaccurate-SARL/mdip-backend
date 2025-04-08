@@ -1,5 +1,6 @@
 [tool.poetry]
-name = "blockchain-back"
+name = "sargasso-api"
+package-mode = false
 version = "0.1.0"
 description = ""
 authors = ["Luis Soares <luisedu.soares@dynaccurate.com>"]

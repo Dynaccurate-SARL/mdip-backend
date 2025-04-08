@@ -18,20 +18,22 @@ def create_app() -> FastAPI:
 
     # Application core
     application = FastAPI(
-        title='Sargasso - API',
-        version='0.0.1',
+        title=C.TITLE,
+        version=C.PROJECT_VERSION,
         # Docs prefix
-        redoc_url=C.API_PREFIX + '/redoc',
-        docs_url=C.API_PREFIX + '/docs',
-        openapi_url=C.API_PREFIX + '/docs/openapi.json',
+        redoc_url=C.URL_PREFIX + '/redoc',
+        docs_url=C.URL_PREFIX + '/docs',
+        openapi_url=C.URL_PREFIX + '/docs/openapi.json',
         lifespan=__lifespan,
     )
+    config = get_config()
+    application.state.config = config
     application.add_middleware(
         CORSMiddleware,
         allow_credentials=True,
-        allow_origins=get_config().CORS_ORIGINS,
-        allow_methods=get_config().CORS_METHODS,
-        allow_headers=get_config().CORS_HEADERS,
+        allow_origins=config.CORS_ORIGINS,
+        allow_methods=config.CORS_METHODS,
+        allow_headers=config.CORS_HEADERS,
         expose_headers=['X-Reason', 'X-Request-ID'],
     )
 

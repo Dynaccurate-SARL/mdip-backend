@@ -9,10 +9,10 @@ from src.presentation.routes.drug_catalog import drug_catalog_router
 
 def register_api_routes(app: FastAPI):
     app.include_router(health_router, include_in_schema=False,
-                       prefix=f'{C.API_PREFIX}/health')
+                       prefix=f'{C.URL_PREFIX}/health')
     app.include_router(auth_router, tags=['Authentication'],
-                       prefix=C.API_PREFIX)
+                       prefix=C.URL_PREFIX)
     app.include_router(user_router, tags=['User'],
-                       prefix=C.API_PREFIX)
+                       prefix=C.URL_PREFIX)
     app.include_router(drug_catalog_router, tags=['Drug Catalog'],
-                       prefix=C.API_PREFIX)
+                       prefix=C.URL_PREFIX)
