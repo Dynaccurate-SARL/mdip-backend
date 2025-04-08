@@ -1,4 +1,4 @@
-from sqlalchemy import select
+from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.domain.entities.drug_catalog import DrugCatalog
@@ -18,12 +18,12 @@ class IDrugCatalogRepository(DrugCatalogRepositoryInterface):
 
     async def get_by_id(self, drug_catalog_id: int):
         statement = select(DrugCatalog).where(
-            DrugCatalog.id == drug_catalog_id)
+            DrugCatalog._id == drug_catalog_id)
         result = await self.session.execute(statement)
-        return result.scalar_one_or_none()
+        return result.scalars().one_or_none()
 
     async def get_total_count(self, name_filter: str = None) -> int:
-        count_statement = select(DrugCatalog).count()
+        count_statement = select(func.count(DrugCatalog._id))
         if name_filter:
             count_statement = count_statement.where(
                 DrugCatalog.name.ilike(f"%{name_filter}%"))

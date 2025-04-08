@@ -16,6 +16,9 @@ CountryCode = Literal[
     "UA", "AE", "GB", "US", "UY", "VE", "VN", "YE", "ZW"
 ]
 
+Status = Literal['created', 'processing', 'completed']
+
+
 class DrugCatalogCreateDto(BaseSchema):
     name: str
     country: CountryCode
@@ -23,11 +26,27 @@ class DrugCatalogCreateDto(BaseSchema):
     notes: str
     file: UploadFile
 
+
 class DrugCatalogCreatedDto(BaseSchema):
-    id: int
+    id: str
     name: str
     country: CountryCode
     version: str
     notes: str
-    status: str
+    status: Status
     transaction_id: str = ''
+
+
+class DrugCatalogDto(BaseSchema):
+    id: str
+    name: str
+    country: CountryCode
+    version: str
+    notes: str
+    status: Status
+
+class DrugCatalogPaginatedDto(BaseSchema):
+    data: list[DrugCatalogDto]
+    page: int
+    limit: int
+    total: int

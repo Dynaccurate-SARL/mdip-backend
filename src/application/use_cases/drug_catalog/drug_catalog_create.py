@@ -27,8 +27,10 @@ class DrugCatalogCreateUseCase:
 
         # Send the drug catalog to the ledger
         transaction_data = TransactionData(
+            # Entity transacton reference
             entity_name=DrugCatalog,
-            entity_id=drug_catalog.id,
+            entity_id=drug_catalog._id,
+            # Data that is sent to the ledger
             status='created',
             filename=data.file.filename,
             file_checksum=file_checksum(data.file),

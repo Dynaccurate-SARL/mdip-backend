@@ -1,11 +1,13 @@
 import uuid
 from typing import Annotated
-from fastapi import APIRouter, Depends, status
+from fastapi import APIRouter, Depends, HTTPException, Query, status
 from fastapi import Form, UploadFile, File
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.application.dto.drug_catalog_dto import (
-    CountryCode, DrugCatalogCreateDto, DrugCatalogCreatedDto)
+    CountryCode, DrugCatalogCreateDto, DrugCatalogCreatedDto, DrugCatalogDto, DrugCatalogPaginatedDto)
+from src.application.use_cases.drug_catalog.get_drug_catalog_by_id import GetDrugCatalogByIdUseCase
+from src.application.use_cases.drug_catalog.get_paginated_drug_catalog import GetPaginatedDrugCatalogUseCase
 from src.config.settings import get_config
 from src.domain.entities.user import User
 from src.domain.services.auth_service import manager
@@ -21,7 +23,43 @@ from src.infrastructure.services.confidential_ledger import get_confidential_led
 drug_catalog_router = APIRouter()
 
 
-@drug_catalog_router.post("/drugs/catalog",
+@drug_catalog_router.get("/drugs/catalogs/{catalog_id}",
+                         status_code=status.HTTP_200_OK,
+                         response_model=DrugCatalogDto)
+async def get_catalog_by_id(
+        session: Annotated[AsyncSession, Depends(get_session)],
+        catalog_id: str):
+    # Prepare the repository
+    drug_catalog_repository = IDrugCatalogRepository(session)
+
+    # Fetch the catalog by ID
+    use_case = GetDrugCatalogByIdUseCase(drug_catalog_repository)
+    drug_catalog = await use_case.execute(int(catalog_id))
+    if not drug_catalog:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Drug catalog not found"
+        )
+    return drug_catalog
+
+
+@drug_catalog_router.get("/drugs/catalogs",
+                         status_code=status.HTTP_200_OK,
+                         response_model=DrugCatalogPaginatedDto)
+async def get_catalogs(
+        session: Annotated[AsyncSession, Depends(get_session)],
+        page: Annotated[int | None, Query(gt=0, example=1)] = 1,
+        page_size: Annotated[int | None, Query(gt=0, example=10)] = 10,
+        name: Annotated[str | None, Query(...)] = ''):
+    # Prepare the repository
+    drug_catalog_repository = IDrugCatalogRepository(session)
+
+    # Fetch paginated catalogs
+    use_case = GetPaginatedDrugCatalogUseCase(drug_catalog_repository)
+    return await use_case.execute(page | 1, page_size, name)
+
+
+@drug_catalog_router.post("/drugs/catalogs",
                           status_code=status.HTTP_201_CREATED,
                           response_model=DrugCatalogCreatedDto)
 async def create_catalog(
@@ -44,7 +82,7 @@ async def create_catalog(
     if get_config().UPLOAD_STRATEGY == "DISK":
         DiskFileService(get_config().DOCUMENTS_STORAGE_PATH).upload_file(
             file.filename, file.file.read())
-        
+
     # Prepare the repository and service for the use case
     drug_catalog_repository = IDrugCatalogRepository(session)
     lt_repository = ILedgerTransactionRepository(session)
@@ -67,6 +105,6 @@ async def create_catalog(
         file=file
     )
     drug_catalog = await drug_catalog_use_case.execute(data)
-    
+
     # TODO: Create celery task to parse and insert data
     return drug_catalog

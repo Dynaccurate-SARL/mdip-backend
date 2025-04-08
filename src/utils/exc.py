@@ -50,7 +50,9 @@ class ForeignKeyResourseNotFound(BaseSystemException):
 
 
 class ResourseNotFound(BaseSystemException):
-    pass
+    def __init__(self, message: str):
+        self.message = message
+        self.reason = ErrorCodes.ENTITY_NOT_FOUND
 
 
 class ConflictErrorCode(BaseSystemException):
