@@ -24,11 +24,11 @@ stages:
           - task: Docker@2
             displayName: Build and push an image to container registry
             inputs:
-              containerRegistry: '$(dockerRegistryServiceConnection)'
-              repository: '$(imageRepository)'
-              command: 'buildAndPush'
-              Dockerfile: '$(Build.SourcesDirectory)/docker/dockerfile'
-              buildContext: '$(Build.SourcesDirectory)'
+              containerRegistry: "$(dockerRegistryServiceConnection)"
+              repository: "$(imageRepository)"
+              command: "buildAndPush"
+              Dockerfile: "$(Build.SourcesDirectory)/docker/dockerfile"
+              buildContext: "$(Build.SourcesDirectory)"
               tags: |
                 $(tag)
                 latest
@@ -40,7 +40,7 @@ stages:
         displayName: Deploy
         pool: Azure Pipelines
         timeoutInMinutes: 5
-        environment: '$(devopsEnvironment)'
+        environment: "$(devopsEnvironment)"
         strategy:
           runOnce:
             deploy:
@@ -48,12 +48,11 @@ stages:
                 - checkout: self
                 - task: KubernetesManifest@1
                   inputs:
-                    action: 'patch'
-                    connectionType: 'kubernetesServiceConnection'
-                    kubernetesServiceConnection: '$(kubernetesServiceConnection)'
-                    namespace: '$(namespace)'
-                    kind: 'Deployment'
-                    name: 'sargasso-api-dev'
-                    rolloutStatusTimeout: '300'
-                    containers: |
-                      sargasso-api-dev=$(containerRegistry)/$(imageRepository):$(tag)
+                    action: "patch"
+                    kind: "Deployment"
+                    name: "sargasso-api-dev"
+                    namespace: "$(namespace)"
+                    connectionType: "kubernetesServiceConnection"
+                    kubernetesServiceConnection: "$(kubernetesServiceConnection)"
+                    mergeStrategy: strategic
+                    patch: '{"spec":{"template":{"spec":{"containers":[{"name":"sargasso-api-dev","image":"$(containerRegistry)/$(imageRepository):$(tag)"}]}}}}'
