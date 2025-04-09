@@ -48,7 +48,7 @@ stages:
                 - checkout: self
                 - task: KubernetesManifest@1
                   inputs:
-                    action: 'updateImage'
+                    action: 'patch'
                     connectionType: 'kubernetesServiceConnection'
                     kubernetesServiceConnection: '$(kubernetesServiceConnection)'
                     namespace: '$(namespace)'
