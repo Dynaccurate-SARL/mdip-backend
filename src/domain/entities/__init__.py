@@ -17,7 +17,7 @@ def generate_snowflake_id() -> int:
     return next(snowflake_gen)
 
 
-class BigIdMixin:
+class IdMixin:
     _id: Mapped[int] = mapped_column(
         "id", sq.BigInteger, primary_key=True, nullable=False,
         default=generate_snowflake_id)

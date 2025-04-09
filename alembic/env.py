@@ -3,9 +3,9 @@ from src.config.settings import get_config
 from src.infrastructure.repositories.contract import *
 from src.domain.entities import Base
 from src.domain.entities.user import User
-# from src.domain.entities.drug import Drug
+from src.domain.entities.drug import Drug
 from src.domain.entities.drug_catalog import DrugCatalog
-# from src.domain.entities.drug_mappings import DrugMapping
+from src.domain.entities.drug_mapping import DrugMapping
 from src.domain.entities.ledger_transaction import LedgerTransaction
 from logging.config import fileConfig
 
