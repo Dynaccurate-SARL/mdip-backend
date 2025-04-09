@@ -47,12 +47,13 @@ stages:
               steps:
                 - checkout: self
                 - task: KubernetesManifest@1
-                  displayName: Deploy
                   inputs:
-                    action: 'deploy'
+                    action: 'updateImage'
                     connectionType: 'kubernetesServiceConnection'
                     kubernetesServiceConnection: '$(kubernetesServiceConnection)'
                     namespace: '$(namespace)'
-                    manifests: '$(manifestsPath)'
-                    containers: '$(containerRegistry)/$(imageRepository):$(tag)'
+                    kind: 'Deployment'
+                    name: 'sargasso-api-dev'
                     rolloutStatusTimeout: '300'
+                    containers: |
+                      sargasso-api-dev=$(containerRegistry)/$(imageRepository):$(tag)
