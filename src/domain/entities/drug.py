@@ -2,7 +2,7 @@ import sqlalchemy as sq
 from sqlalchemy.orm import Mapped
 from sqlalchemy.orm import mapped_column
 
-from src.domain.entities import Base, IdMixin
+from src.infrastructure.db.base import Base, IdMixin
 
 
 class Drug(IdMixin, Base):
