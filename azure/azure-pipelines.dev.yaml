@@ -1,0 +1,58 @@
+trigger:
+  - develop
+
+resources:
+  - repo: self
+
+variables:
+  # Image tag
+  tag: "$(Build.BuildId)"
+  # Agent VM image name
+  vmImageName: "ubuntu-latest"
+  # Kubernets manifests path
+  manifestsPath: "$(Build.SourcesDirectory)/azure/k8s/dev/k8s.yaml"
+  namespace: "sargasso-dev"
+
+stages:
+  - stage: Build
+    displayName: Building Container Image
+    jobs:
+      - job: Build
+        pool:
+          vmImage: $(vmImageName)
+        steps:
+          - task: Docker@2
+            displayName: Build and push an image to container registry
+            inputs:
+              containerRegistry: '$(dockerRegistryServiceConnection)'
+              repository: '$(imageRepository)'
+              command: 'buildAndPush'
+              Dockerfile: '$(Build.SourcesDirectory)/docker/dockerfile'
+              buildContext: '$(Build.SourcesDirectory)'
+              tags: |
+                $(tag)
+                latest
+
+  - stage: Deploy_Container
+    displayName: Deploy
+    jobs:
+      - deployment:
+        displayName: Deploy
+        pool: Azure Pipelines
+        timeoutInMinutes: 5
+        environment: '$(devopsEnvironment)'
+        strategy:
+          runOnce:
+            deploy:
+              steps:
+                - checkout: self
+                - task: KubernetesManifest@1
+                  displayName: Deploy
+                  inputs:
+                    action: 'deploy'
+                    connectionType: 'kubernetesServiceConnection'
+                    kubernetesServiceConnection: '$(kubernetesServiceConnection)'
+                    namespace: '$(namespace)'
+                    manifests: '$(manifestsPath)'
+                    containers: '$(containerRegistry)/$(imageRepository):$(tag)'
+                    rolloutStatusTimeout: '300'
