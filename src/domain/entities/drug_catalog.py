@@ -3,13 +3,13 @@ from typing import Literal
 from sqlalchemy.orm import Mapped
 from sqlalchemy.orm import mapped_column
 
-from src.domain.entities import BigIdMixin, Base
+from src.infrastructure.db.base import IdMixin, Base
 from src.application.dto.drug_catalog_dto import CountryCode
 
 ImportStatus = Literal['created', 'processing', 'completed']
 
 
-class DrugCatalog(BigIdMixin, Base):
+class DrugCatalog(IdMixin, Base):
     __tablename__ = 'drug_catalogs'
 
     name: Mapped[str] = mapped_column(sq.String(255), nullable=False)

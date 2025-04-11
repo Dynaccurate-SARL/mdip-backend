@@ -4,7 +4,7 @@ from pydantic import EmailStr
 from sqlalchemy.orm import Mapped
 from sqlalchemy.orm import mapped_column
 
-from src.domain.entities import Base, generate_snowflake_id
+from src.infrastructure.db.base import Base, generate_snowflake_id
 
 
 class User(Base):

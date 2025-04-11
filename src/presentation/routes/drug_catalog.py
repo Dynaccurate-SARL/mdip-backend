@@ -11,6 +11,7 @@ from src.application.use_cases.drug_catalog.get_paginated_drug_catalog import Ge
 from src.config.settings import get_config
 from src.domain.entities.user import User
 from src.domain.services.auth_service import manager
+from src.infrastructure.db.base import IdInt
 from src.infrastructure.db.engine import get_session
 from src.infrastructure.repositories.idrug_catalog_repository import IDrugCatalogRepository
 from src.infrastructure.repositories.iledger_transaction_repository import ILedgerTransactionRepository
@@ -23,18 +24,18 @@ from src.infrastructure.services.confidential_ledger import get_confidential_led
 drug_catalog_router = APIRouter()
 
 
-@drug_catalog_router.get("/drugs/catalogs/{catalog_id}",
+@drug_catalog_router.get("/catalogs/{catalog_id}",
                          status_code=status.HTTP_200_OK,
                          response_model=DrugCatalogDto)
 async def get_catalog_by_id(
         session: Annotated[AsyncSession, Depends(get_session)],
-        catalog_id: str):
+        catalog_id: IdInt):
     # Prepare the repository
     drug_catalog_repository = IDrugCatalogRepository(session)
 
     # Fetch the catalog by ID
     use_case = GetDrugCatalogByIdUseCase(drug_catalog_repository)
-    drug_catalog = await use_case.execute(int(catalog_id))
+    drug_catalog = await use_case.execute(catalog_id)
     if not drug_catalog:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
@@ -43,23 +44,23 @@ async def get_catalog_by_id(
     return drug_catalog
 
 
-@drug_catalog_router.get("/drugs/catalogs",
+@drug_catalog_router.get("/p/catalogs",
                          status_code=status.HTTP_200_OK,
                          response_model=DrugCatalogPaginatedDto)
 async def get_catalogs(
         session: Annotated[AsyncSession, Depends(get_session)],
-        page: Annotated[int | None, Query(gt=0, example=1)] = 1,
-        page_size: Annotated[int | None, Query(gt=0, example=10)] = 10,
-        name: Annotated[str | None, Query(...)] = ''):
+        page: Annotated[int, Query(gt=0, example=1)] = 1,
+        psize: Annotated[int, Query(gt=0, example=10)] = 10,
+        name: Annotated[str, Query(...)] = ''):
     # Prepare the repository
     drug_catalog_repository = IDrugCatalogRepository(session)
 
     # Fetch paginated catalogs
     use_case = GetPaginatedDrugCatalogUseCase(drug_catalog_repository)
-    return await use_case.execute(page | 1, page_size, name)
+    return await use_case.execute(page, psize, name)
 
 
-@drug_catalog_router.post("/drugs/catalogs",
+@drug_catalog_router.post("/catalogs",
                           status_code=status.HTTP_201_CREATED,
                           response_model=DrugCatalogCreatedDto)
 async def create_catalog(

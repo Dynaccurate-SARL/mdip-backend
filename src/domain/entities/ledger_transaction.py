@@ -3,7 +3,7 @@ import sqlalchemy as sq
 from typing import Dict
 from sqlalchemy.orm import Mapped, mapped_column, DeclarativeMeta
 
-from src.domain.entities import Base
+from src.infrastructure.db.base import Base
 
 
 class LedgerTransaction(Base):

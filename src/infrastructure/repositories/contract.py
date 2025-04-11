@@ -1,10 +1,11 @@
 from pydantic import EmailStr
 from sqlalchemy import Sequence
 from dataclasses import dataclass
-from typing import Generic, TypeVar
+from typing import Generic, List, TypeVar
 from abc import ABC, abstractmethod
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from src.domain.entities.drug import Drug
 from src.domain.entities.user import User
 from src.domain.entities.drug_catalog import DrugCatalog
 from src.domain.entities.ledger_transaction import (
@@ -36,7 +37,7 @@ class UserRepositoryInterface(BaseRepository):
         ...
 
     @abstractmethod
-    async def get_user_by_sub(self, sub: str) -> User | None:
+    async def get_by_sub(self, sub: str) -> User | None:
         """Get a user by their subject identifier."""
         ...
 
@@ -80,4 +81,34 @@ class LedgerTransactionRepositoryInterface(BaseRepository):
     async def get_by_transaction_id(
             self, transaction_id: int) -> LedgerTransaction | None:
         """Get a ledger transaction by its ID."""
+        ...
+
+
+class DrugRepositoryInterface(BaseRepository):
+    @abstractmethod
+    async def save(self, drug: Drug) -> Drug:
+        """Save a drug to the database."""
+        ...
+
+    @abstractmethod
+    async def get_by_id(self, id: int) -> Drug | None:
+        """Get a drug by their subject identifier."""
+        ...
+
+    @abstractmethod
+    async def get_all_like_code_or_name(self, name_or_code: str) -> List[Drug]:
+        """Get all drugs that match the given name or code."""
+        ...
+
+    @abstractmethod
+    async def get_total_count(self, drug_catalog_id: int,
+                              name_or_code_filter: str = None) -> int:
+        """Get the total count of drugs, optionally filtered by name or code."""
+        ...
+
+    @abstractmethod
+    async def get_paginated_by_catalog_id(
+            self, page: int, page_size: int, drug_catalog_id: int,
+            name_or_code_filter: str = None) -> PagedItems[Drug]:
+        """Get paginated drugs, optionally filtered by name or code."""
         ...
