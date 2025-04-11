@@ -6,7 +6,7 @@ from fastapi import APIRouter, Depends, Header, status
 from src.config.settings import get_config
 from src.utils.exc import UnauthorizedAccessError
 from src.infrastructure.db.engine import get_session
-from src.application.dto.auth_dto import LoginResponseDto, LoginDto
+from src.application.dto.auth_dto import AuthSuccessDto, AuthDto
 from src.application.use_cases.auth.user_login import UserLoginUseCase
 from src.infrastructure.repositories.iuser_repository import UserRepository
 from src.application.use_cases.auth.user_token_refresh import (
@@ -33,13 +33,13 @@ async def auth_token(
         login_use_case = UserLoginUseCase(
             user_repository, access_token_service, refresh_token_service)
         return await login_use_case.execute(
-            LoginDto(username=data.username, password=data.password))
+            AuthDto(username=data.username, password=data.password))
     except UnauthorizedAccessError as e:
         return e.as_response(status_code=status.HTTP_401_UNAUTHORIZED)
 
 
-@auth_router.post('/login', response_model=LoginResponseDto)
-async def login(data: LoginDto,
+@auth_router.post('/login', response_model=AuthSuccessDto)
+async def login(data: AuthDto,
                 session: Annotated[AsyncSession, Depends(get_session)]):
     user_repository = UserRepository(session)
     access_token_service = IAccessTokenService(get_config().JWT_SECRET)
@@ -49,7 +49,7 @@ async def login(data: LoginDto,
         login_use_case = UserLoginUseCase(
             user_repository, access_token_service, refresh_token_service)
         return await login_use_case.execute(
-            LoginDto(username=data.username, password=data.password))
+            AuthDto(username=data.username, password=data.password))
     except UnauthorizedAccessError as e:
         return e.as_response(status_code=status.HTTP_401_UNAUTHORIZED)
 

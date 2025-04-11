@@ -1,5 +1,7 @@
+from typing import Any
 import sqlalchemy as sq
 from functools import lru_cache
+from pydantic_core import core_schema
 from snowflake import SnowflakeGenerator
 from sqlalchemy.orm import Mapped, mapped_column, declarative_base
 
@@ -25,3 +27,17 @@ class IdMixin:
     @property
     def id(self) -> str:
         return str(self._id)
+
+
+class IdInt(str):
+    @classmethod
+    def validate(cls, value: Any) -> int:
+        if isinstance(value, str) and value.isdigit():
+            return int(value)
+        raise ValueError("Value must be a string representing an integer")
+
+    @classmethod
+    def __get_pydantic_core_schema__(cls, source_type: Any, handler: Any):
+        return core_schema.no_info_after_validator_function(
+            cls.validate, core_schema.str_schema()
+        )

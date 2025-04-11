@@ -23,7 +23,7 @@ class ApiAuthorizationUseCase:
         except (InvalidTokenError, ValidationError):
             raise UnauthorizedAccessError("Could not validate credentials")
 
-        user = await self.user_repository.get_user_by_sub(payload.sub)
+        user = await self.user_repository.get_by_sub(payload.sub)
         if user is None:
             raise UnauthorizedAccessError("Could not validate credentials")
 
