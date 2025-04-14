@@ -20,7 +20,7 @@ async def get_session():
     async with AsyncLocalSession() as session:
         try:
             yield session
-        except Exception as e:
+        except Exception:
             await session.rollback()
             raise
         finally:

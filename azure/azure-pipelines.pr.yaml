@@ -21,6 +21,11 @@ steps:
     displayName: "Install dependencies"
 
   - script: |
+      ruff check ./src
+    continueOnError: false
+    displayName: 'Run ruff linter'
+
+  - script: |
       task pytest
     continueOnError: false
     env:

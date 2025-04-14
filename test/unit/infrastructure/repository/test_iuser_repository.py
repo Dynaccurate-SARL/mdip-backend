@@ -2,7 +2,6 @@ import pytest
 from unittest.mock import AsyncMock
 from sqlalchemy import Result
 from sqlalchemy.ext.asyncio import AsyncSession
-from pydantic import EmailStr
 from src.domain.entities.user import User
 from src.infrastructure.repositories.iuser_repository import UserRepository
 

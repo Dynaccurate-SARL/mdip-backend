@@ -1,7 +1,7 @@
 import pytest
 from sqlalchemy import Result
 from sqlalchemy.ext.asyncio import AsyncSession
-from unittest.mock import AsyncMock, MagicMock
+from unittest.mock import AsyncMock
 
 from src.domain.entities.drug_catalog import DrugCatalog
 from src.infrastructure.repositories.iledger_transaction_repository import ILedgerTransactionRepository

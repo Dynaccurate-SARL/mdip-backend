@@ -63,5 +63,5 @@ class AzureLedger(Ledger):
             return data
         except ResourceNotFoundError:
             return None
-        except HttpResponseError as e:
+        except HttpResponseError:
             return None

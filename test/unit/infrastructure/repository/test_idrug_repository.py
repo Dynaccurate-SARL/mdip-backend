@@ -2,7 +2,6 @@ import pytest
 from unittest.mock import AsyncMock
 from sqlalchemy import Result
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.future import select
 from src.domain.entities import Drug
 from src.infrastructure.repositories.idrug_repository import IDrugRepository
 from src.infrastructure.repositories.contract import PagedItems

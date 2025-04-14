@@ -1,5 +1,4 @@
 from typing import List
-from pydantic import EmailStr
 from sqlalchemy import func
 from sqlalchemy.future import select
 from sqlalchemy.ext.asyncio import AsyncSession
