@@ -1,0 +1,45 @@
+trigger:
+- none
+
+pr:
+- '*'
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+steps:
+  - task: UsePythonVersion@0
+    inputs:
+      versionSpec: '3.11'
+      addToPath: true
+
+  - script: |
+      python -m pip install --upgrade pip
+      pip install poetry
+      poetry config virtualenvs.create false
+      poetry install
+    displayName: "Install dependencies"
+
+  - script: |
+      task pytest
+    continueOnError: false
+    env:
+      ENV: "TEST"
+    displayName: 'Run tests with coverage'
+
+  - script: |
+      python azure/inline-coverage-styles.py --path=htmlcov
+    displayName: 'Inline CSS and JS'
+
+  - task: PublishPipelineArtifact@1
+    inputs:
+      targetPath: './htmlcov'
+      artifact: 'coverage-report'
+      publishLocation: 'PytestContainer'
+    displayName: 'Publish HTML Coverage Report'
+  
+  - task: PublishCodeCoverageResults@2
+    displayName: "Publish Cobertura Coverage Report"
+    inputs:
+      summaryFileLocation: "$(System.DefaultWorkingDirectory)/coverage.xml"
+      failIfCoverageEmpty: true

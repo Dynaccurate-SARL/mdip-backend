@@ -1,3 +1,4 @@
+from typing import List
 from pydantic import EmailStr
 from sqlalchemy import func
 from sqlalchemy.future import select
@@ -23,7 +24,7 @@ class IDrugRepository(DrugRepositoryInterface):
         drug = result.scalar_one_or_none()
         return drug
 
-    async def get_all_like_code_or_name(self, name_or_code: str) -> Drug | None:
+    async def get_all_like_code_or_name(self, name_or_code: str) -> List[Drug]:
         query = select(Drug).where(
             (Drug.drug_name.ilike(f"%{name_or_code}%")) |
             (Drug.drug_code.ilike(f"%{name_or_code}%")))

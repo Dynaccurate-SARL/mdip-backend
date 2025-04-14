@@ -21,7 +21,7 @@ class Drug(IdMixin, Base):
 
     def __init__(self, catalog_id: int, drug_code: str,
                  drug_name: str, properties: dict):
-        self.catalog_id = catalog_id
+        self._catalog_id = catalog_id
         self.drug_code = drug_code
         self.drug_name = drug_name
         self.properties = properties
