@@ -11,11 +11,11 @@ class AzureFileService:
     def __init__(self, container_name: str, storage_connection_string: str):
         blob_service_client = BlobServiceClient.from_connection_string(
             storage_connection_string)
-        self.container_client = blob_service_client.get_container_client(
+        self._container_client = blob_service_client.get_container_client(
             container_name)
 
     def upload_file(self, name: str, file_data: FileData):
-        self.container_client.upload_blob(
+        self._container_client.upload_blob(
             name, data=file_data, overwrite=True)
         log.info(f"File uploaded to azure: {name}")
 
@@ -25,11 +25,11 @@ class AzureFileService:
         file_path = os.path.join(temp_dir, name)
         with open(file_path, mode="wb") as download_file:
             download_file.write(
-                self.container_client.download_blob(name).readall())
+                self._container_client.download_blob(name).readall())
         return file_path
 
     def delete_file(self, name: str):
         try:
-            self.container_client.delete_blob(name)
+            self._container_client.delete_blob(name)
         except Exception as e:
             log.error(f"Error deleting file from Azure: {name}. Error: {e}")

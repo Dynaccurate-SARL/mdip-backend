@@ -1,5 +1,6 @@
 from os import getenv
 from functools import lru_cache
+from typing import Literal
 from pydantic_settings import BaseSettings
 
 from src.config.settings.base import BaseEnvs
@@ -12,8 +13,8 @@ class Envs(LedgerEnvs, BlobEnvs, BaseEnvs, BaseSettings):
 
 
 @lru_cache
-def get_config() -> Envs:
-    if getenv('ENV') == 'TEST':
+def get_config(env: Literal['TEST'] | None = getenv('ENV', None)) -> Envs:
+    if env == 'TEST':
         return Envs(
             DATABASE_URL='',
             UPLOAD_STRATEGY='DISK',

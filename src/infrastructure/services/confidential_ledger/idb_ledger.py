@@ -1,3 +1,6 @@
+'''
+This is a fake blockchain ledger supposed to only be used in development environment
+'''
 import json
 import uuid
 from src.domain.entities.ledger_transaction import LedgerTransaction

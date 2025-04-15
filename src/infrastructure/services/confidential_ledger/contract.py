@@ -8,8 +8,8 @@ from src.application.dto import BaseSchema
 
 class TransactionInserted(BaseSchema):
     status: Literal['ready', 'processing']
-    transaction_id: str
-    content: dict
+    transaction_id: str | None = None
+    content: dict | None = None
 
 class TransactionData(BaseSchema):
     # Entity transacton reference
