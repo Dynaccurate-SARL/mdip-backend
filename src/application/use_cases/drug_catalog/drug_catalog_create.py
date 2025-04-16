@@ -3,8 +3,10 @@ from src.application.dto.drug_catalog_dto import (
 from src.domain.entities.drug_catalog import DrugCatalog
 from src.infrastructure.repositories.contract import (
     DrugCatalogRepositoryInterface)
-from src.infrastructure.services.confidential_ledger.contract import Ledger, TransactionData
+from src.infrastructure.services.confidential_ledger.contract import (
+    Ledger, TransactionData)
 from src.utils.checksum import dict_hash, file_checksum
+from src.utils.exc import ConflictErrorCode
 
 
 class DrugCatalogCreateUseCase:
@@ -16,12 +18,20 @@ class DrugCatalogCreateUseCase:
 
     async def execute(
             self, data: DrugCatalogCreateDto) -> DrugCatalogCreatedDto:
+        if data.is_central:
+            # Check if the central drug catalog already exists
+            has_central = await self.drug_catalog_repository.\
+                exists_central_catalog()
+            if has_central:
+                raise ConflictErrorCode('Central drug catalog already exists.')
+
         # Create the drug catalog
         drug_catalog = DrugCatalog(
             name=data.name,
             country=data.country,
             version=data.version,
             notes=data.notes,
+            is_central=data.is_central
         )
         drug_catalog = await self.drug_catalog_repository.save(drug_catalog)
 
@@ -40,6 +50,7 @@ class DrugCatalogCreateUseCase:
                 'country': drug_catalog.country,
                 'version': drug_catalog.version,
                 'notes': drug_catalog.notes,
+                'is_central': drug_catalog.is_central,
             })
         )
         transaction = await self.ledger_service.insert_transaction(

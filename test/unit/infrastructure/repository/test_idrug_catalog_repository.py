@@ -69,6 +69,22 @@ async def test_get_total_count():
 
 
 @pytest.mark.asyncio
+async def test_exists_central_catalog():
+    # Arrange
+    mock_session = AsyncMock(spec=AsyncSession)
+    mock_session.scalar.return_value = 1
+
+    repository = IDrugCatalogRepository(mock_session)
+    
+    # Act
+    result = await repository.exists_central_catalog()
+
+    # Assert
+    mock_session.scalar.assert_called_once()
+    assert result == 1
+
+
+@pytest.mark.asyncio
 async def test_get_paginated():
     # Arrange
     mock_execute_result = AsyncMock(spec=Result)

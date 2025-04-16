@@ -7,8 +7,8 @@ class ErrorCodes(str, Enum):
     UNAUTHORIZED = 'UNAUTHORIZED'
     NOT_FOUND = 'NOT_FOUND'
     ENTITY_NOT_FOUND = 'ENTITY_NOT_FOUND'
-    DATA_EXISTS = 'DATA_EXISTS'
     NAME_ALREADY_IN_USE = 'NAME_ALREADY_IN_USE'
+    CENTRAL_CATALOG_ALREADY_EXISTS = 'CENTRAL_CATALOG_ALREADY_EXISTS'
     RESOURCE_STILL_PROCESSING = 'RESOURCE_STILL_PROCESSING'
     LEDGER_ERROR = 'LEDGER_ERROR'
 
@@ -56,7 +56,9 @@ class ResourseNotFound(BaseSystemException):
 
 
 class ConflictErrorCode(BaseSystemException):
-    pass
+    def __init__(self, message: str):
+        self.message = message
+        self.reason = ErrorCodes.CENTRAL_CATALOG_ALREADY_EXISTS
 
 
 class ResourceAlreadyExists(BaseSystemException):
