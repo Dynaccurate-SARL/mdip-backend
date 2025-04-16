@@ -17,17 +17,23 @@ class IDrugCatalogRepository(DrugCatalogRepositoryInterface):
         return drug_catalog
 
     async def get_by_id(self, drug_catalog_id: int):
-        statement = select(DrugCatalog).where(
+        stmt = select(DrugCatalog).where(
             DrugCatalog._id == drug_catalog_id)
-        result = await self.session.execute(statement)
+        result = await self.session.execute(stmt)
         return result.scalars().one_or_none()
 
+    async def exists_central_catalog(self) -> bool:
+        stmt = select(func.count(DrugCatalog._id)).where(
+            DrugCatalog.is_central.is_(True))
+        result = await self.session.scalar(stmt)
+        return result > 0
+
     async def get_total_count(self, name_filter: str = None) -> int:
-        count_statement = select(func.count(DrugCatalog._id))
+        count_stmt = select(func.count(DrugCatalog._id))
         if name_filter:
-            count_statement = count_statement.where(
+            count_stmt = count_stmt.where(
                 DrugCatalog.name.ilike(f"%{name_filter}%"))
-        return await self.session.scalar(count_statement)
+        return await self.session.scalar(count_stmt)
 
     async def get_paginated(self, page: int, page_size: int,
                             name_filter: str = None):

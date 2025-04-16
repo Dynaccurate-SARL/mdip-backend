@@ -18,10 +18,14 @@ class DrugCatalog(IdMixin, Base):
     notes: Mapped[str] = mapped_column(sq.Text, nullable=True)
     status: Mapped[ImportStatus] = mapped_column(
         sq.String(10), nullable=False, default='created')
+    is_central: Mapped[bool] = mapped_column(
+        sq.Boolean, nullable=False, default=False)
+
 
     def __init__(self, name: str, country: CountryCode,
-                 version: str, notes: str):
+                 version: str, notes: str, is_central: bool = False):
         self.name = name
         self.country = country
         self.version = version
+        self.is_central = is_central
         self.notes = notes

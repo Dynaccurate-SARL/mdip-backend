@@ -59,6 +59,11 @@ class DrugCatalogRepositoryInterface(BaseRepository):
         ...
 
     @abstractmethod
+    async def exists_central_catalog(self) -> bool:
+        """Check if a central drug catalog exists."""
+        ...
+
+    @abstractmethod
     async def get_total_count(self, name_filter: str = None) -> int:
         """Get the total count of drug catalogs, optionally filtered by name."""
         ...

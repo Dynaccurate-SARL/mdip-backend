@@ -24,6 +24,7 @@ class DrugCatalogCreateDto(BaseSchema):
     country: CountryCode
     version: str
     notes: str
+    is_central: bool
     file: UploadFile
 
 
@@ -33,6 +34,7 @@ class DrugCatalogCreatedDto(BaseSchema):
     country: CountryCode
     version: str
     notes: str
+    is_central: bool
     status: Status
     transaction_id: str = ''
 
@@ -43,6 +45,7 @@ class DrugCatalogDto(BaseSchema):
     country: CountryCode
     version: str
     notes: str
+    is_central: bool
     status: Status
 
 class DrugCatalogPaginatedDto(BaseSchema):

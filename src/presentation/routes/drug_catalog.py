@@ -19,6 +19,7 @@ from src.application.use_cases.drug_catalog.drug_catalog_create import DrugCatal
 from src.infrastructure.services.blob_storage.azure_storage import AzureFileService
 from src.infrastructure.services.blob_storage.disk_storage import DiskFileService
 from src.infrastructure.services.confidential_ledger import get_confidential_ledger
+from src.utils.exc import ConflictErrorCode
 
 
 drug_catalog_router = APIRouter()
@@ -70,6 +71,7 @@ async def create_catalog(
         country: Annotated[CountryCode, Form(examples=["US"])],
         version: Annotated[str, Form(examples=["1.0"])],
         file: Annotated[UploadFile, File(...)],
+        is_central: Annotated[bool, Form(...)] = False,
         notes: Annotated[str, Form(examples=["Initial release"])] = ''):
     # rename filename to ensure uniqueness
     file.filename = f"{str(uuid.uuid4())}_{file.filename}"
@@ -93,19 +95,23 @@ async def create_catalog(
         get_config().AZURE_LEDGER_URL, get_config().AZURE_CERTIFICATE_PATH
     )
 
-    # Create a new drug catalog entry in the database and ledger
-    drug_catalog_use_case = DrugCatalogCreateUseCase(
-        drug_catalog_repository,
-        ledger_service
-    )
-    data = DrugCatalogCreateDto(
-        name=name,
-        country=country,
-        version=version,
-        notes=notes,
-        file=file
-    )
-    drug_catalog = await drug_catalog_use_case.execute(data)
+    try:
+        # Create a new drug catalog entry in the database and ledger
+        drug_catalog_use_case = DrugCatalogCreateUseCase(
+            drug_catalog_repository,
+            ledger_service
+        )
+        data = DrugCatalogCreateDto(
+            name=name,
+            country=country,
+            version=version,
+            notes=notes,
+            is_central=is_central,
+            file=file
+        )
+        drug_catalog = await drug_catalog_use_case.execute(data)
 
-    # TODO: Create celery task to parse and insert data
-    return drug_catalog
+        # TODO: Create background task to parse and insert data
+        return drug_catalog
+    except ConflictErrorCode as e:
+        return e.as_response(status_code=status.HTTP_409_CONFLICT)
