@@ -1,3 +1,4 @@
+import io
 import uuid
 from typing import Annotated
 from fastapi import APIRouter, Depends, HTTPException, Query, status
@@ -18,6 +19,7 @@ from src.infrastructure.repositories.iledger_transaction_repository import ILedg
 from src.application.use_cases.drug_catalog.drug_catalog_create import DrugCatalogCreateUseCase
 from src.infrastructure.services.blob_storage.azure_storage import AzureFileService
 from src.infrastructure.services.blob_storage.disk_storage import DiskFileService
+from src.infrastructure.services.catalog_parser.ieu import EU_Parser
 from src.infrastructure.services.confidential_ledger import get_confidential_ledger
 from src.utils.exc import ConflictErrorCode
 
@@ -73,6 +75,10 @@ async def create_catalog(
         file: Annotated[UploadFile, File(...)],
         is_central: Annotated[bool, Form(...)] = False,
         notes: Annotated[str, Form(examples=["Initial release"])] = ''):
+    
+    file_bytes = await file.read()
+    eu_parser = EU_Parser(io.BytesIO(file_bytes))
+
     # rename filename to ensure uniqueness
     file.filename = f"{str(uuid.uuid4())}_{file.filename}"
 
@@ -111,7 +117,10 @@ async def create_catalog(
         )
         drug_catalog = await drug_catalog_use_case.execute(data)
 
-        # TODO: Create background task to parse and insert data
+        # TODO: Move this to a background task
+        eu_parser.parse()
+        await eu_parser.save_all(session, int(drug_catalog.id))
+
         return drug_catalog
     except ConflictErrorCode as e:
         return e.as_response(status_code=status.HTTP_409_CONFLICT)
