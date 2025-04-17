@@ -1,5 +1,3 @@
-import os
-from typing import Literal
 from pydantic import model_validator
 
 from src.config.settings.base import BaseEnvs

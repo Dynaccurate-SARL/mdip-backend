@@ -12,7 +12,7 @@ class EU_Parser(Parser):
             required_columns = ["ProductNumber", "ProductName"]
             if not all([col in self._df.columns for col in required_columns]):
                 raise InvalidFileFormat()
-        except:
+        except Exception:
             raise InvalidFileFormat("Invalid file format or missing required columns")
 
     def parse(self):
