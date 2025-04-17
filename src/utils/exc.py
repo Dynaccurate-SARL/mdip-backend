@@ -4,6 +4,7 @@ from fastapi.responses import JSONResponse
 
 
 class ErrorCodes(str, Enum):
+    UNKNOWN = 'UNKNOWN'
     UNAUTHORIZED = 'UNAUTHORIZED'
     NOT_FOUND = 'NOT_FOUND'
     ENTITY_NOT_FOUND = 'ENTITY_NOT_FOUND'

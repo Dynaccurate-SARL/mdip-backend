@@ -1,5 +1,5 @@
 import io
-from typing import List
+from typing import List, NoReturn
 import pandas as pd
 import sqlalchemy as sq
 from abc import ABC, abstractmethod
@@ -18,11 +18,15 @@ class PandasParser(ABC):
 
     @abstractmethod
     def _open(self) -> pd.DataFrame:
-        raise NotImplementedError("This is an abstract method")
+        raise NotImplemented("This is an abstract method")
 
     @abstractmethod
     def _required_columns(self) -> List[str]:
-        raise NotImplementedError("This is an abstract method")
+        raise NotImplemented("This is an abstract method")
+
+    @abstractmethod
+    def parse(self) -> NoReturn:
+        raise NotImplemented("This is an abstract method")
     
     def _open_and_validate(self):
         try:

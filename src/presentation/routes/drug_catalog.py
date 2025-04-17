@@ -1,7 +1,7 @@
 import io
 import uuid
 from typing import Annotated
-from fastapi import APIRouter, Depends, HTTPException, Query, status
+from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, Query, status
 from fastapi import Form, UploadFile, File
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -19,7 +19,9 @@ from src.infrastructure.repositories.iledger_transaction_repository import ILedg
 from src.application.use_cases.drug_catalog.drug_catalog_create import DrugCatalogCreateUseCase
 from src.infrastructure.services.blob_storage.azure_storage import AzureFileService
 from src.infrastructure.services.blob_storage.disk_storage import DiskFileService
-from src.infrastructure.services.pandas_parser.drug.impl.ieu import EU_Parser
+from src.infrastructure.services.pandas_parser.drug.contract import PandasParser
+from src.infrastructure.services.pandas_parser.drug.exc import InvalidFileFormat
+from src.infrastructure.services.pandas_parser.drug.impl import drug_parser_factory
 from src.infrastructure.services.confidential_ledger import get_confidential_ledger
 from src.utils.exc import ConflictErrorCode
 
@@ -63,10 +65,19 @@ async def get_catalogs(
     return await use_case.execute(page, psize, name)
 
 
+async def parse_task(
+        parser: PandasParser, catalog_id: int, session: AsyncSession):
+    # TODO: Ledger transaction: processing
+    parser.parse()
+    await parser.save_all(session, catalog_id)
+    # TODO: Ledger transaction: completed
+
+
 @drug_catalog_router.post("/catalogs",
                           status_code=status.HTTP_201_CREATED,
                           response_model=DrugCatalogCreatedDto)
 async def create_catalog(
+        background_tasks: BackgroundTasks,
         user: Annotated[User, Depends(manager)],
         session: Annotated[AsyncSession, Depends(get_session)],
         name: Annotated[str, Form(examples=["Pharmaceutical Catalog"])],
@@ -75,9 +86,11 @@ async def create_catalog(
         file: Annotated[UploadFile, File(...)],
         is_central: Annotated[bool, Form(...)] = False,
         notes: Annotated[str, Form(examples=["Initial release"])] = ''):
-
-    file_bytes = await file.read()
-    eu_parser = EU_Parser(io.BytesIO(file_bytes))
+    try:
+        file_bytes = await file.read()
+        parser = drug_parser_factory(country, file_bytes)
+    except InvalidFileFormat as err:
+        return err.as_response(status_code=status.HTTP_400_BAD_REQUEST)
 
     # rename filename to ensure uniqueness
     file.filename = f"{str(uuid.uuid4())}_{file.filename}"
@@ -117,9 +130,12 @@ async def create_catalog(
         )
         drug_catalog = await drug_catalog_use_case.execute(data)
 
-        # TODO: Move this to a background task
-        eu_parser.parse()
-        await eu_parser.save_all(session, int(drug_catalog.id))
+        background_tasks.add_task(
+            parse_task,
+            parser=parser,
+            catalog_id=int(drug_catalog.id),
+            session=session
+        )
 
         return drug_catalog
     except ConflictErrorCode as e:
