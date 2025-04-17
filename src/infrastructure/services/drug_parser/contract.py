@@ -5,10 +5,8 @@ from abc import ABC, abstractmethod
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.infrastructure.db.base import generate_snowflake_id
-
-
-class MissingPreExecutionError(Exception):
-    ...
+from src.infrastructure.services.drug_parser.exc import (
+    InvalidParsedData, MissingPreExecutionError)
 
 
 class Parser(ABC):
@@ -18,8 +16,8 @@ class Parser(ABC):
         self._open_and_validate()
 
     @abstractmethod
-    def _open_and_validate(self) -> bool:
-        """Raise ValueError if the file is not valid or if it is missing a required field."""
+    def _open_and_validate(self):
+        """Raise InvalidFileFormat if the file is not valid or if it is missing a required field."""
         ...
 
     @abstractmethod
@@ -31,12 +29,16 @@ class Parser(ABC):
             raise MissingPreExecutionError(
                 "parse() must be called before insert()")
 
+        required_columns = ["drug_name", "drug_code", "properties"]
+        if not all([col in self._df.columns for col in required_columns]):
+            raise InvalidParsedData("Invalid dataframe columns")
+
         if not all([
             self._df['drug_name'].apply(lambda x: isinstance(x, str)).all(),
             self._df['drug_code'].apply(lambda x: isinstance(x, str)).all(),
             self._df['properties'].apply(lambda x: isinstance(x, dict)).all(),
         ]):
-            raise ValueError("Invalid data types in dataframe")
+            raise InvalidParsedData("Invalid data types in dataframe")
 
         self._df["catalog_id"] = catalog_id
         self._df['id'] = self._df.apply(

@@ -19,7 +19,7 @@ from src.infrastructure.repositories.iledger_transaction_repository import ILedg
 from src.application.use_cases.drug_catalog.drug_catalog_create import DrugCatalogCreateUseCase
 from src.infrastructure.services.blob_storage.azure_storage import AzureFileService
 from src.infrastructure.services.blob_storage.disk_storage import DiskFileService
-from src.infrastructure.services.catalog_parser.ieu import EU_Parser
+from src.infrastructure.services.drug_parser.impl.ieu import EU_Parser
 from src.infrastructure.services.confidential_ledger import get_confidential_ledger
 from src.utils.exc import ConflictErrorCode
 
@@ -75,7 +75,7 @@ async def create_catalog(
         file: Annotated[UploadFile, File(...)],
         is_central: Annotated[bool, Form(...)] = False,
         notes: Annotated[str, Form(examples=["Initial release"])] = ''):
-    
+
     file_bytes = await file.read()
     eu_parser = EU_Parser(io.BytesIO(file_bytes))
 
@@ -96,9 +96,9 @@ async def create_catalog(
     drug_catalog_repository = IDrugCatalogRepository(session)
     lt_repository = ILedgerTransactionRepository(session)
     ledger_service = get_confidential_ledger(
-        get_config().LEDGER_STRATEGY,
         lt_repository,
-        get_config().AZURE_LEDGER_URL, get_config().AZURE_CERTIFICATE_PATH
+        get_config().AZURE_LEDGER_URL,
+        get_config().AZURE_CERTIFICATE_PATH
     )
 
     try:

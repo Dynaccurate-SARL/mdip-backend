@@ -1,7 +1,7 @@
-import io
 import pandas as pd
 
-from src.infrastructure.services.catalog_parser.contract import Parser
+from src.infrastructure.services.drug_parser.contract import Parser
+from src.infrastructure.services.drug_parser.exc import InvalidFileFormat
 
 
 class EU_Parser(Parser):
@@ -10,10 +10,10 @@ class EU_Parser(Parser):
             self._df = pd.read_excel(self._file, engine='openpyxl', skiprows=4)
 
             required_columns = ["ProductNumber", "ProductName"]
-            if not all(col in self._df.columns for col in required_columns):
-                raise ValueError()
+            if not all([col in self._df.columns for col in required_columns]):
+                raise InvalidFileFormat()
         except:
-            raise ValueError("Invalid file format or missing required columns")
+            raise InvalidFileFormat("Invalid file format or missing required columns")
 
     def parse(self):
         # Strip whitespace from column names

@@ -1,7 +1,12 @@
-from typing import List
+from typing import List, Literal
+
+
+EnvType = Literal['PROD', 'DEV', 'TEST']
 
 
 class BaseEnvs:
+    ENVIRONMENT: EnvType = 'PROD'
+
     CORS_ORIGINS: List[str] = ['*']
     CORS_HEADERS: List[str] = ['*']
     CORS_METHODS: List[str] = ['*']
