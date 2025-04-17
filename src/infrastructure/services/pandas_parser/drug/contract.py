@@ -18,15 +18,15 @@ class PandasParser(ABC):
 
     @abstractmethod
     def _open(self) -> pd.DataFrame:
-        raise NotImplemented("This is an abstract method")
+        raise NotImplementedError("This is an abstract method")
 
     @abstractmethod
     def _required_columns(self) -> List[str]:
-        raise NotImplemented("This is an abstract method")
+        raise NotImplementedError("This is an abstract method")
 
     @abstractmethod
     def parse(self) -> NoReturn:
-        raise NotImplemented("This is an abstract method")
+        raise NotImplementedError("This is an abstract method")
     
     def _open_and_validate(self):
         try:
