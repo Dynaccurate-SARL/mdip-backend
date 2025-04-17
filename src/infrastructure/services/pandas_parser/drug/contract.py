@@ -1,28 +1,38 @@
+import io
+from typing import List
 import pandas as pd
 import sqlalchemy as sq
-from io import BytesIO
 from abc import ABC, abstractmethod
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.infrastructure.db.base import generate_snowflake_id
-from src.infrastructure.services.drug_parser.exc import (
-    InvalidParsedData, MissingPreExecutionError)
+from src.infrastructure.services.pandas_parser.drug.exc import (
+    InvalidFileFormat, InvalidParsedData, MissingPreExecutionError)
 
 
-class Parser(ABC):
-    def __init__(self, file: BytesIO):
-        self._file: BytesIO = file
+class PandasParser(ABC):
+    def __init__(self, file: io.BytesIO):
+        self._file: io.BytesIO = file
         self._df: pd.DataFrame | None = None
         self._open_and_validate()
 
     @abstractmethod
-    def _open_and_validate(self):
-        """Raise InvalidFileFormat if the file is not valid or if it is missing a required field."""
-        ...
+    def _open(self) -> pd.DataFrame:
+        raise NotImplementedError("This is an abstract method")
 
     @abstractmethod
-    def parse(self):
-        ...
+    def _required_columns(self) -> List[str]:
+        raise NotImplementedError("This is an abstract method")
+    
+    def _open_and_validate(self):
+        try:
+            self._df = self._open()
+
+            required_columns = self._required_columns()
+            if not all([col in self._df.columns for col in required_columns]):
+                raise InvalidFileFormat()
+        except Exception:
+            raise InvalidFileFormat("Invalid file format or missing required columns")
 
     async def save_all(self, session: AsyncSession, catalog_id: int):
         if self._df is None:

@@ -1,19 +1,14 @@
 import pandas as pd
 
-from src.infrastructure.services.drug_parser.contract import Parser
-from src.infrastructure.services.drug_parser.exc import InvalidFileFormat
+from src.infrastructure.services.pandas_parser.drug.contract import PandasParser
 
 
-class EU_Parser(Parser):
-    def _open_and_validate(self):
-        try:
-            self._df = pd.read_excel(self._file, engine='openpyxl', skiprows=4)
-
-            required_columns = ["ProductNumber", "ProductName"]
-            if not all([col in self._df.columns for col in required_columns]):
-                raise InvalidFileFormat()
-        except Exception:
-            raise InvalidFileFormat("Invalid file format or missing required columns")
+class EU_Parser(PandasParser):
+    def _open(self):
+        return pd.read_excel(self._file, engine='openpyxl', skiprows=4)
+    
+    def _required_columns(self):
+        return ["ProductNumber", "ProductName"]
 
     def parse(self):
         # Strip whitespace from column names

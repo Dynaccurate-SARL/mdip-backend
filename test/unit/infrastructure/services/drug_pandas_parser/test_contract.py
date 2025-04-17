@@ -3,19 +3,21 @@ import pandas as pd
 from io import BytesIO
 from unittest.mock import AsyncMock
 
-from src.infrastructure.services.drug_parser.contract import Parser
-from src.infrastructure.services.drug_parser.exc import (
+from src.infrastructure.services.pandas_parser.drug.contract import PandasParser
+from src.infrastructure.services.pandas_parser.drug.exc import (
     InvalidParsedData, MissingPreExecutionError)
 
 
-class DummyParser(Parser):
-    def _open_and_validate(self) -> bool:
-        self._df = pd.DataFrame({
+class DummyParser(PandasParser):
+    def _open(self):
+        return pd.DataFrame({
             "drug_name": ["Aspirin", "Ibuprofen"],
             "drug_code": ["ASP123", "IBU456"],
             "properties": [{"type": "tablet"}, {"type": "capsule"}]
         })
-        return True
+
+    def _required_columns(self):
+        return []
 
     def parse(self):
         pass
@@ -42,15 +44,19 @@ async def test_save_all():
     mock_connection.run_sync.assert_called_once()
     mock_session.commit.assert_called_once()
 
+# ----------------------------------------------------------------------
 
-class DummyParserInvalidParsedColumns(Parser):
-    def _open_and_validate(self) -> bool:
-        self._df = pd.DataFrame({
+
+class DummyParserInvalidParsedColumns(PandasParser):
+    def _open(self):
+        return pd.DataFrame({
             "drug_name": ["Aspirin", "Ibuprofen"],
             "drug_code": [1, 2],
             "property": ["tablet", "capsule"]
         })
-        return True
+
+    def _required_columns(self):
+        return []
 
     def parse(self):
         pass
@@ -66,15 +72,19 @@ async def test_save_all_with_invalid_parsed_columns():
     with pytest.raises(InvalidParsedData, match="Invalid dataframe columns"):
         await parser.save_all(AsyncMock(), 1)
 
+# ----------------------------------------------------------------------
 
-class DummyParserInvalidColumnsTypes(Parser):
-    def _open_and_validate(self) -> bool:
-        self._df = pd.DataFrame({
+
+class DummyParserInvalidColumnsTypes(PandasParser):
+    def _open(self):
+        return pd.DataFrame({
             "drug_name": ["Aspirin", "Ibuprofen"],
             "drug_code": [1, 2],
             "properties": ["tablet", "capsule"]
         })
-        return True
+
+    def _required_columns(self):
+        return []
 
     def parse(self):
         pass
@@ -91,10 +101,15 @@ async def test_save_all_with_invalid_data_types():
                        match="Invalid data types in dataframe"):
         await parser.save_all(AsyncMock(), 1)
 
+# ----------------------------------------------------------------------
 
-class DummyParserNone(Parser):
-    def _open_and_validate(self) -> bool:
-        self._df = None
+
+class DummyParserNone(PandasParser):
+    def _open(self):
+        return None
+
+    def _required_columns(self):
+        return []
 
     def parse(self):
         pass

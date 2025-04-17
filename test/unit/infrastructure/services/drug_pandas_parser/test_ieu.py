@@ -2,8 +2,8 @@ import io
 import pytest
 import pandas as pd
 
-from src.infrastructure.services.drug_parser.impl.ieu import EU_Parser
-from src.infrastructure.services.drug_parser.exc import (
+from src.infrastructure.services.pandas_parser.drug.impl.ieu import EU_Parser
+from src.infrastructure.services.pandas_parser.drug.exc import (
     InvalidFileFormat)
 
 

@@ -19,7 +19,7 @@ from src.infrastructure.repositories.iledger_transaction_repository import ILedg
 from src.application.use_cases.drug_catalog.drug_catalog_create import DrugCatalogCreateUseCase
 from src.infrastructure.services.blob_storage.azure_storage import AzureFileService
 from src.infrastructure.services.blob_storage.disk_storage import DiskFileService
-from src.infrastructure.services.drug_parser.impl.ieu import EU_Parser
+from src.infrastructure.services.pandas_parser.drug.impl.ieu import EU_Parser
 from src.infrastructure.services.confidential_ledger import get_confidential_ledger
 from src.utils.exc import ConflictErrorCode
 
