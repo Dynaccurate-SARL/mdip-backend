@@ -20,7 +20,7 @@ async def test_save():
     mock_session.refresh.return_value = None
 
     repository = IDrugCatalogRepository(mock_session)
-    
+
     # Act
     result = await repository.save(drug_catalog)
 
@@ -41,7 +41,7 @@ async def test_get_by_id():
     mock_session.execute.return_value = mock_execute_result
 
     repository = IDrugCatalogRepository(mock_session)
-    
+
     # Act
     result = await repository.get_by_id(1)
 
@@ -59,7 +59,7 @@ async def test_get_total_count():
     mock_session.scalar.return_value = 10
 
     repository = IDrugCatalogRepository(mock_session)
-    
+
     # Act
     result = await repository.get_total_count(name_filter="Test")
 
@@ -75,7 +75,7 @@ async def test_exists_central_catalog():
     mock_session.scalar.return_value = 1
 
     repository = IDrugCatalogRepository(mock_session)
-    
+
     # Act
     result = await repository.exists_central_catalog()
 
@@ -97,7 +97,7 @@ async def test_get_paginated():
 
     repository = IDrugCatalogRepository(mock_session)
     repository.get_total_count = mock_get_total_count
-    
+
     # Act
     result = await repository.get_paginated(
         page=1, page_size=5, name_filter="Test")

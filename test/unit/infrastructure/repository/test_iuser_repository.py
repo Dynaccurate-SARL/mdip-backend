@@ -18,7 +18,7 @@ async def test_save():
     mock_session.refresh.return_value = None
 
     repository = UserRepository(mock_session)
-    
+
     # Act
     result = await repository.save(user)
 
@@ -39,7 +39,7 @@ async def test_get_by_sub():
     mock_session.execute.return_value = mock_execute_result
 
     repository = UserRepository(mock_session)
-    
+
     # Act
     result = await repository.get_by_sub(1)
 

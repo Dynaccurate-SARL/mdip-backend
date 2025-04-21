@@ -6,6 +6,7 @@ from src.application.dto.drug_catalog_dto import DrugCatalogDto
 from src.domain.entities.drug_catalog import DrugCatalog
 from src.infrastructure.repositories.contract import DrugCatalogRepositoryInterface
 
+
 @pytest.mark.asyncio
 async def test_execute_returns_drug_catalog_dto():
     # Arrange
