@@ -10,7 +10,6 @@ from src.application.use_cases.drug_catalog.get_drug_catalog_by_id import GetDru
 from src.application.use_cases.drug_catalog.get_paginated_drug_catalog import GetPaginatedDrugCatalogUseCase
 from src.application.use_cases.drug_catalog.import_task import CatalogImportUseCase
 from src.config.settings import get_config
-from src.domain.entities.drug_catalog import DrugCatalog
 from src.domain.entities.user import User
 from src.domain.services.auth_service import manager
 from src.infrastructure.db.base import IdInt
@@ -20,8 +19,6 @@ from src.infrastructure.repositories.iledger_transaction_repository import ILedg
 from src.application.use_cases.drug_catalog.drug_catalog_create import DrugCatalogCreateUseCase
 from src.infrastructure.services.blob_storage.azure_storage import AzureFileService
 from src.infrastructure.services.blob_storage.disk_storage import DiskFileService
-from src.infrastructure.services.confidential_ledger.contract import Ledger, TransactionData
-from src.infrastructure.services.pandas_parser.drug.contract import PandasParser
 from src.infrastructure.services.pandas_parser.drug.exc import InvalidFileFormat
 from src.infrastructure.services.pandas_parser.drug.impl import drug_parser_factory
 from src.infrastructure.services.confidential_ledger import get_confidential_ledger

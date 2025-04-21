@@ -1,7 +1,5 @@
 import jwt
-
 from typing import List, Dict
-from dataclasses import dataclass
 from abc import ABC, abstractmethod
 from datetime import datetime, timedelta, timezone
 
