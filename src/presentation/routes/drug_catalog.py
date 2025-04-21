@@ -127,6 +127,7 @@ async def create_catalog(
         drug_catalog = await drug_catalog_use_case.execute(data)
 
         CatalogImportUseCase(
+            drug_catalog_repository=drug_catalog_repository,
             catalog_id=drug_catalog.id,
             parser=parser,
             session=session,

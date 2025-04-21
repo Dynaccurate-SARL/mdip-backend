@@ -6,7 +6,7 @@ from sqlalchemy.orm import mapped_column
 from src.infrastructure.db.base import IdMixin, Base
 from src.application.dto.drug_catalog_dto import CountryCode
 
-ImportStatus = Literal['created', 'processing', 'completed']
+ImportStatus = Literal['created', 'processing', 'completed', 'failed']
 
 
 class DrugCatalog(IdMixin, Base):

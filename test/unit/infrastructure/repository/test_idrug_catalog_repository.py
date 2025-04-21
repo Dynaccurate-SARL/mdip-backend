@@ -53,6 +53,22 @@ async def test_get_by_id():
 
 
 @pytest.mark.asyncio
+async def test_status_update():
+    # Arrange
+    mock_execute = AsyncMock(spec=Result)
+    mock_session = AsyncMock(spec=AsyncSession)
+    mock_session.execute.return_value = mock_execute
+
+    repository = IDrugCatalogRepository(mock_session)
+
+    # Act
+    result = await repository.status_update(1, 'processing')
+
+    # Assert
+    mock_session.execute.assert_called_once()
+
+
+@pytest.mark.asyncio
 async def test_get_total_count():
     # Arrange
     mock_session = AsyncMock(spec=AsyncSession)

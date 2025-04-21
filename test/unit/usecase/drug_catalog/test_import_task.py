@@ -8,6 +8,7 @@ from src.infrastructure.services.confidential_ledger.contract import Transaction
 @pytest.mark.asyncio
 async def test_execute_success():
     # Arrange
+    drug_catalog_repository_mock = AsyncMock()
     catalog_id = 1
     parser_mock = Mock()
     parser_mock.parse = Mock()
@@ -17,6 +18,7 @@ async def test_execute_success():
     logger_mock = MagicMock()
 
     use_case = CatalogImportUseCase(
+        drug_catalog_repository=drug_catalog_repository_mock,
         catalog_id=catalog_id,
         parser=parser_mock,
         session=session_mock,
@@ -39,6 +41,7 @@ async def test_execute_success():
 @pytest.mark.asyncio
 async def test_execute_failure():
     # Arrange
+    drug_catalog_repository_mock = AsyncMock()
     catalog_id = 1
     parser_mock = Mock()
     parser_mock.parse.side_effect = Exception("Parsing error")
@@ -47,6 +50,7 @@ async def test_execute_failure():
     logger_mock = MagicMock()
 
     use_case = CatalogImportUseCase(
+        drug_catalog_repository=drug_catalog_repository_mock,
         catalog_id=catalog_id,
         parser=parser_mock,
         session=session_mock,

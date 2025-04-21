@@ -26,7 +26,7 @@ steps:
     displayName: 'Run ruff linter'
 
   - script: |
-      task pytest
+      pytest .
     continueOnError: false
     env:
       ENV: "TEST"
