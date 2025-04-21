@@ -16,7 +16,7 @@ class UserRepository(UserRepositoryInterface):
         await self.session.refresh(user)
         return user
 
-    async def get_by_sub(self, sub: str):
+    async def get_by_sub(self, sub: int):
         query = select(User).where(User.sub == sub)
         result = await self.session.execute(query)
         user = result.scalar_one_or_none()

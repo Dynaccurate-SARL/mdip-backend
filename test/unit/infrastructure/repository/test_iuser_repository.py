@@ -41,7 +41,7 @@ async def test_get_by_sub():
     repository = UserRepository(mock_session)
     
     # Act
-    result = await repository.get_by_sub("test_sub")
+    result = await repository.get_by_sub(1)
 
     # Assert
     mock_session.execute.assert_called_once()

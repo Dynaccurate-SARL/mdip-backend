@@ -21,7 +21,6 @@ class DrugCatalog(IdMixin, Base):
     is_central: Mapped[bool] = mapped_column(
         sq.Boolean, nullable=False, default=False)
 
-
     def __init__(self, name: str, country: CountryCode,
                  version: str, notes: str, is_central: bool = False):
         self.name = name
@@ -29,3 +28,13 @@ class DrugCatalog(IdMixin, Base):
         self.version = version
         self.is_central = is_central
         self.notes = notes
+
+    @staticmethod
+    def _mock(number: int = 1,
+              status: ImportStatus = 'created') -> 'DrugCatalog':
+        catalog = DrugCatalog(
+            name=f"Drug Catalog {number}", country="CA", version=f"{number}.0",
+            is_central=False, notes=f"Note {number}")
+        catalog._id = number
+        catalog.status = status
+        return catalog

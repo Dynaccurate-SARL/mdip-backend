@@ -11,7 +11,7 @@ ALGORITHM = "HS256"
 
 @dataclass
 class TokenPayload:
-    sub: str
+    sub: int
     scopes: List[str]
     extra: Dict | None
 
@@ -19,7 +19,7 @@ class TokenPayload:
 class TokenServiceInterface(ABC):
     """Interface for TokenServices."""
     @abstractmethod
-    def generate_token(self, sub: str, scopes: List[str],
+    def generate_token(self, sub: int, scopes: List[str],
                        extra: Dict = None,
                        expiration: datetime = None) -> str:
         pass
@@ -48,7 +48,7 @@ class IAccessTokenService(TokenServiceInterface):
         self._expiration = expiration
         self._algorithm = algorithm
 
-    def generate_token(self, sub: str, scopes: List[str],
+    def generate_token(self, sub: int, scopes: List[str],
                        extra: Dict = None,
                        expiration: datetime = None) -> str:
         # Set the expiration time to the default if not provided

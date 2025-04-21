@@ -40,10 +40,12 @@ class User(Base):
             raw_password.encode('utf-8')).hexdigest()
         return hashed_password == self._password
 
-    def _alembic_user(self):
-        return {
-            'sub': self.sub,
-            'name': self.name,
-            'email': self.email,
-            'password': self.password
-        }
+    @staticmethod
+    def _mock(sub: int = 1) -> 'User':
+        user = User(
+            name=f"Test User {sub}",
+            email=f"test.{sub}@example.com",
+            password="hashed_password",
+        )
+        user.sub = sub
+        return user

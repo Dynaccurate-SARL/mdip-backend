@@ -37,7 +37,7 @@ class UserRepositoryInterface(BaseRepository):
         ...
 
     @abstractmethod
-    async def get_by_sub(self, sub: str) -> User | None:
+    async def get_by_sub(self, sub: int) -> User | None:
         """Get a user by their subject identifier."""
         ...
 
