@@ -7,7 +7,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.domain.entities.drug import Drug
 from src.domain.entities.user import User
-from src.domain.entities.drug_catalog import DrugCatalog
+from src.domain.entities.drug_catalog import DrugCatalog, ImportStatus
 from src.domain.entities.ledger_transaction import (
     LedgerTransaction)
 
@@ -37,7 +37,7 @@ class UserRepositoryInterface(BaseRepository):
         ...
 
     @abstractmethod
-    async def get_by_sub(self, sub: str) -> User | None:
+    async def get_by_sub(self, sub: int) -> User | None:
         """Get a user by their subject identifier."""
         ...
 
@@ -56,6 +56,11 @@ class DrugCatalogRepositoryInterface(BaseRepository):
     @abstractmethod
     async def get_by_id(self, entity_id: int) -> DrugCatalog | None:
         """Get a drug catalog by its ID."""
+        ...
+
+    @abstractmethod
+    async def status_update(self, entity_id: int, status: ImportStatus):
+        """Update the import status of a drug catalog."""
         ...
 
     @abstractmethod

@@ -1,7 +1,7 @@
-from sqlalchemy import func, select
+from sqlalchemy import func, select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from src.domain.entities.drug_catalog import DrugCatalog
+from src.domain.entities.drug_catalog import DrugCatalog, ImportStatus
 from src.infrastructure.repositories.contract import (
     DrugCatalogRepositoryInterface, PagedItems)
 
@@ -21,6 +21,11 @@ class IDrugCatalogRepository(DrugCatalogRepositoryInterface):
             DrugCatalog._id == drug_catalog_id)
         result = await self.session.execute(stmt)
         return result.scalars().one_or_none()
+
+    async def status_update(self, drug_catalog_id: int, status: ImportStatus):
+        stmt = update(DrugCatalog).where(DrugCatalog._id == drug_catalog_id)\
+            .values(status=status)
+        await self.session.execute(stmt)
 
     async def exists_central_catalog(self) -> bool:
         stmt = select(func.count(DrugCatalog._id)).where(

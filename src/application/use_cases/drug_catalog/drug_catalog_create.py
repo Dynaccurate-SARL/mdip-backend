@@ -5,13 +5,12 @@ from src.infrastructure.repositories.contract import (
     DrugCatalogRepositoryInterface)
 from src.infrastructure.services.confidential_ledger.contract import (
     Ledger, TransactionData)
-from src.utils.checksum import dict_hash, file_checksum
+from src.utils.checksum import file_checksum
 from src.utils.exc import ConflictErrorCode
 
 
 class DrugCatalogCreateUseCase:
-    def __init__(self,
-                 drug_catalog_repository: DrugCatalogRepositoryInterface,
+    def __init__(self, drug_catalog_repository: DrugCatalogRepositoryInterface,
                  ledger_service: Ledger):
         self.drug_catalog_repository = drug_catalog_repository
         self.ledger_service = ledger_service
@@ -42,16 +41,18 @@ class DrugCatalogCreateUseCase:
             entity_id=drug_catalog._id,
             # Data that is sent to the ledger
             status='created',
-            filename=data.file.filename,
-            file_checksum=file_checksum(data.file),
-            catatag_hash=dict_hash({
-                'id': drug_catalog.id,
-                'name': drug_catalog.name,
-                'country': drug_catalog.country,
-                'version': drug_catalog.version,
-                'notes': drug_catalog.notes,
-                'is_central': drug_catalog.is_central,
-            })
+            data={
+                'filename': data.file.filename,
+                'file_checksum': file_checksum(data.file),
+                'catalog': {
+                    'id': drug_catalog.id,
+                    'name': drug_catalog.name,
+                    'country': drug_catalog.country,
+                    'version': drug_catalog.version,
+                    'notes': drug_catalog.notes,
+                    'is_central': 'yes' if drug_catalog.is_central else 'no',
+                }
+            }
         )
         transaction = await self.ledger_service.insert_transaction(
             transaction_data)

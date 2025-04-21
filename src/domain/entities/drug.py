@@ -25,3 +25,14 @@ class Drug(IdMixin, Base):
         self.drug_code = drug_code
         self.drug_name = drug_name
         self.properties = properties
+
+    @staticmethod
+    def _mock(number: int = 1) -> 'Drug':
+        drug = Drug(
+            catalog_id=number,
+            drug_code=f"A{number}",
+            drug_name=f"Drug {number}",
+            properties={"key": "value"}
+        )
+        drug._id = number
+        return drug

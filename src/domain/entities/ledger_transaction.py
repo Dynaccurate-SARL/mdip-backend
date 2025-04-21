@@ -1,7 +1,7 @@
 import json
 import sqlalchemy as sq
 from typing import Dict
-from sqlalchemy.orm import Mapped, mapped_column, DeclarativeMeta
+from sqlalchemy.orm import Mapped, mapped_column
 
 from src.infrastructure.db.base import Base
 
@@ -18,9 +18,9 @@ class LedgerTransaction(Base):
     created_at: Mapped[str] = mapped_column(
         sq.DateTime(timezone=True), server_default=sq.func.now())
 
-    def __init__(self, transaction_id: str, entity_name: DeclarativeMeta,
+    def __init__(self, transaction_id: str, entity_name: str,
                  entity_id: int, content: Dict = {}):
-        self.entity_name = entity_name.__tablename__
+        self.entity_name = entity_name
         self.entity_id = entity_id
         self.transaction_id = transaction_id
         self._content = json.dumps(content)

@@ -1,25 +1,24 @@
 import jwt
-
 from typing import List, Dict
-from dataclasses import dataclass
 from abc import ABC, abstractmethod
 from datetime import datetime, timedelta, timezone
+
+from pydantic import BaseModel
 
 
 ALGORITHM = "HS256"
 
 
-@dataclass
-class TokenPayload:
-    sub: str
+class TokenPayload(BaseModel):
+    sub: int
     scopes: List[str]
-    extra: Dict | None
+    extra: Dict | None = None
 
 
 class TokenServiceInterface(ABC):
     """Interface for TokenServices."""
     @abstractmethod
-    def generate_token(self, sub: str, scopes: List[str],
+    def generate_token(self, sub: int, scopes: List[str],
                        extra: Dict = None,
                        expiration: datetime = None) -> str:
         pass
@@ -48,7 +47,7 @@ class IAccessTokenService(TokenServiceInterface):
         self._expiration = expiration
         self._algorithm = algorithm
 
-    def generate_token(self, sub: str, scopes: List[str],
+    def generate_token(self, sub: int, scopes: List[str],
                        extra: Dict = None,
                        expiration: datetime = None) -> str:
         # Set the expiration time to the default if not provided

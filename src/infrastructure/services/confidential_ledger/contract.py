@@ -16,10 +16,8 @@ class TransactionData(BaseSchema):
     entity_name: DeclarativeMeta
     entity_id: int
     # Data that is sent to the ledger
-    status: Literal['created', 'processing', 'completed']
-    filename: str
-    file_checksum: str
-    catatag_hash: str
+    status: Literal['created', 'processing', 'completed', 'failed']
+    data: dict | None = None
     created_at: str = datetime.now(timezone.utc).isoformat()
     created_at_tz: str = 'UTC'
 

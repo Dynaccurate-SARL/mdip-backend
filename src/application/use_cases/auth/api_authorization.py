@@ -29,7 +29,7 @@ class ApiAuthorizationUseCase:
 
         if security_scopes.scopes:
             intersection = list(
-                set(payload["scopes"]) & set(security_scopes.scopes))
+                set(payload.scopes) & set(security_scopes.scopes))
             if not intersection:
                 raise UnauthorizedAccessError("Not enough permissions")
         logging.info(f'Access by: {user.name}')

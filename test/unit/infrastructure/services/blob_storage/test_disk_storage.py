@@ -69,6 +69,7 @@ def test_delete_file_not_found(disk_file_service):
     # Act and Assert
     # Ensure no exception is raised when trying to delete a non-existent file
     disk_file_service.delete_file("non_existent_file.txt")
+
     def test_init_creates_storage_path_if_not_exists(tmp_path):
         # Arrange
         storage_path = tmp_path / "storage"
@@ -89,6 +90,7 @@ def test_init_does_not_create_storage_path_if_exists():
     # Assert
     mock_makedirs.assert_called_once()
 
+
 def test_delete_file_logs_error_on_exception(disk_file_service, tmp_path):
     # Arrange
     file_name = "test_file.txt"
@@ -107,4 +109,3 @@ def test_delete_file_logs_error_on_exception(disk_file_service, tmp_path):
         # Assert
         mock_remove.assert_called_once_with(os.path.join(tmp_path, file_name))
         mock_log_error.assert_called_once()
-

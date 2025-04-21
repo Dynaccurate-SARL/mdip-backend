@@ -19,7 +19,7 @@ async def test_save():
     mock_session.refresh.return_value = None
 
     repository = IDrugRepository(mock_session)
-    
+
     # Act
     result = await repository.save(drug)
 
@@ -41,7 +41,7 @@ async def test_get_by_id():
     mock_session.execute.return_value = mock_execute_result
 
     repository = IDrugRepository(mock_session)
-    
+
     # Act
     result = await repository.get_by_id(1)
 
@@ -61,7 +61,7 @@ async def test_get_all_like_code_or_name():
     mock_session.execute.return_value = mock_execute_result
 
     repository = IDrugRepository(mock_session)
-    
+
     # Act
     result = await repository.get_all_like_code_or_name("Test")
 
@@ -78,7 +78,7 @@ async def test_get_total_count():
     mock_session.scalar.return_value = 10
 
     repository = IDrugRepository(mock_session)
-    
+
     # Act
     result = await repository.get_total_count(1, "Test")
 

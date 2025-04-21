@@ -19,7 +19,7 @@ async def test_save_transaction():
     mock_session.add.return_value = None
     mock_session.commit.return_value = None
     mock_session.refresh.return_value = None
-    
+
     repository = ILedgerTransactionRepository(mock_session)
 
     # Act
