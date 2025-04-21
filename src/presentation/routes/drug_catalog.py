@@ -8,7 +8,9 @@ from src.application.dto.drug_catalog_dto import (
     CountryCode, DrugCatalogCreateDto, DrugCatalogCreatedDto, DrugCatalogDto, DrugCatalogPaginatedDto)
 from src.application.use_cases.drug_catalog.get_drug_catalog_by_id import GetDrugCatalogByIdUseCase
 from src.application.use_cases.drug_catalog.get_paginated_drug_catalog import GetPaginatedDrugCatalogUseCase
+from src.application.use_cases.drug_catalog.import_task import CatalogImportUseCase
 from src.config.settings import get_config
+from src.domain.entities.drug_catalog import DrugCatalog
 from src.domain.entities.user import User
 from src.domain.services.auth_service import manager
 from src.infrastructure.db.base import IdInt
@@ -18,6 +20,7 @@ from src.infrastructure.repositories.iledger_transaction_repository import ILedg
 from src.application.use_cases.drug_catalog.drug_catalog_create import DrugCatalogCreateUseCase
 from src.infrastructure.services.blob_storage.azure_storage import AzureFileService
 from src.infrastructure.services.blob_storage.disk_storage import DiskFileService
+from src.infrastructure.services.confidential_ledger.contract import Ledger, TransactionData
 from src.infrastructure.services.pandas_parser.drug.contract import PandasParser
 from src.infrastructure.services.pandas_parser.drug.exc import InvalidFileFormat
 from src.infrastructure.services.pandas_parser.drug.impl import drug_parser_factory
@@ -64,12 +67,8 @@ async def get_catalogs(
     return await use_case.execute(page, psize, name)
 
 
-async def parse_task(
-        parser: PandasParser, catalog_id: int, session: AsyncSession):
-    # TODO: Ledger transaction: processing
-    parser.parse()
-    await parser.save_all(session, catalog_id)
-    # TODO: Ledger transaction: completed
+async def drug_catalog_import_task(usecase: CatalogImportUseCase):
+    await usecase.execute()
 
 
 @drug_catalog_router.post("/catalogs",
@@ -79,10 +78,11 @@ async def create_catalog(
         background_tasks: BackgroundTasks,
         user: Annotated[User, Depends(manager)],
         session: Annotated[AsyncSession, Depends(get_session)],
+        # http form data
+        file: Annotated[UploadFile, File(...)],
         name: Annotated[str, Form(examples=["Pharmaceutical Catalog"])],
         country: Annotated[CountryCode, Form(examples=["US"])],
         version: Annotated[str, Form(examples=["1.0"])],
-        file: Annotated[UploadFile, File(...)],
         is_central: Annotated[bool, Form(...)] = False,
         notes: Annotated[str, Form(examples=["Initial release"])] = ''):
     try:
@@ -129,11 +129,15 @@ async def create_catalog(
         )
         drug_catalog = await drug_catalog_use_case.execute(data)
 
-        background_tasks.add_task(
-            parse_task,
+        CatalogImportUseCase(
+            catalog_id=drug_catalog.id,
             parser=parser,
-            catalog_id=int(drug_catalog.id),
-            session=session
+            session=session,
+            ledger_service=ledger_service
+        )
+        background_tasks.add_task(
+            drug_catalog_import_task,
+            usecase=CatalogImportUseCase
         )
 
         return drug_catalog
