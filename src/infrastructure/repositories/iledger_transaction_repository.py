@@ -6,8 +6,6 @@ from src.infrastructure.repositories.contract import LedgerTransactionRepository
 
 
 class ILedgerTransactionRepository(LedgerTransactionRepositoryInterface):
-    def __init__(self, session: AsyncSession):
-        self.session = session
 
     async def save(self, transaction: LedgerTransaction):
         self.session.add(transaction)

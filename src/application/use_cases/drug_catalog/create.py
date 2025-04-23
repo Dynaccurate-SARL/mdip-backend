@@ -19,9 +19,8 @@ class DrugCatalogCreateUseCase:
             self, data: DrugCatalogCreateDto) -> DrugCatalogCreatedDto:
         if data.is_central:
             # Check if the central drug catalog already exists
-            has_central = await self.drug_catalog_repository.\
-                exists_central_catalog()
-            if has_central:
+            central_catalog = await self.drug_catalog_repository.get_central()
+            if central_catalog:
                 raise ConflictErrorCode('Central drug catalog already exists.')
 
         # Create the drug catalog
@@ -37,11 +36,12 @@ class DrugCatalogCreateUseCase:
         # Send the drug catalog to the ledger
         transaction_data = TransactionData(
             # Entity transacton reference
-            entity_name=DrugCatalog,
+            entity_name=DrugCatalog.__tablename__,
             entity_id=drug_catalog._id,
             # Data that is sent to the ledger
             status='created',
             data={
+                'type': 'catalog_import',
                 'filename': data.file.filename,
                 'file_checksum': file_checksum(data.file),
                 'catalog': {

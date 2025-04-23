@@ -20,17 +20,20 @@ class CatalogImportUseCase:
 
     async def execute(self):
         transaction_data = TransactionData(
-            entity_name=DrugCatalog,
+            entity_name=DrugCatalog.__tablename__,
             entity_id=self._catalog_id,
-            status='processing'
+            status='processing',
+            data={
+                'type': 'catalog_import',
+            }
         )
 
         self._logger.info(
             f"Catalog import process started for catalog_id={self._catalog_id}")
         await self._ledger_service.insert_transaction(transaction_data)
         await self._drug_catalog_repository.status_update(
-            entity_id=self._catalog_id, status='processing')
-        
+            drug_catalog_id=self._catalog_id, status='processing')
+
         try:
             self._logger.info(
                 f"Parsing data for catalog_id={self._catalog_id}")
@@ -48,5 +51,7 @@ class CatalogImportUseCase:
             self._logger.exception(e)
 
         await self._drug_catalog_repository.status_update(
-            entity_id=self._catalog_id, status=transaction_data.status)
-        return await self._ledger_service.insert_transaction(transaction_data)
+            drug_catalog_id=self._catalog_id, status=transaction_data.status)
+        await self._ledger_service.insert_transaction(transaction_data)
+
+        await self._drug_catalog_repository.close_session()

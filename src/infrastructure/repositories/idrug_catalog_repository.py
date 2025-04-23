@@ -7,8 +7,6 @@ from src.infrastructure.repositories.contract import (
 
 
 class IDrugCatalogRepository(DrugCatalogRepositoryInterface):
-    def __init__(self, session: AsyncSession):
-        self.session = session
 
     async def save(self, drug_catalog: DrugCatalog):
         self.session.add(drug_catalog)
@@ -27,11 +25,11 @@ class IDrugCatalogRepository(DrugCatalogRepositoryInterface):
             .values(status=status)
         await self.session.execute(stmt)
 
-    async def exists_central_catalog(self) -> bool:
-        stmt = select(func.count(DrugCatalog._id)).where(
+    async def get_central(self):
+        stmt = select(DrugCatalog).where(
             DrugCatalog.is_central.is_(True))
-        result = await self.session.scalar(stmt)
-        return result > 0
+        result = await self.session.execute(stmt)
+        return result.scalars().one_or_none()
 
     async def get_total_count(self, name_filter: str = None) -> int:
         count_stmt = select(func.count(DrugCatalog._id))

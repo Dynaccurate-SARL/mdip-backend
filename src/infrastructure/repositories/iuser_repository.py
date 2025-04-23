@@ -7,8 +7,6 @@ from src.infrastructure.repositories.contract import UserRepositoryInterface
 
 
 class UserRepository(UserRepositoryInterface):
-    def __init__(self, session: AsyncSession):
-        self.session = session
 
     async def save(self, user: User) -> User:
         self.session.add(user)

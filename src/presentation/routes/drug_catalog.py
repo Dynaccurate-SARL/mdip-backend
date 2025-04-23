@@ -6,8 +6,8 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.application.dto.drug_catalog_dto import (
     CountryCode, DrugCatalogCreateDto, DrugCatalogCreatedDto, DrugCatalogDto, DrugCatalogPaginatedDto)
-from src.application.use_cases.drug_catalog.get_drug_catalog_by_id import GetDrugCatalogByIdUseCase
-from src.application.use_cases.drug_catalog.get_paginated_drug_catalog import GetPaginatedDrugCatalogUseCase
+from src.application.use_cases.drug_catalog.get_by_id import GetDrugCatalogByIdUseCase
+from src.application.use_cases.drug_catalog.get_paginated import GetPaginatedDrugCatalogUseCase
 from src.application.use_cases.drug_catalog.import_task import CatalogImportUseCase
 from src.config.settings import get_config
 from src.domain.entities.user import User
@@ -16,7 +16,7 @@ from src.infrastructure.db.base import IdInt
 from src.infrastructure.db.engine import get_session
 from src.infrastructure.repositories.idrug_catalog_repository import IDrugCatalogRepository
 from src.infrastructure.repositories.iledger_transaction_repository import ILedgerTransactionRepository
-from src.application.use_cases.drug_catalog.drug_catalog_create import DrugCatalogCreateUseCase
+from src.application.use_cases.drug_catalog.create import DrugCatalogCreateUseCase
 from src.infrastructure.services.blob_storage.azure_storage import AzureFileService
 from src.infrastructure.services.blob_storage.disk_storage import DiskFileService
 from src.infrastructure.services.pandas_parser.drug.exc import InvalidFileFormat
@@ -64,8 +64,8 @@ async def get_catalogs(
     return await use_case.execute(page, psize, name)
 
 
-async def drug_catalog_import_task(usecase: CatalogImportUseCase):
-    await usecase.execute()
+async def drug_catalog_import_task(use_case: CatalogImportUseCase):
+    await use_case.execute()
 
 
 @drug_catalog_router.post("/catalogs",
@@ -126,16 +126,16 @@ async def create_catalog(
         )
         drug_catalog = await drug_catalog_use_case.execute(data)
 
-        CatalogImportUseCase(
+        use_case = CatalogImportUseCase(
             drug_catalog_repository=drug_catalog_repository,
-            catalog_id=drug_catalog.id,
+            catalog_id=int(drug_catalog.id),
             parser=parser,
             session=session,
             ledger_service=ledger_service
         )
         background_tasks.add_task(
             drug_catalog_import_task,
-            usecase=CatalogImportUseCase
+            use_case=use_case
         )
 
         return drug_catalog

@@ -50,7 +50,7 @@ class ForeignKeyResourseNotFound(BaseSystemException):
     pass
 
 
-class ResourseNotFound(BaseSystemException):
+class ResourceNotFound(BaseSystemException):
     def __init__(self, message: str):
         self.message = message
         self.reason = ErrorCodes.ENTITY_NOT_FOUND

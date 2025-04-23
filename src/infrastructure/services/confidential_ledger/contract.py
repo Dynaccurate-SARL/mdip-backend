@@ -13,7 +13,7 @@ class TransactionInserted(BaseSchema):
 
 class TransactionData(BaseSchema):
     # Entity transacton reference
-    entity_name: DeclarativeMeta
+    entity_name: str
     entity_id: int
     # Data that is sent to the ledger
     status: Literal['created', 'processing', 'completed', 'failed']
