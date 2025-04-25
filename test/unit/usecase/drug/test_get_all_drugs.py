@@ -1,7 +1,7 @@
 import pytest
 from unittest.mock import AsyncMock
 
-from src.application.use_cases.drug.get_all_drugs import GetAllDrugsByDrugNameOrCodeUseCase
+from src.application.use_cases.drug.get_all import GetAllDrugsByDrugNameOrCodeUseCase
 from src.application.dto.drug_dto import DrugDto
 from src.domain.entities.drug import Drug
 

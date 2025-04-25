@@ -8,7 +8,8 @@ from src.infrastructure.repositories.contract import PagedItems
 from src.infrastructure.repositories.idrug_catalog_repository import IDrugCatalogRepository
 
 drug_catalog = DrugCatalog(
-    name="Test Catalog", country="PA", version="1.0", notes="Test notes")
+    name="Test Catalog", country="PA", version="1.0", 
+    notes="Test notes", is_central=True)
 
 
 @pytest.mark.asyncio
@@ -53,7 +54,7 @@ async def test_get_by_id():
 
 
 @pytest.mark.asyncio
-async def test_status_update():
+async def test_status_update_processing():
     # Arrange
     mock_execute = AsyncMock(spec=Result)
     mock_session = AsyncMock(spec=AsyncSession)
@@ -63,6 +64,22 @@ async def test_status_update():
 
     # Act
     result = await repository.status_update(1, 'processing')
+
+    # Assert
+    mock_session.execute.assert_called_once()
+
+
+@pytest.mark.asyncio
+async def test_status_update_failed():
+    # Arrange
+    mock_execute = AsyncMock(spec=Result)
+    mock_session = AsyncMock(spec=AsyncSession)
+    mock_session.execute.return_value = mock_execute
+
+    repository = IDrugCatalogRepository(mock_session)
+
+    # Act
+    result = await repository.status_update(1, 'failed')
 
     # Assert
     mock_session.execute.assert_called_once()
@@ -85,19 +102,24 @@ async def test_get_total_count():
 
 
 @pytest.mark.asyncio
-async def test_exists_central_catalog():
+async def test_get_central_catalog():
     # Arrange
+    mock_execute_result = AsyncMock(spec=Result)
+    mock_execute_result.scalars.return_value.one_or_none.return_value = drug_catalog
+
     mock_session = AsyncMock(spec=AsyncSession)
-    mock_session.scalar.return_value = 1
+    mock_session.execute.return_value = mock_execute_result
 
     repository = IDrugCatalogRepository(mock_session)
 
     # Act
-    result = await repository.exists_central_catalog()
+    result = await repository.get_central()
 
     # Assert
-    mock_session.scalar.assert_called_once()
-    assert result == 1
+    mock_session.execute.assert_called_once()
+    mock_execute_result.scalars.assert_called_once()
+    mock_execute_result.scalars.return_value.one_or_none.assert_called_once()
+    assert result == drug_catalog
 
 
 @pytest.mark.asyncio

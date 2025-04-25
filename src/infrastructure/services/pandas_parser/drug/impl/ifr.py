@@ -40,7 +40,6 @@ class FR_Parser(PandasParser):
         # Strip whitespace from column names
         self._df.columns = self._df.columns.str.strip()
 
-        print(self._df)
         self._df["properties"] = self._df.apply(lambda row: row.drop(
             ["CIS code", "Presentation title"]).dropna().to_dict(), axis=1)
 

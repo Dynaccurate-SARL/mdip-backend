@@ -9,6 +9,7 @@ from src.infrastructure.services.confidential_ledger.contract import Transaction
 async def test_execute_success():
     # Arrange
     drug_catalog_repository_mock = AsyncMock()
+    drug_repository_mock = AsyncMock()
     catalog_id = 1
     parser_mock = Mock()
     parser_mock.parse = Mock()
@@ -19,6 +20,7 @@ async def test_execute_success():
 
     use_case = CatalogImportUseCase(
         drug_catalog_repository=drug_catalog_repository_mock,
+        drug_repository=drug_repository_mock,
         catalog_id=catalog_id,
         parser=parser_mock,
         session=session_mock,
@@ -42,6 +44,7 @@ async def test_execute_success():
 async def test_execute_failure():
     # Arrange
     drug_catalog_repository_mock = AsyncMock()
+    drug_repository_mock = AsyncMock()
     catalog_id = 1
     parser_mock = Mock()
     parser_mock.parse.side_effect = Exception("Parsing error")
@@ -51,6 +54,7 @@ async def test_execute_failure():
 
     use_case = CatalogImportUseCase(
         drug_catalog_repository=drug_catalog_repository_mock,
+        drug_repository=drug_repository_mock,
         catalog_id=catalog_id,
         parser=parser_mock,
         session=session_mock,
@@ -68,3 +72,5 @@ async def test_execute_failure():
     logger_mock.error.assert_any_call(
         f"Catalog import failed for catalog_id={catalog_id}")
     logger_mock.exception.assert_called_once()
+    drug_repository_mock.delete_all_by_catalog_id.assert_awaited_once_with(
+        catalog_id)

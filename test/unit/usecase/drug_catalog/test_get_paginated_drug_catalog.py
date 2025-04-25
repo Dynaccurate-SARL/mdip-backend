@@ -1,7 +1,7 @@
 import pytest
 from unittest.mock import AsyncMock
 
-from src.application.use_cases.drug_catalog.get_paginated_drug_catalog import GetPaginatedDrugCatalogUseCase
+from src.application.use_cases.drug_catalog.get_paginated import GetPaginatedDrugCatalogUseCase
 from src.domain.entities.drug_catalog import DrugCatalog
 from src.infrastructure.repositories.contract import DrugCatalogRepositoryInterface
 from src.application.dto.drug_catalog_dto import DrugCatalogPaginatedDto

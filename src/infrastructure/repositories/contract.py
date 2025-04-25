@@ -2,11 +2,12 @@ from pydantic import EmailStr
 from sqlalchemy import Sequence
 from dataclasses import dataclass
 from typing import Generic, List, TypeVar
-from abc import ABC, abstractmethod
+from abc import abstractmethod
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.domain.entities.drug import Drug
 from src.domain.entities.user import User
+from src.domain.entities.drug_mapping import DrugMapping
 from src.domain.entities.drug_catalog import DrugCatalog, ImportStatus
 from src.domain.entities.ledger_transaction import (
     LedgerTransaction)
@@ -23,11 +24,17 @@ class PagedItems(Generic[T]):
     page_size: int
 
 
-class BaseRepository(ABC):
-    @abstractmethod
+class BaseRepository():
     def __init__(self, session: AsyncSession):
         """Initialize the repository with a database session."""
-        ...
+        self.session = session
+
+    async def close_session(self):
+        """Close the database session."""
+        try:
+            await self.session.close()
+        except Exception:
+            ...
 
 
 class UserRepositoryInterface(BaseRepository):
@@ -38,7 +45,7 @@ class UserRepositoryInterface(BaseRepository):
 
     @abstractmethod
     async def get_by_sub(self, sub: int) -> User | None:
-        """Get a user by their subject identifier."""
+        """Get a user by their id."""
         ...
 
     @abstractmethod
@@ -54,17 +61,17 @@ class DrugCatalogRepositoryInterface(BaseRepository):
         ...
 
     @abstractmethod
-    async def get_by_id(self, entity_id: int) -> DrugCatalog | None:
+    async def get_by_id(self, drug_catalog_id: int) -> DrugCatalog | None:
         """Get a drug catalog by its ID."""
         ...
 
     @abstractmethod
-    async def status_update(self, entity_id: int, status: ImportStatus):
+    async def status_update(self, drug_catalog_id: int, status: ImportStatus):
         """Update the import status of a drug catalog."""
         ...
 
     @abstractmethod
-    async def exists_central_catalog(self) -> bool:
+    async def get_central(self) -> DrugCatalog | None:
         """Check if a central drug catalog exists."""
         ...
 
@@ -102,7 +109,17 @@ class DrugRepositoryInterface(BaseRepository):
 
     @abstractmethod
     async def get_by_id(self, id: int) -> Drug | None:
-        """Get a drug by their subject identifier."""
+        """Get a drug by its ID."""
+
+    @abstractmethod
+    async def delete_all_by_catalog_id(self, catalog_id: int):
+        """Delete all drugs associated with a specific catalog ID."""
+        ...
+
+    @abstractmethod
+    async def get_by_drug_code_on_catalog_id(
+            self, catalog_id: int, drug_code: str) -> Drug | None:
+        """Get a drug by its drug code."""
         ...
 
     @abstractmethod
@@ -121,4 +138,10 @@ class DrugRepositoryInterface(BaseRepository):
             self, page: int, page_size: int, drug_catalog_id: int,
             name_or_code_filter: str = None) -> PagedItems[Drug]:
         """Get paginated drugs, optionally filtered by name or code."""
+        ...
+
+class MappingRepositoryInterface(BaseRepository):
+    @abstractmethod
+    async def save(self, mapping: DrugMapping) -> DrugMapping:
+        """Save a drug to the database."""
         ...

@@ -7,7 +7,7 @@ from src.config.constants import C
 from src.config.settings import get_config
 from src.infrastructure.db.engine import get_session
 from src.infrastructure.services.token_service import IAccessTokenService
-from src.infrastructure.repositories.iuser_repository import UserRepository
+from src.infrastructure.repositories.iuser_repository import IUserRepository
 from src.application.use_cases.auth.api_authorization import ApiAuthorizationUseCase
 from src.utils.exc import UnauthorizedAccessError
 
@@ -21,7 +21,7 @@ async def manager(
     session: Annotated[AsyncSession, Depends(get_session)]
 ):
     # Dependencies
-    user_repository = UserRepository(session)
+    user_repository = IUserRepository(session)
     access_token_service = IAccessTokenService(get_config().JWT_SECRET)
     try:
         api_auth = ApiAuthorizationUseCase(user_repository, access_token_service)

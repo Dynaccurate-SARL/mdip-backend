@@ -1,7 +1,7 @@
 import pytest
 from unittest.mock import AsyncMock
 
-from src.application.use_cases.user.get_user_by_sub import GetUserBySubUseCase
+from src.application.use_cases.user.get_by_sub import GetUserBySubUseCase
 from src.application.dto.user_dto import UserDto
 from src.domain.entities.user import User
 

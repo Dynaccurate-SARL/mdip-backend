@@ -3,9 +3,9 @@ from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.application.dto.drug_dto import DrugDto, DrugPaginatedDto
-from src.application.use_cases.drug.get_all_drugs import GetAllDrugsByDrugNameOrCodeUseCase
+from src.application.use_cases.drug.get_all import GetAllDrugsByDrugNameOrCodeUseCase
 from src.application.use_cases.drug.get_by_id import GetDrugByIdUseCase
-from src.application.use_cases.drug.get_paginated_drug import GetPaginatedDrugUseCase
+from src.application.use_cases.drug.get_paginated import GetPaginatedDrugUseCase
 from src.infrastructure.db.base import IdInt
 from src.infrastructure.db.engine import get_session
 from src.infrastructure.repositories.idrug_repository import IDrugRepository

@@ -1,13 +1,10 @@
 from sqlalchemy import select
-from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.domain.entities.ledger_transaction import LedgerTransaction
 from src.infrastructure.repositories.contract import LedgerTransactionRepositoryInterface
 
 
 class ILedgerTransactionRepository(LedgerTransactionRepositoryInterface):
-    def __init__(self, session: AsyncSession):
-        self.session = session
 
     async def save(self, transaction: LedgerTransaction):
         self.session.add(transaction)

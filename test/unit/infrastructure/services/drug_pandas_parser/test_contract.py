@@ -26,7 +26,7 @@ class DummyParser(PandasParser):
 @pytest.mark.asyncio
 async def test_save_all():
     # Arrange
-    file = BytesIO(b"dummy content")
+    file = b"dummy content"
     parser = DummyParser(file)
 
     mock_session = AsyncMock()
@@ -65,7 +65,7 @@ class DummyParserInvalidParsedColumns(PandasParser):
 @pytest.mark.asyncio
 async def test_save_all_with_invalid_parsed_columns():
     # Arrange
-    file = BytesIO(b"dummy content")
+    file = b"dummy content"
     parser = DummyParserInvalidParsedColumns(file)
 
     # Act & Assert
@@ -93,7 +93,7 @@ class DummyParserInvalidColumnsTypes(PandasParser):
 @pytest.mark.asyncio
 async def test_save_all_with_invalid_data_types():
     # Arrange
-    file = BytesIO(b"dummy content")
+    file = b"dummy content"
     parser = DummyParserInvalidColumnsTypes(file)
 
     # Act & Assert
@@ -118,7 +118,7 @@ class DummyParserNone(PandasParser):
 @pytest.mark.asyncio
 async def test_save_all_with_missing_pre_execution():
     # Arrange
-    file = BytesIO(b"dummy content")
+    file = b"dummy content"
     parser = DummyParserNone(file)
 
     mock_session = AsyncMock()

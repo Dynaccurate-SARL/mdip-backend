@@ -37,10 +37,6 @@ async def test_insert_transaction(azure_ledger_fixture):
     # Arrange
     Base = declarative_base()
 
-    class TestEntity(Base):
-        __tablename__ = 'test_entity'
-        id = sq.Column(sq.Integer, primary_key=True, autoincrement=True)
-
     ledger = azure_ledger_fixture["ledger"]
     mock_ledger_client = azure_ledger_fixture["mock_ledger_client"]
     mock_lt_repository = azure_ledger_fixture["mock_lt_repository"]
@@ -51,7 +47,7 @@ async def test_insert_transaction(azure_ledger_fixture):
     }
 
     data = TransactionData(
-        entity_name=TestEntity, entity_id=0, status="created",
+        entity_name='test_entity', entity_id=0, status="created",
         filename="test.csv",  file_checksum='filehash123',
         catatag_hash='cataloghash123'
     )

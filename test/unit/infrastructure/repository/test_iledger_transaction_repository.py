@@ -8,7 +8,7 @@ from src.infrastructure.repositories.iledger_transaction_repository import ILedg
 from src.domain.entities.ledger_transaction import LedgerTransaction
 
 ledger_transaction = LedgerTransaction(
-    transaction_id='001', entity_name=DrugCatalog,
+    transaction_id='001', entity_name=DrugCatalog.__tablename__,
     entity_id=1, content={"hello": "world"})
 
 

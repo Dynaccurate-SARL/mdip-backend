@@ -1,4 +1,4 @@
-import hashlib
+import bcrypt
 import sqlalchemy as sq
 from pydantic import EmailStr
 from sqlalchemy.orm import Mapped
@@ -21,8 +21,7 @@ class User(Base):
     def __init__(self, name: str, email: EmailStr, password: str):
         self.name = name
         self.email = email
-        self.password = hashlib.sha256(
-            password.encode('utf-8')).hexdigest()
+        self.password = password
         self.sub = generate_snowflake_id()
 
     @property
@@ -31,14 +30,14 @@ class User(Base):
 
     @password.setter
     def password(self, raw_password):
-        hashed_password = hashlib.sha256(
-            raw_password.encode('utf-8')).hexdigest()
-        self._password = hashed_password
+        """Generates a hash from a plain-text password."""
+        password_bytes = raw_password.encode('utf-8')
+        password_hash = bcrypt.hashpw(password_bytes, bcrypt.gensalt())
+        self._password = password_hash.decode('utf-8')
 
     def verify_password(self, raw_password: str) -> bool:
-        hashed_password = hashlib.sha256(
-            raw_password.encode('utf-8')).hexdigest()
-        return hashed_password == self._password
+        return bcrypt.checkpw(
+            raw_password.encode('utf-8'), self.password.encode('utf-8'))
 
     @staticmethod
     def _mock(sub: int = 1) -> 'User':

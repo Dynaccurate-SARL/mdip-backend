@@ -1,7 +1,7 @@
 import pytest
 from unittest.mock import AsyncMock
 
-from src.application.use_cases.drug_catalog.get_drug_catalog_by_id import GetDrugCatalogByIdUseCase
+from src.application.use_cases.drug_catalog.get_by_id import GetDrugCatalogByIdUseCase
 from src.application.dto.drug_catalog_dto import DrugCatalogDto
 from src.domain.entities.drug_catalog import DrugCatalog
 from src.infrastructure.repositories.contract import DrugCatalogRepositoryInterface

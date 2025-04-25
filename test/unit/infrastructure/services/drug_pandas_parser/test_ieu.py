@@ -26,7 +26,7 @@ def test_open_and_validate_valid_file():
     mock_file.seek(0)
 
     # Act & Assert
-    EU_Parser(mock_file)
+    EU_Parser(mock_file.read())
 
 
 def test_open_and_validate_invalid_file():
@@ -44,7 +44,7 @@ def test_open_and_validate_invalid_file():
     with pytest.raises(
             InvalidFileFormat,
             match="Invalid file format or missing required columns"):
-        EU_Parser(mock_file)
+        EU_Parser(mock_file.read())
 
 
 def test_parse_valid_data():
@@ -66,7 +66,7 @@ def test_parse_valid_data():
     mock_file.seek(0)
 
     # Act
-    parser = EU_Parser(mock_file)
+    parser = EU_Parser(mock_file.read())
     parser.parse()
 
     # Assert

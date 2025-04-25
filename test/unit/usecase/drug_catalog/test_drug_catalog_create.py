@@ -3,7 +3,7 @@ from io import BytesIO
 from fastapi import UploadFile
 from unittest.mock import AsyncMock, MagicMock
 
-from src.application.use_cases.drug_catalog.drug_catalog_create import DrugCatalogCreateUseCase
+from src.application.use_cases.drug_catalog.create import DrugCatalogCreateUseCase
 from src.application.dto.drug_catalog_dto import DrugCatalogCreateDto, DrugCatalogCreatedDto
 from src.domain.entities.drug_catalog import DrugCatalog
 from src.utils.exc import ConflictErrorCode
@@ -61,12 +61,12 @@ async def test_execute_raises_conflict_error_if_central_catalog_exists():
         file=test_file  # Use UploadFile object
     )
 
-    mock_repository.exists_central_catalog.return_value = True
+    mock_repository.get_central.return_value = True
 
     # Act & Assert
     with pytest.raises(ConflictErrorCode, match="Central drug catalog already exists."):
         await use_case.execute(data)
 
-    mock_repository.exists_central_catalog.assert_called_once()
+    mock_repository.get_central.assert_called_once()
     mock_repository.save.assert_not_called()
     mock_ledger_service.insert_transaction.assert_not_called()
