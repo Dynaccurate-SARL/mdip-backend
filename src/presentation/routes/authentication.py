@@ -8,7 +8,7 @@ from src.utils.exc import UnauthorizedAccessError
 from src.infrastructure.db.engine import get_session
 from src.application.dto.auth_dto import AuthSuccessDto, AuthDto
 from src.application.use_cases.auth.user_login import UserLoginUseCase
-from src.infrastructure.repositories.iuser_repository import UserRepository
+from src.infrastructure.repositories.iuser_repository import IUserRepository
 from src.application.use_cases.auth.user_token_refresh import (
     UserTokenRefreshUseCase
 )
@@ -25,7 +25,7 @@ async def auth_token(
     data: Annotated[OAuth2PasswordRequestForm, Depends()],
     session: Annotated[AsyncSession, Depends(get_session)],
 ):
-    user_repository = UserRepository(session)
+    user_repository = IUserRepository(session)
     access_token_service = IAccessTokenService(get_config().JWT_SECRET)
     refresh_token_service = IRefreshTokenService(get_config().JWT_SECRET)
 
@@ -41,7 +41,7 @@ async def auth_token(
 @auth_router.post('/login', response_model=AuthSuccessDto)
 async def login(data: AuthDto,
                 session: Annotated[AsyncSession, Depends(get_session)]):
-    user_repository = UserRepository(session)
+    user_repository = IUserRepository(session)
     access_token_service = IAccessTokenService(get_config().JWT_SECRET)
     refresh_token_service = IRefreshTokenService(get_config().JWT_SECRET)
 
@@ -61,7 +61,7 @@ async def refresh(
     )],
     session: Annotated[AsyncSession, Depends(get_session)]
 ):
-    user_repository = UserRepository(session)
+    user_repository = IUserRepository(session)
     access_token_service = IAccessTokenService(get_config().JWT_SECRET)
     refresh_token_service = IRefreshTokenService(get_config().JWT_SECRET)
 

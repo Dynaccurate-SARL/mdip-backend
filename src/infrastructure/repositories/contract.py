@@ -112,6 +112,11 @@ class DrugRepositoryInterface(BaseRepository):
         """Get a drug by its ID."""
 
     @abstractmethod
+    async def delete_all_by_catalog_id(self, catalog_id: int):
+        """Delete all drugs associated with a specific catalog ID."""
+        ...
+
+    @abstractmethod
     async def get_by_drug_code_on_catalog_id(
             self, catalog_id: int, drug_code: str) -> Drug | None:
         """Get a drug by its drug code."""

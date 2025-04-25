@@ -1,7 +1,7 @@
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.domain.entities.drug_catalog import DrugCatalog
-from src.infrastructure.repositories.contract import DrugCatalogRepositoryInterface
+from src.infrastructure.repositories.contract import DrugCatalogRepositoryInterface, DrugRepositoryInterface
 from src.infrastructure.services.confidential_ledger.contract import Ledger, TransactionData
 from src.infrastructure.services.pandas_parser.drug.contract import PandasParser
 from logging import getLogger
@@ -9,9 +9,11 @@ from logging import getLogger
 
 class CatalogImportUseCase:
     def __init__(self, drug_catalog_repository: DrugCatalogRepositoryInterface,
+                 drug_repository: DrugRepositoryInterface,
                  catalog_id: int, parser: PandasParser, session: AsyncSession,
                  ledger_service: Ledger, logger: getLogger = None):
         self._drug_catalog_repository = drug_catalog_repository
+        self._drug_repository = drug_repository
         self._catalog_id = catalog_id
         self._parser = parser
         self._session = session
@@ -44,8 +46,12 @@ class CatalogImportUseCase:
 
             self._logger.info(
                 f"Catalog import completed successfully for catalog_id={self._catalog_id}")
+
         except Exception as e:
             transaction_data.status = 'failed'
+            await self._drug_repository.delete_all_by_catalog_id(
+                self._catalog_id)
+
             self._logger.error(
                 f"Catalog import failed for catalog_id={self._catalog_id}")
             self._logger.exception(e)

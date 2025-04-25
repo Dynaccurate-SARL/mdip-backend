@@ -3,11 +3,16 @@ from unittest.mock import AsyncMock
 from sqlalchemy import Result
 from sqlalchemy.ext.asyncio import AsyncSession
 from src.domain.entities.user import User
-from src.infrastructure.repositories.iuser_repository import UserRepository
+from src.infrastructure.repositories.iuser_repository import IUserRepository
 
-user = User(email="test@example.com",
-            name="Test User", password="password123")
+password = "password123"
+user = User(email="test@example.com", name="Test User", password=password)
 
+def test_verify_password():
+    # Assert
+    assert user.verify_password(password) is True
+    assert user.verify_password("wrong_password") is False
+    
 
 @pytest.mark.asyncio
 async def test_save():
@@ -17,7 +22,7 @@ async def test_save():
     mock_session.commit.return_value = None
     mock_session.refresh.return_value = None
 
-    repository = UserRepository(mock_session)
+    repository = IUserRepository(mock_session)
 
     # Act
     result = await repository.save(user)
@@ -38,7 +43,7 @@ async def test_get_by_sub():
     mock_session = AsyncMock(spec=AsyncSession)
     mock_session.execute.return_value = mock_execute_result
 
-    repository = UserRepository(mock_session)
+    repository = IUserRepository(mock_session)
 
     # Act
     result = await repository.get_by_sub(1)
@@ -57,7 +62,7 @@ async def test_get_user_by_email():
     mock_session = AsyncMock(spec=AsyncSession)
     mock_session.execute.return_value = mock_execute_result
 
-    repository = UserRepository(mock_session)
+    repository = IUserRepository(mock_session)
 
     # Act
     result = await repository.get_user_by_email("test@example.com")

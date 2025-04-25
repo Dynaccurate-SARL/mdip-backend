@@ -26,6 +26,7 @@ pandas = "^2.2.3"
 openpyxl = "^3.1.5"
 lxml = "^5.3.2"
 chardet = "^5.2.0"
+bcrypt = "^4.3.0"
 
 [tool.poetry.group.dev.dependencies]
 aiosqlite = "^0.20.0"
@@ -35,10 +36,15 @@ pytest = "^8.3.5"
 pytest-asyncio = "^0.26.0"
 pytest-cov = "^6.1.1"
 ruff = "^0.11.5"
+time-machine = "^2.16.0"
+pytest-env = "^1.1.5"
 
 [tool.pytest.ini_options]
 asyncio_default_fixture_loop_scope = "function"
 addopts = "--cov=src --cov-report=html --cov-report=xml"
+
+[tool.pytest_env]
+ENV = "TEST"
 
 # https://coverage.readthedocs.io/en/latest/excluding.html
 [tool.coverage.report]
@@ -70,6 +76,8 @@ exclude_also = [
     'log\.error\(',
     'log\.info\(',
     'log\.debug\(',
+    'except:\s*\n\s*pass',
+    'except:\s*\n\s*...',
 ]
 
 [build-system]
@@ -85,3 +93,4 @@ pytest-report = 'start "" "%cd%\htmlcov\index.html"'
 run = "uvicorn src.main:app --port 8000 --reload --log-level debug"
 run-trace = "uvicorn src.main:app --port 8000 --reload --log-level trace"
 ruffghanor = "ruff check ./src --fix"
+

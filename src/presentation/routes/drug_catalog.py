@@ -15,6 +15,7 @@ from src.domain.services.auth_service import manager
 from src.infrastructure.db.base import IdInt
 from src.infrastructure.db.engine import get_session
 from src.infrastructure.repositories.idrug_catalog_repository import IDrugCatalogRepository
+from src.infrastructure.repositories.idrug_repository import IDrugRepository
 from src.infrastructure.repositories.iledger_transaction_repository import ILedgerTransactionRepository
 from src.application.use_cases.drug_catalog.create import DrugCatalogCreateUseCase
 from src.infrastructure.services.blob_storage.azure_storage import AzureFileService
@@ -104,6 +105,7 @@ async def create_catalog(
     # Prepare the repository and service for the use case
     drug_catalog_repository = IDrugCatalogRepository(session)
     lt_repository = ILedgerTransactionRepository(session)
+    drug_repository = IDrugRepository(session)
     ledger_service = get_confidential_ledger(
         lt_repository,
         get_config().AZURE_LEDGER_URL,
@@ -128,6 +130,7 @@ async def create_catalog(
 
         use_case = CatalogImportUseCase(
             drug_catalog_repository=drug_catalog_repository,
+            drug_repository=drug_repository,
             catalog_id=int(drug_catalog.id),
             parser=parser,
             session=session,

@@ -1,5 +1,5 @@
 from typing import List
-from sqlalchemy import func
+from sqlalchemy import delete, func
 from sqlalchemy.future import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -20,6 +20,11 @@ class IDrugRepository(DrugRepositoryInterface):
         result = await self.session.execute(query)
         drug = result.scalar_one_or_none()
         return drug
+
+    async def delete_all_by_catalog_id(self, catalog_id: int):
+        query = delete(Drug).where(Drug._catalog_id == catalog_id)
+        await self.session.execute(query)
+        await self.session.commit()
 
     async def get_by_drug_code_on_catalog_id(
             self, catalog_id: int, drug_code: str):

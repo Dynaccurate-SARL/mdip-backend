@@ -23,6 +23,8 @@ class IDrugCatalogRepository(DrugCatalogRepositoryInterface):
     async def status_update(self, drug_catalog_id: int, status: ImportStatus):
         stmt = update(DrugCatalog).where(DrugCatalog._id == drug_catalog_id)\
             .values(status=status)
+        if status == 'failed':
+            stmt = stmt.values(is_central=False)
         await self.session.execute(stmt)
 
     async def get_central(self):

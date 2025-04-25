@@ -6,7 +6,7 @@ from src.domain.entities.user import User
 from src.infrastructure.repositories.contract import UserRepositoryInterface
 
 
-class UserRepository(UserRepositoryInterface):
+class IUserRepository(UserRepositoryInterface):
 
     async def save(self, user: User) -> User:
         self.session.add(user)
