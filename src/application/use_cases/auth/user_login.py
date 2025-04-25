@@ -16,7 +16,7 @@ class UserLoginUseCase:
     async def execute(self, credentials: AuthDto) -> AuthSuccessDto:
         user = await self.user_repository.get_user_by_email(
             credentials.username)
-        if user is None or user.verify_password(credentials.password):
+        if not user or not user.verify_password(credentials.password):
             raise UnauthorizedAccessError("Invalid credentials")
 
         access_token = self.access_token_service.generate_token(user.sub, [])

@@ -29,13 +29,14 @@ class User(Base):
         return self._password
 
     @password.setter
-    def password(self, raw_password):
+    def password(self, raw_password: str):
         """Generates a hash from a plain-text password."""
         password_bytes = raw_password.encode('utf-8')
         password_hash = bcrypt.hashpw(password_bytes, bcrypt.gensalt())
         self._password = password_hash.decode('utf-8')
 
     def verify_password(self, raw_password: str) -> bool:
+        """Verifies a plain-text password against the stored hash."""       
         return bcrypt.checkpw(
             raw_password.encode('utf-8'), self.password.encode('utf-8'))
 
