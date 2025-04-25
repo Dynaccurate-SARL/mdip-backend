@@ -76,8 +76,8 @@ exclude_also = [
     'log\.error\(',
     'log\.info\(',
     'log\.debug\(',
-    'except:\s*\n\s*pass',
-    'except:\s*\n\s*...',
+    'except Exception:\s*\n\s*pass',
+    'except Exception:\s*\n\s*...',
 ]
 
 [build-system]

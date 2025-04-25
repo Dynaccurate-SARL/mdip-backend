@@ -2,7 +2,7 @@ from pydantic import EmailStr
 from sqlalchemy import Sequence
 from dataclasses import dataclass
 from typing import Generic, List, TypeVar
-from abc import ABC, abstractmethod
+from abc import abstractmethod
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.domain.entities.drug import Drug
@@ -33,7 +33,7 @@ class BaseRepository():
         """Close the database session."""
         try:
             await self.session.close()
-        except:
+        except Exception:
             ...
 
 

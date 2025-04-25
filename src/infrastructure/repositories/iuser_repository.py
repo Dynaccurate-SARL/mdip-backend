@@ -1,6 +1,5 @@
 from pydantic import EmailStr
 from sqlalchemy.future import select
-from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.domain.entities.user import User
 from src.infrastructure.repositories.contract import UserRepositoryInterface

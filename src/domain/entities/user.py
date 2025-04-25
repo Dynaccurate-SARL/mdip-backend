@@ -1,4 +1,3 @@
-import hashlib
 import bcrypt
 import sqlalchemy as sq
 from pydantic import EmailStr

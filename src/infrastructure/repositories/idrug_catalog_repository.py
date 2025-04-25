@@ -1,5 +1,4 @@
 from sqlalchemy import func, select, update
-from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.domain.entities.drug_catalog import DrugCatalog, ImportStatus
 from src.infrastructure.repositories.contract import (

@@ -24,12 +24,12 @@ class MappingCreateUseCase:
     async def execute(self, catalog_to_id: int, file: UploadFile):
         central_catalog = await self.drug_catalog_repository.get_central()
         if central_catalog is None:
-            raise ResourceNotFound(f"Central catalog not found.")
+            raise ResourceNotFound("Central catalog not found.")
         
         related_catalog = await self.drug_catalog_repository.get_by_id(
             catalog_to_id)
         if related_catalog is None:
-            raise ResourceNotFound(f"Related catalog not found.")
+            raise ResourceNotFound("Related catalog not found.")
 
         transaction_data = TransactionData(
             entity_name=DrugCatalog.__tablename__,

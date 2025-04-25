@@ -33,7 +33,7 @@ class MappingImportUseCase:
                         drug_id=central_catalog_drug._id,
                         related_drug_id=related_catalog_drug._id)
                     await self._mapping_repository.save(mapping)
-                except:
+                except Exception:
                     pass
 
     async def execute(self):
@@ -60,10 +60,11 @@ class MappingImportUseCase:
                 transaction_data.completed())
             log.info("Mapping import process completed for catalog_id={}".format(
                 self._central_catalog_id))
-        except:
+        except Exception as err:
             await self._ledger_service.insert_transaction(
                 transaction_data.failed())
-            log.info("Mapping import process failed for catalog_id={}".format(
+            log.error("Mapping import process failed for catalog_id={}".format(
                 self._central_catalog_id))
+            log.exception(err)
 
         await self._drug_repository.close_session()

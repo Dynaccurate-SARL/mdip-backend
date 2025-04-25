@@ -1,7 +1,6 @@
 from typing import List
 from sqlalchemy import delete, func
 from sqlalchemy.future import select
-from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.domain.entities import Drug
 from src.infrastructure.repositories.contract import DrugRepositoryInterface, PagedItems

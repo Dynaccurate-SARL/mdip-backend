@@ -25,7 +25,7 @@ class MappingParser:
             required_columns = self._required_columns()
             if not all([col in self._df.columns for col in required_columns]):
                 raise InvalidFileFormat()
-        except Exception as err:
+        except Exception:
             raise InvalidFileFormat("Invalid file format or missing required columns")
 
     def parse(self) -> Generator[list[DrugMapping], Any, None]:

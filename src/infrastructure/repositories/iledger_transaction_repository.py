@@ -1,5 +1,4 @@
 from sqlalchemy import select
-from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.domain.entities.ledger_transaction import LedgerTransaction
 from src.infrastructure.repositories.contract import LedgerTransactionRepositoryInterface
