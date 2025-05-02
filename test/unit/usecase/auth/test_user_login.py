@@ -15,7 +15,7 @@ async def test_user_login_success():
 
     mock_user = MagicMock()
     mock_user.sub = "user_id"
-    mock_user.verify_password.return_value = False
+    mock_user.verify_password.return_value = True
 
     mock_user_repository.get_user_by_email.return_value = mock_user
     mock_access_token_service.generate_token.return_value = "access_token"
@@ -53,7 +53,7 @@ async def test_user_login_invalid_credentials():
     mock_refresh_token_service = MagicMock()
 
     mock_user = MagicMock()
-    mock_user.verify_password.return_value = True
+    mock_user.verify_password.return_value = False
 
     mock_user_repository.get_user_by_email.return_value = mock_user
 
