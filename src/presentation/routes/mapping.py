@@ -1,10 +1,13 @@
 import uuid
 from typing import Annotated
 from fastapi import APIRouter, BackgroundTasks, Depends, File, Query, UploadFile, status
+from fastapi.responses import JSONResponse
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from src.application.dto.mapping import CentralDrugMappingDto
 from src.application.use_cases.mapping.create import MappingCreateUseCase
 from src.application.use_cases.mapping.import_task import MappingImportUseCase
+from src.application.use_cases.mapping.mappings_by_drug_id import DrugMappingsUseCase
 from src.config.settings import get_config
 from src.domain.entities.user import User
 from src.domain.services.auth_service import manager
@@ -23,6 +26,23 @@ from src.utils.exc import ResourceNotFound
 
 
 mapping_router = APIRouter()
+
+
+@mapping_router.get("/mappings/{drug_id}", response_model=CentralDrugMappingDto)
+async def get_mappings(
+        drug_id: IdInt,
+        session: Annotated[AsyncSession, Depends(get_session)]):
+    # Prepare the repository and service for the use case
+    drug_catalog_repository = IDrugCatalogRepository(session)
+    drug_repository = IDrugRepository(session)
+    mapping_repository = IMappingRepository(session)
+
+    usecase = DrugMappingsUseCase(
+        drug_catalog_repository, drug_repository, mapping_repository)
+    try:
+        return await usecase.execute(drug_id)
+    except ResourceNotFound as err:
+        return err.as_response(status_code=status.HTTP_404_NOT_FOUND)
 
 
 async def mapping_import_task(use_case: MappingImportUseCase):
@@ -87,4 +107,5 @@ async def mapping_upload(
         use_case=use_case
     )
 
-    return {'status': 'up'}
+    return JSONResponse(
+        status_code=201, content={'detail': 'mapping created successfully'})

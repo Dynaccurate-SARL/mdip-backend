@@ -5,6 +5,7 @@ from typing import Generic, List, TypeVar
 from abc import abstractmethod
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from src.application.dto.drug_catalog_dto import CountryCode
 from src.domain.entities.drug import Drug
 from src.domain.entities.user import User
 from src.domain.entities.drug_mapping import DrugMapping
@@ -140,8 +141,24 @@ class DrugRepositoryInterface(BaseRepository):
         """Get paginated drugs, optionally filtered by name or code."""
         ...
 
+
+@dataclass
+class CentralDrugMapping:
+    id: int
+    drug_name: str
+    drug_code: str
+    country: CountryCode
+    properties: dict
+
+
 class MappingRepositoryInterface(BaseRepository):
     @abstractmethod
     async def save(self, mapping: DrugMapping) -> DrugMapping:
         """Save a drug to the database."""
+        ...
+
+    @abstractmethod
+    async def get_mappings_by_central_drug_id(
+            self, central_drug_id: int) -> List[CentralDrugMapping]:
+        """Get all mappings for a given central drug ID."""
         ...
