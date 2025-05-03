@@ -76,6 +76,8 @@ exclude_also = [
     'log\.error\(',
     'log\.info\(',
     'log\.debug\(',
+    'await session.close()',
+    'await self.session.close()',
     'except Exception:\s*\n\s*pass',
     'except Exception:\s*\n\s*...',
 ]

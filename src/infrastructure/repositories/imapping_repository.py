@@ -1,5 +1,11 @@
+from typing import List
+from sqlalchemy.future import select
+
+from src.domain.entities.drug import Drug
+from src.domain.entities.drug_catalog import DrugCatalog
 from src.domain.entities.drug_mapping import DrugMapping
-from src.infrastructure.repositories.contract import MappingRepositoryInterface
+from src.infrastructure.repositories.contract import (
+    CentralDrugMapping, MappingRepositoryInterface)
 
 
 class IMappingRepository(MappingRepositoryInterface):
@@ -9,3 +15,32 @@ class IMappingRepository(MappingRepositoryInterface):
         await self.session.commit()
         await self.session.refresh(mapping)
         return mapping
+
+    async def get_mappings_by_central_drug_id(
+            self, central_drug_id: int) -> List[CentralDrugMapping]:
+
+        stmt = (
+            select(
+                Drug._id.label("id"),
+                Drug.drug_code.label("drug_code"),
+                Drug.drug_name.label("drug_name"),
+                DrugCatalog.country.label("country"),
+                Drug.properties.label("properties")
+            )
+            .select_from(DrugMapping)
+            .join(Drug, Drug._id == DrugMapping.related_drug_id)
+            .join(DrugCatalog, Drug._catalog_id == DrugCatalog._id)
+            .where(DrugMapping.drug_id == central_drug_id)
+        )
+
+        result = await self.session.execute(stmt)
+        rows = result.fetchall()
+        return [
+            CentralDrugMapping(
+                id=row.id,
+                drug_code=row.drug_code,
+                drug_name=row.drug_name,
+                properties=row.properties,
+                country=row.country,
+            ) for row in rows
+        ]

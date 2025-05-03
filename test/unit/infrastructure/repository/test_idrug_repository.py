@@ -51,7 +51,7 @@ async def test_get_by_id():
 
 
 @pytest.mark.asyncio
-async def test_get_all_like_code_or_name():
+async def test_get_all_like_code_or_name_by_catalog_id():
     # Arrange
     drugs = [drug, drug]
     mock_execute_result = AsyncMock(spec=Result)
@@ -63,7 +63,7 @@ async def test_get_all_like_code_or_name():
     repository = IDrugRepository(mock_session)
 
     # Act
-    result = await repository.get_all_like_code_or_name("Test")
+    result = await repository.get_all_like_code_or_name_by_catalog_id(123, "Test")
 
     # Assert
     mock_session.execute.assert_called_once()
@@ -115,3 +115,73 @@ async def test_get_paginated_by_catalog_id():
     assert result.total_count == 10
     assert len(result.items) == 1
     assert result.items == [drug]
+
+@pytest.mark.asyncio
+async def test_get_by_drug_code_on_catalog_id_found():
+    # Arrange
+    mock_execute_result = AsyncMock(spec=Result)
+    mock_execute_result.scalar_one_or_none.return_value = drug
+
+    mock_session = AsyncMock(spec=AsyncSession)
+    mock_session.execute.return_value = mock_execute_result
+
+    repository = IDrugRepository(mock_session)
+
+    # Act
+    result = await repository.get_by_drug_code_on_catalog_id(1, "TD123")
+
+    # Assert
+    mock_session.execute.assert_called_once()
+    assert result == drug
+
+
+@pytest.mark.asyncio
+async def test_get_by_drug_code_on_catalog_id_not_found():
+    # Arrange
+    mock_execute_result = AsyncMock(spec=Result)
+    mock_execute_result.scalar_one_or_none.return_value = None
+
+    mock_session = AsyncMock(spec=AsyncSession)
+    mock_session.execute.return_value = mock_execute_result
+
+    repository = IDrugRepository(mock_session)
+
+    # Act
+    result = await repository.get_by_drug_code_on_catalog_id(1, "INVALID_CODE")
+
+    # Assert
+    mock_session.execute.assert_called_once()
+    assert result is None
+
+@pytest.mark.asyncio
+async def test_delete_all_by_catalog_id():
+    # Arrange
+    mock_session = AsyncMock(spec=AsyncSession)
+    mock_session.execute.return_value = None
+    mock_session.commit.return_value = None
+
+    repository = IDrugRepository(mock_session)
+
+    # Act
+    await repository.delete_all_by_catalog_id(1)
+
+    # Assert
+    mock_session.execute.assert_called_once()
+    mock_session.commit.assert_called_once()
+
+
+@pytest.mark.asyncio
+async def test_delete_all_by_catalog_id_no_commits_if_no_matches():
+    # Arrange
+    mock_session = AsyncMock(spec=AsyncSession)
+    mock_session.execute.return_value = None
+    mock_session.commit.return_value = None
+
+    repository = IDrugRepository(mock_session)
+
+    # Act
+    await repository.delete_all_by_catalog_id(999)
+
+    # Assert
+    mock_session.execute.assert_called_once()
+    mock_session.commit.assert_called_once()
