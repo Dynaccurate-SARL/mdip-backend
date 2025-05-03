@@ -29,9 +29,11 @@ from src.utils.exc import ConflictErrorCode
 drug_catalog_router = APIRouter()
 
 
-@drug_catalog_router.get("/catalogs/{catalog_id}",
-                         status_code=status.HTTP_200_OK,
-                         response_model=DrugCatalogDto)
+@drug_catalog_router.get(
+    "/catalogs/{catalog_id}",
+    status_code=status.HTTP_200_OK,
+    response_model=DrugCatalogDto,
+    include_in_schema=False)
 async def get_catalog_by_id(
         session: Annotated[AsyncSession, Depends(get_session)],
         catalog_id: IdInt):
@@ -49,9 +51,11 @@ async def get_catalog_by_id(
     return drug_catalog
 
 
-@drug_catalog_router.get("/p/catalogs",
-                         status_code=status.HTTP_200_OK,
-                         response_model=DrugCatalogPaginatedDto)
+@drug_catalog_router.get(
+    "/p/catalogs",
+    status_code=status.HTTP_200_OK,
+    response_model=DrugCatalogPaginatedDto,
+    summary="Get paginated drug catalogs")
 async def get_catalogs(
         session: Annotated[AsyncSession, Depends(get_session)],
         page: Annotated[int, Query(gt=0, example=1)] = 1,
@@ -69,9 +73,11 @@ async def drug_catalog_import_task(use_case: CatalogImportUseCase):
     await use_case.execute()
 
 
-@drug_catalog_router.post("/catalogs",
-                          status_code=status.HTTP_201_CREATED,
-                          response_model=DrugCatalogCreatedDto)
+@drug_catalog_router.post(
+    "/catalogs",
+    status_code=status.HTTP_201_CREATED,
+    response_model=DrugCatalogCreatedDto,
+    summary="Create a new drug catalog")
 async def create_catalog(
         background_tasks: BackgroundTasks,
         user: Annotated[User, Depends(manager)],

@@ -51,7 +51,7 @@ async def test_get_by_id():
 
 
 @pytest.mark.asyncio
-async def test_get_all_like_code_or_name():
+async def test_get_all_like_code_or_name_by_catalog_id():
     # Arrange
     drugs = [drug, drug]
     mock_execute_result = AsyncMock(spec=Result)
@@ -63,7 +63,7 @@ async def test_get_all_like_code_or_name():
     repository = IDrugRepository(mock_session)
 
     # Act
-    result = await repository.get_all_like_code_or_name("Test")
+    result = await repository.get_all_like_code_or_name_by_catalog_id(123, "Test")
 
     # Assert
     mock_session.execute.assert_called_once()
@@ -180,7 +180,7 @@ async def test_delete_all_by_catalog_id_no_commits_if_no_matches():
     repository = IDrugRepository(mock_session)
 
     # Act
-    await repository.delete_all_by_catalog_id(999)  # Assuming no matches for catalog_id=999
+    await repository.delete_all_by_catalog_id(999)
 
     # Assert
     mock_session.execute.assert_called_once()

@@ -9,6 +9,6 @@ from src.application.dto.user_dto import UserDto
 user_router = APIRouter()
 
 
-@user_router.get("/me", response_model=UserDto)
-async def get_by_id(user: Annotated[User, Depends(manager)]):
+@user_router.get("/me", response_model=UserDto, summary="Get current user")
+async def get_me(user: Annotated[User, Depends(manager)]):
     return UserDto.model_validate(user)

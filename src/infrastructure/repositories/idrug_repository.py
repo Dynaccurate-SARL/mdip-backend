@@ -33,8 +33,9 @@ class IDrugRepository(DrugRepositoryInterface):
         drug = result.scalar_one_or_none()
         return drug
 
-    async def get_all_like_code_or_name(self, name_or_code: str) -> List[Drug]:
-        query = select(Drug).where(
+    async def get_all_like_code_or_name_by_catalog_id(
+            self, catalog_id: int, name_or_code: str) -> List[Drug]:
+        query = select(Drug).where(Drug._catalog_id == catalog_id).where(
             (Drug.drug_name.ilike(f"%{name_or_code}%")) |
             (Drug.drug_code.ilike(f"%{name_or_code}%")))
         result = await self.session.execute(query)

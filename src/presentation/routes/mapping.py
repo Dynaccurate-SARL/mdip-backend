@@ -28,7 +28,9 @@ from src.utils.exc import ResourceNotFound
 mapping_router = APIRouter()
 
 
-@mapping_router.get("/mappings/{drug_id}", response_model=CentralDrugMappingDto)
+@mapping_router.get(
+    "/mappings/{drug_id}", response_model=CentralDrugMappingDto,
+    summary="Get mappings related to a drug by its ID")
 async def get_mappings(
         drug_id: IdInt,
         session: Annotated[AsyncSession, Depends(get_session)]):
@@ -49,7 +51,8 @@ async def mapping_import_task(use_case: MappingImportUseCase):
     await use_case.execute()
 
 
-@mapping_router.post("/mappings")
+@mapping_router.post(
+    "/mappings", summary="Import drug mappings from a mapping file")
 async def mapping_upload(
         background_tasks: BackgroundTasks,
         user: Annotated[User, Depends(manager)],

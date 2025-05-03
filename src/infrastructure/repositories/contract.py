@@ -124,7 +124,8 @@ class DrugRepositoryInterface(BaseRepository):
         ...
 
     @abstractmethod
-    async def get_all_like_code_or_name(self, name_or_code: str) -> List[Drug]:
+    async def get_all_like_code_or_name_by_catalog_id(
+            self, name_or_code: str) -> List[Drug]:
         """Get all drugs that match the given name or code."""
         ...
 
