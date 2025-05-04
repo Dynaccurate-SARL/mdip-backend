@@ -1,4 +1,5 @@
 from typing import List
+from sqlalchemy import func
 from sqlalchemy.future import select
 
 from src.domain.entities.drug import Drug
@@ -15,6 +16,10 @@ class IMappingRepository(MappingRepositoryInterface):
         await self.session.commit()
         await self.session.refresh(mapping)
         return mapping
+
+    async def get_total_count(self) -> int:
+        count_statement = select(func.count(DrugMapping.drug_id))
+        return await self.session.scalar(count_statement)
 
     async def get_mappings_by_central_drug_id(
             self, central_drug_id: int) -> List[CentralDrugMapping]:

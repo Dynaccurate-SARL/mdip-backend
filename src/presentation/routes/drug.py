@@ -2,13 +2,14 @@ from typing import Annotated, List
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from src.application.dto.drug_dto import DrugDto, DrugPaginatedDto
-from src.application.use_cases.drug.get_all import GetAllDrugsUseCase
+from src.application.dto.drug_dto import DrugDto, DrugMappingsCount, DrugPaginatedDto
+from src.application.use_cases.drug.get_all import GetDrugsUseCase
 from src.application.use_cases.drug.get_by_id import GetDrugByIdUseCase
 from src.application.use_cases.drug.get_paginated import GetPaginatedDrugUseCase
 from src.infrastructure.db.base import IdInt
 from src.infrastructure.db.engine import get_session
 from src.infrastructure.repositories.idrug_catalog_repository import IDrugCatalogRepository
+from src.infrastructure.repositories.idrug_mapping_count_repository import IDrugMappingCountViewInterface
 from src.infrastructure.repositories.idrug_repository import IDrugRepository
 
 
@@ -40,19 +41,19 @@ async def get_drug_by_id(
 @drug_router.get(
     "/drugs",
     status_code=status.HTTP_200_OK,
-    response_model=List[DrugDto],
+    response_model=List[DrugMappingsCount],
     summary="Get all drugs filtered by name or code")
 async def get_all_by_name_or_code(
         session: Annotated[AsyncSession, Depends(get_session)],
         drugnc: Annotated[str, Query(
-            min_length=3, description="Filter by 'drug name' or 'drud code'")]):
+            min_length=3, description="Filter by 'drug name' or 'drud code'")] = "",
+        limit: Annotated[int, Query(ge=0)] = 0):
     # Prepare the repository
-    drug_repository = IDrugRepository(session)
-    drug_catalog_repository = IDrugCatalogRepository(session)
+    drug_mapping_count_repository = IDrugMappingCountViewInterface(session)
 
     # Fetch the drug by ID
-    use_case = GetAllDrugsUseCase(drug_catalog_repository, drug_repository)
-    return await use_case.execute(drugnc)
+    use_case = GetDrugsUseCase(drug_mapping_count_repository)
+    return await use_case.execute(drugnc, limit)
 
 
 @drug_router.get(
@@ -62,10 +63,10 @@ async def get_all_by_name_or_code(
     summary="Get paginated drugs filtered by name or code")
 async def get_drugs(
         session: Annotated[AsyncSession, Depends(get_session)],
-        page: Annotated[int, Query(gt=0, example=1)] = 1,
-        psize: Annotated[int, Query(gt=0, example=10)] = 10,
         drugnc: Annotated[str, Query(
-            min_length=3, description="Filter by 'drug name' or 'drud code'")] = ''):
+            min_length=3, description="Filter by 'drug name' or 'drud code'")],
+        page: Annotated[int, Query(gt=0, example=1)] = 1,
+        psize: Annotated[int, Query(gt=0, le=100, example=10)] = 10):
     # Prepare the repository
     drug_catalog_repository = IDrugCatalogRepository(session)
     drug_repository = IDrugRepository(session)
