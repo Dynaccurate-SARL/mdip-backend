@@ -89,12 +89,13 @@ exclude_also = [
     'except Exception:\s*\n\s*...',
 ]
 
-# [tool.ruff]
+[tool.ruff]
+target-version = "py311"
 # line-length = 79
 
 # [tool.ruff.lint]
 # preview = true
-# select = ['I', 'F', 'E', 'W', 'PL', 'PT']
+# select = ['I', 'F', 'E', 'W', 'PT']
 
 # [tool.ruff.format]
 # preview = true
