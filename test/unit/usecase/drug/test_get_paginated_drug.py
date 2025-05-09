@@ -1,9 +1,10 @@
 import pytest
 from unittest.mock import AsyncMock, Mock
 
-from src.application.use_cases.drug.get_paginated import GetPaginatedDrugUseCase
+from src.application.use_cases.drug.get_paginated import GetPaginatedDrugsUseCase
 from src.application.dto.drug_dto import DrugPaginatedDto
 from src.domain.entities.drug import Drug
+from src.utils.exc import ResourceNotFound
 
 
 @pytest.mark.asyncio
@@ -21,7 +22,7 @@ async def test_execute_returns_paginated_drug_dto():
         page_size=2,
         total_count=10
     )
-    use_case = GetPaginatedDrugUseCase(
+    use_case = GetPaginatedDrugsUseCase(
         mock_drug_catalog_repository, mock_drug_repository)
 
     # Act
@@ -39,3 +40,22 @@ async def test_execute_returns_paginated_drug_dto():
     mock_drug_repository.get_paginated_by_catalog_id.assert_awaited_once_with(
         1, 2, 123, "Drug"
     )
+
+@pytest.mark.asyncio
+async def test_execute_returns_paginated_drug_dto_invalid_catalog_id():
+    # Arrange
+    mock_drug_catalog_repository = AsyncMock()
+    mock_drug_catalog_repository.get_by_id.return_value = None
+
+    mock_drug_repository = AsyncMock()
+
+    use_case = GetPaginatedDrugsUseCase(
+        mock_drug_catalog_repository, mock_drug_repository)
+
+    # Act
+    with pytest.raises(ResourceNotFound) as exc_info:
+        result = await use_case.execute(
+            page=1, page_size=2, name_or_code_filter="Drug", catalog_id=1)
+    
+    #Assert
+    assert exc_info.value.message == "Catalog not found"
