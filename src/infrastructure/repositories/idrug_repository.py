@@ -45,7 +45,7 @@ class IDrugRepository(DrugRepositoryInterface):
     async def get_total_count(self, drug_catalog_id: int,
                               name_or_code_filter: str = None) -> int:
         count_statement = select(func.count(Drug._id)).where(
-            Drug.catalog_id == drug_catalog_id)
+            Drug._catalog_id == drug_catalog_id)
         if name_or_code_filter:
             count_statement = count_statement.where(
                 (Drug.drug_name.ilike(f"%{name_or_code_filter}%")) |
