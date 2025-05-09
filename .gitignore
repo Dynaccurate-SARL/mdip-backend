@@ -64,6 +64,10 @@ db.sqlite3-journal
 instance/
 .webassets-cache
 
+# vscode
+settings.json
+.vscode/
+
 # Scrapy stuff:
 .scrapy
 
