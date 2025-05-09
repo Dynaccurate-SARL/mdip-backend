@@ -13,10 +13,10 @@ class Envs(LedgerEnvs, BlobEnvs, BaseEnvs, BaseSettings):
 
 
 @lru_cache
-def get_config(env: Literal['TEST'] | None = getenv('ENV', None)) -> Envs:
+def get_config(env: Literal['TEST'] | None = getenv('ENVIRONMENT', None)) -> Envs:
     if env == 'TEST':
         return Envs(
-            DATABASE_URL='',
+            DATABASE_URL='sqlite+aiosqlite:///:memory:',
             UPLOAD_STRATEGY='DISK',
             _env_file='.env.test', _env_file_encoding='utf-8'
         )

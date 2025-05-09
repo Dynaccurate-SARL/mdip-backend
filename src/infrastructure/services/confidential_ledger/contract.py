@@ -13,7 +13,7 @@ class TransactionInserted(BaseSchema):
 
 
 def _created_at() -> str:
-    if os.getenv('ENV', None) == 'TEST':
+    if os.getenv('ENVIRONMENT', None) == 'TEST':
         date = datetime(2025, 1, 1, 0, 0, 0, tzinfo=timezone.utc)
         return date.isoformat()
     return datetime.now(timezone.utc).isoformat()

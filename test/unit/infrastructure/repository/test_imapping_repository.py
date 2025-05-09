@@ -27,6 +27,22 @@ async def test_save():
     mock_session.refresh.assert_called_once_with(user)
     assert result == user
 
+
+@pytest.mark.asyncio
+async def test_get_total_count():
+    # Arrange
+    mock_session = AsyncMock(spec=AsyncSession)
+    mock_session.scalar.return_value = 10
+
+    repository = IMappingRepository(mock_session)
+
+    # Act
+    result = await repository.get_total_count()
+
+    # Assert
+    mock_session.scalar.assert_called_once()
+    assert result == 10
+
 @pytest.mark.asyncio
 async def test_get_mappings_by_central_drug_id():
     # Arrange
