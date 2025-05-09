@@ -64,7 +64,7 @@ async def get_all_by_name_or_code(
 async def get_drugs(
         session: Annotated[AsyncSession, Depends(get_session)],
         drugnc: Annotated[str, Query(
-            min_length=3, description="Filter by 'drug name' or 'drud code'")],
+            min_length=3, description="Filter by 'drug name' or 'drud code'")] = "",
         page: Annotated[int, Query(gt=0, example=1)] = 1,
         psize: Annotated[int, Query(gt=0, le=100, example=10)] = 10,
         catalog: Annotated[IdInt, Query(...)] = None):
