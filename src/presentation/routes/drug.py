@@ -6,6 +6,8 @@ from src.application.dto.drug_dto import DrugDto, DrugMappingsCount, DrugPaginat
 from src.application.use_cases.drug.get_all import GetDrugsUseCase
 from src.application.use_cases.drug.get_by_id import GetDrugByIdUseCase
 from src.application.use_cases.drug.get_paginated import GetPaginatedDrugsUseCase
+from src.domain.entities.user import User
+from src.domain.services.auth_service import manager
 from src.infrastructure.db.base import IdInt
 from src.infrastructure.db.engine import get_session
 from src.infrastructure.repositories.idrug_catalog_repository import IDrugCatalogRepository
@@ -62,6 +64,7 @@ async def get_all_by_name_or_code(
     response_model=DrugPaginatedDto,
     summary="Get paginated drugs filtered by name or code")
 async def get_drugs(
+        user: Annotated[User, Depends(manager)],
         session: Annotated[AsyncSession, Depends(get_session)],
         drugnc: Annotated[str, Query(
             min_length=3, description="Filter by 'drug name' or 'drud code'")] = "",

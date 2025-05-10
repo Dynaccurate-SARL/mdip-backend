@@ -57,6 +57,7 @@ async def get_catalog_by_id(
     response_model=DrugCatalogPaginatedDto,
     summary="Get paginated drug catalogs")
 async def get_catalogs(
+        user: Annotated[User, Depends(manager)],
         session: Annotated[AsyncSession, Depends(get_session)],
         page: Annotated[int, Query(gt=0, example=1)] = 1,
         psize: Annotated[int, Query(gt=0, example=10)] = 10,
