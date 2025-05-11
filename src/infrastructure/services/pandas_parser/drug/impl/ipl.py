@@ -23,5 +23,6 @@ class PL_Parser(PandasParser):
 
         # Rename the DataFrame columns
         self._df.rename(columns=column_mapping, inplace=True)
+        self._df = self._df[["drug_code", "drug_name", "properties"]]
         self._df["properties"] = self._df.apply(lambda row: row.drop(
             ["drug_code", "drug_name"]).dropna().to_dict(), axis=1)

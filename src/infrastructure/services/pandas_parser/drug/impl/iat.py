@@ -21,7 +21,7 @@ class AT_Parser(PandasParser):
             ["Name"]).dropna().to_dict(), axis=1)
         
         # Generate ID column
-        self._df["ID"] = self._df.index.to_series().apply(lambda x: f"AT_{x + 1}")
+        self._df["ID"] = [f"AT_{i + 1}" for i in range(len(self._df))]
 
         # Select relevant columns
         self._df = self._df[["Name", "ID", "properties"]]
