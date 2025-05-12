@@ -1,5 +1,5 @@
 from typing import Annotated, List
-from fastapi import APIRouter, Depends, HTTPException, Query, status
+from fastapi import APIRouter, Depends, Query, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.application.dto.drug_dto import DrugDto, DrugMappingsCount, DrugPaginatedDto
