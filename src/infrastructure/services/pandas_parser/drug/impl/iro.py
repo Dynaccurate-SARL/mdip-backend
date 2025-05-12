@@ -8,16 +8,19 @@ class RO_Parser(PandasParser):
         return pd.read_excel(self._file, engine='openpyxl')
 
     def _required_columns(self):
-        return ["Cod CIM", "Denumire comerciala"]
+        return ["Denumire comerciala"]
 
     def parse(self):
+        
+        self._df["ID"] = [f"RO_{i + 1}" for i in range(len(self._df))]
+        
         self._df["properties"] = self._df.apply(lambda row: row.drop(
-            ["Cod CIM", "Denumire comerciala"]).dropna().to_dict(), axis=1)
+            ["ID", "Denumire comerciala"]).dropna().to_dict(), axis=1)
         
         # Select relevant columns
-        self._df = self._df[["Cod CIM", "Denumire comerciala", "properties"]]
+        self._df = self._df[["ID", "Denumire comerciala", "properties"]]
         self._df.rename(columns={
-            "Cod CIM": "drug_code",
+            "ID": "drug_code",
             "Denumire comerciala": "drug_name",
             "properties": "properties"
         }, inplace=True)

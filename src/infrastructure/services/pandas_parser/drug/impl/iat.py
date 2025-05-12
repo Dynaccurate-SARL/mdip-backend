@@ -4,26 +4,29 @@ import pandas as pd
 from src.infrastructure.services.pandas_parser.drug.contract import PandasParser
 
 
-class ATC_Parser(PandasParser):
+class AT_Parser(PandasParser):
     def _open(self):
         encoding = chardet.detect(self._file)['encoding']
-        return pd.read_csv(self._file, delimiter=',', encoding=encoding,
-                           on_bad_lines='skip').where(pd.notnull, None)
+        return pd.read_excel(self._file, engine='openpyxl', encoding=encoding,
+                             sheet_name='Search results').where(pd.notnull, None)
 
     def _required_columns(self):
-        return ["ATC code", "ATC level name"]
+        return ["Name"]
 
     def parse(self):
         # Strip whitespace from column names
         self._df.columns = self._df.columns.str.strip()
 
         self._df["properties"] = self._df.apply(lambda row: row.drop(
-            ["ATC code", "ATC level name"]).dropna().to_dict(), axis=1)
+            ["Name"]).dropna().to_dict(), axis=1)
+        
+        # Generate ID column
+        self._df["ID"] = [f"AT_{i + 1}" for i in range(len(self._df))]
 
         # Select relevant columns
-        self._df = self._df[["ATC code", "ATC level name", "properties"]]
+        self._df = self._df[["Name", "ID", "properties"]]
         self._df.rename(columns={
-            "ATC code": "drug_code",
-            "ATC level name": "drug_name",
+            "ID": "drug_code",
+            "Name": "drug_name",
             "properties": "properties"
         }, inplace=True)
