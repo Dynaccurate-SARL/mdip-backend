@@ -2,7 +2,6 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.domain.entities.drug_catalog import DrugCatalog
 from src.infrastructure.repositories.contract import DrugCatalogRepositoryInterface, DrugRepositoryInterface
-from src.infrastructure.services.confidential_ledger.contract import Ledger, TransactionData
 from src.infrastructure.services.pandas_parser.drug.contract import PandasParser
 from logging import getLogger
 
@@ -21,7 +20,7 @@ class CatalogImportUseCase:
         self._logger = logger or getLogger(__name__)
 
     async def execute(self):
-        transaction_data = TransactionData(
+        transaction_data = OldTransactionData(
             entity_name=DrugCatalog.__tablename__,
             entity_id=self._catalog_id,
             status='processing',

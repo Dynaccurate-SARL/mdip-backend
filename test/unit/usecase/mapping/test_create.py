@@ -4,7 +4,7 @@ from unittest.mock import AsyncMock, MagicMock
 from fastapi import UploadFile
 from src.application.use_cases.mapping.create import MappingCreateUseCase, ResourceNotFound
 from src.domain.entities.drug_catalog import DrugCatalog
-from src.infrastructure.services.confidential_ledger.contract import TransactionData
+from src.infrastructure.services.confidential_ledger.contract import OldTransactionData
 from src.utils.checksum import file_checksum
 
 
@@ -33,7 +33,7 @@ async def test_execute_success():
     mock_drug_catalog_repository.get_by_id.assert_awaited_once_with(2)
     mock_ledger_service.insert_transaction.assert_awaited_once()
     transaction_data = mock_ledger_service.insert_transaction.call_args[0][0]
-    assert isinstance(transaction_data, TransactionData)
+    assert isinstance(transaction_data, OldTransactionData)
     assert transaction_data.data["filename"] == "test_file.csv"
     assert transaction_data.data["file_checksum"] == file_checksum(mock_file)
 

@@ -5,7 +5,7 @@ from unittest.mock import AsyncMock, MagicMock
 
 from src.application.use_cases.mapping.import_task import MappingImportUseCase
 from src.domain.entities.drug_mapping import DrugMapping
-from src.infrastructure.services.confidential_ledger.contract import TransactionData
+from src.infrastructure.services.confidential_ledger.contract import OldTransactionData
 
 
 @pytest.mark.asyncio
@@ -42,7 +42,7 @@ async def test_execute_success():
     # Assert
     assert ledger_service.insert_transaction.await_count == 2
 
-    first_call_args = TransactionData(
+    first_call_args = OldTransactionData(
         entity_name="drug_catalogs",
         entity_id=catalog_to_id,
         status="processing",
@@ -52,7 +52,7 @@ async def test_execute_success():
             "catalog_to_id": catalog_to_id,
         },
     )
-    second_call_args = TransactionData(
+    second_call_args = OldTransactionData(
         entity_name="drug_catalogs",
         entity_id=catalog_to_id,
         status="completed",
@@ -99,7 +99,7 @@ async def test_execute_failure():
     # Assert
     assert ledger_service.insert_transaction.await_count == 2
 
-    first_call_args = TransactionData(
+    first_call_args = OldTransactionData(
         entity_name="drug_catalogs",
         entity_id=catalog_to_id,
         status="processing",
@@ -109,7 +109,7 @@ async def test_execute_failure():
             "catalog_to_id": catalog_to_id,
         },
     )
-    second_call_args = TransactionData(
+    second_call_args = OldTransactionData(
         entity_name="drug_catalogs",
         entity_id=catalog_to_id,
         status="failed",

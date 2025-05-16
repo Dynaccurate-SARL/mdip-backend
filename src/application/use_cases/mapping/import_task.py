@@ -3,7 +3,7 @@ import logging as log
 from src.domain.entities.drug_catalog import DrugCatalog
 from src.domain.entities.drug_mapping import DrugMapping
 from src.infrastructure.repositories.contract import DrugRepositoryInterface, MappingRepositoryInterface
-from src.infrastructure.services.confidential_ledger.contract import Ledger, TransactionData
+from src.infrastructure.services.confidential_ledger.contract import Ledger, OldTransactionData
 from src.infrastructure.services.pandas_parser.mapping.parse import MappingParser
 
 
@@ -37,7 +37,7 @@ class MappingImportUseCase:
                     pass
 
     async def execute(self):
-        transaction_data = TransactionData(
+        transaction_data = OldTransactionData(
             entity_name=DrugCatalog.__tablename__,
             entity_id=self._catalog_to_id,
             status='processing',

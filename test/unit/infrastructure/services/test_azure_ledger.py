@@ -5,9 +5,9 @@ from sqlalchemy.orm import declarative_base
 from unittest.mock import AsyncMock, MagicMock, patch
 from azure.core.exceptions import ResourceNotFoundError, HttpResponseError
 
-from src.domain.entities.ledger_transaction import LedgerTransaction
-from src.infrastructure.services.confidential_ledger.iazure_ledger import AzureLedger
-from src.infrastructure.services.confidential_ledger.contract import TransactionData, TransactionInserted
+from src.domain.entities.ltransactions import LedgerTransaction
+from src.infrastructure.services.confidential_ledger.azure_ledger import AzureLedger
+from src.infrastructure.services.confidential_ledger.contract import OldTransactionData, TransactionInserted
 
 
 class AzureLedgerFixture(TypedDict):
@@ -46,7 +46,7 @@ async def test_insert_transaction(azure_ledger_fixture):
         "contents": '{"key": "value"}'
     }
 
-    data = TransactionData(
+    data = OldTransactionData(
         entity_name='test_entity', entity_id=0, status="created",
         filename="test.csv",  file_checksum='filehash123',
         catatag_hash='cataloghash123'

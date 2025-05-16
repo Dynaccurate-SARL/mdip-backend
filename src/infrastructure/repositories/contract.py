@@ -2,7 +2,7 @@ from pydantic import EmailStr
 from sqlalchemy import Sequence
 from dataclasses import dataclass
 from typing import Generic, List, TypeVar
-from abc import abstractmethod
+from abc import abstractmethod, ABC
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.application.dto.drug_catalog_dto import CountryCode
@@ -11,8 +11,6 @@ from src.domain.entities.drug_mapping_count_view import DrugMappingCountView
 from src.domain.entities.user import User
 from src.domain.entities.drug_mapping import DrugMapping
 from src.domain.entities.drug_catalog import DrugCatalog, ImportStatus
-from src.domain.entities.ledger_transaction import (
-    LedgerTransaction)
 
 
 T = TypeVar('T')
@@ -26,7 +24,7 @@ class PagedItems(Generic[T]):
     page_size: int
 
 
-class BaseRepository():
+class BaseRepository(ABC):
     def __init__(self, session: AsyncSession):
         """Initialize the repository with a database session."""
         self.session = session
@@ -87,19 +85,6 @@ class DrugCatalogRepositoryInterface(BaseRepository):
             self, page: int, page_size: int,
             name_filter: str = None) -> PagedItems[DrugCatalog]:
         """Get paginated drug catalogs, optionally filtered by name."""
-        ...
-
-
-class LedgerTransactionRepositoryInterface(BaseRepository):
-    @abstractmethod
-    async def save(self, transaction: LedgerTransaction) -> LedgerTransaction:
-        """Save a ledger transaction to the database."""
-        ...
-
-    @abstractmethod
-    async def get_by_transaction_id(
-            self, transaction_id: int) -> LedgerTransaction | None:
-        """Get a ledger transaction by its ID."""
         ...
 
 
@@ -177,4 +162,38 @@ class DrugMappingCountViewInterface(BaseRepository):
             self, name_or_code_filter: str = "",
             limit: int = 0) -> List[DrugMappingCountView]:
         """Get all drugs that match the given name or code."""
+        ...
+
+
+class MappingTransactionRepositoryInterface(BaseRepository):
+    @abstractmethod
+    async def save(self, transaction):
+        """Save a mapping transaction to the database."""
+        ...
+
+    @abstractmethod
+    async def get_by_id(self, id: int):
+        """Get a mapping transaction by its ID."""
+        ...
+
+    @abstractmethod
+    async def get_latest_central_mappings(self, catalog_id: int):
+        """Get the latest central mappings for a given catalog ID."""
+        ...
+
+
+class CatalogTransactionRepositoryInterface(BaseRepository):
+    @abstractmethod
+    async def save(self, transaction):
+        """Save a catalog transaction to the database."""
+        ...
+
+    @abstractmethod
+    async def get_by_id(self, id: int):
+        """Get a catalog transaction by its ID."""
+        ...
+
+    @abstractmethod
+    async def get_latest_by_catalog_id(self, catalog_id: int):
+        """Get the latest catalog transaction for a given catalog ID."""
         ...

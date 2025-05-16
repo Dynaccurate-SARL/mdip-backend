@@ -5,7 +5,7 @@ from unittest.mock import AsyncMock
 
 from src.domain.entities.drug_catalog import DrugCatalog
 from src.infrastructure.repositories.iledger_transaction_repository import ILedgerTransactionRepository
-from src.domain.entities.ledger_transaction import LedgerTransaction
+from src.domain.entities.ltransactions import LedgerTransaction
 
 ledger_transaction = LedgerTransaction(
     transaction_id='001', entity_name=DrugCatalog.__tablename__,

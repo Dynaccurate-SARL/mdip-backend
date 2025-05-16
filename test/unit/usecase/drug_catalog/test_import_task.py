@@ -2,7 +2,7 @@ import pytest
 from unittest.mock import AsyncMock, MagicMock, Mock
 
 from src.application.use_cases.drug_catalog.import_task import CatalogImportUseCase
-from src.infrastructure.services.confidential_ledger.contract import TransactionData
+from src.infrastructure.services.confidential_ledger.contract import OldTransactionData
 
 
 @pytest.mark.asyncio

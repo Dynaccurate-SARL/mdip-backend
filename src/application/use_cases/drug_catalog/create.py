@@ -4,7 +4,7 @@ from src.domain.entities.drug_catalog import DrugCatalog
 from src.infrastructure.repositories.contract import (
     DrugCatalogRepositoryInterface)
 from src.infrastructure.services.confidential_ledger.contract import (
-    Ledger, TransactionData)
+    Ledger, OldTransactionData)
 from src.utils.checksum import file_checksum
 from src.utils.exc import ConflictErrorCode
 
@@ -34,7 +34,7 @@ class DrugCatalogCreateUseCase:
         drug_catalog = await self.drug_catalog_repository.save(drug_catalog)
 
         # Send the drug catalog to the ledger
-        transaction_data = TransactionData(
+        transaction_data = OldTransactionData(
             # Entity transacton reference
             entity_name=DrugCatalog.__tablename__,
             entity_id=drug_catalog._id,

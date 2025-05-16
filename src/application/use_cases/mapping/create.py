@@ -5,7 +5,7 @@ from src.domain.entities.drug_catalog import DrugCatalog
 from src.infrastructure.repositories.contract import (
     DrugCatalogRepositoryInterface)
 from src.infrastructure.services.confidential_ledger.contract import (
-    Ledger, TransactionData)
+    Ledger, OldTransactionData)
 from src.utils.checksum import file_checksum
 from src.utils.exc import ResourceNotFound
 
@@ -31,7 +31,7 @@ class MappingCreateUseCase:
         if related_catalog is None:
             raise ResourceNotFound("Related catalog not found.")
 
-        transaction_data = TransactionData(
+        transaction_data = OldTransactionData(
             entity_name=DrugCatalog.__tablename__,
             entity_id=catalog_to_id,
             status='created',
