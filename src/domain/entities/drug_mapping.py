@@ -9,9 +9,8 @@ class DrugMapping(Base):
     __tablename__ = 'drug_mappings'
 
     _mapping_id: Mapped[int] = mapped_column(
-        'mapping_id', sq.BigInteger,
-        sq.ForeignKey('mapping_transactions.mapping_id'), nullable=False)
-
+        'mapping_id', sq.BigInteger, nullable=False)
+    
     _drug_id: Mapped[int] = mapped_column(
         'drug_id', sq.BigInteger, sq.ForeignKey('drugs.id'),
         nullable=False)

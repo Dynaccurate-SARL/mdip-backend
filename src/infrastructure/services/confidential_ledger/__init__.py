@@ -8,17 +8,16 @@ from src.infrastructure.services.confidential_ledger.contract import (
     LedgerInterface, TransactionInserted)
 
 
-def fake_azure_ledger():
+def _fake_azure_ledger():
+    def _fake(*args, **kwargs):
+        return TransactionInserted(
+            status='ready',
+            transaction_id=uuid4(),
+            transaction_data={'data': 'fake_data'}
+        )
     fake = Mock(spec=LedgerInterface)
-    fake.insert_transaction.return_value = TransactionInserted(
-        status='processing',
-        transaction_id=uuid4(),
-    )
-    fake.retrieve_transaction.return_value = TransactionInserted(
-        status='ready',
-        transaction_id=uuid4(),
-        transaction_data={'data': 'fake_data'}
-    )
+    fake.insert_transaction.side_effect = _fake
+    fake.retrieve_transaction.return_value = _fake
     return fake
 
 
@@ -28,4 +27,4 @@ def ledger_builder(azure_ledger_url: str,
         return AzureLedger(
             azure_ledger_url, azure_ledger_certificate_path)
     else:
-        return fake_azure_ledger()
+        return _fake_azure_ledger()

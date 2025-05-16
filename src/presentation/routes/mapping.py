@@ -106,7 +106,7 @@ async def mapping_upload(
         mapping_parser=parser,
         mapping_id=result.mapping_id,
         central_catalog_id=result.central_catalog_id,
-        catalog_to_id=catalog_to_id
+        related_catalog_id=catalog_to_id
     )
     await use_case.prepare_task(file)
     # Add task to be processed in the background tasks

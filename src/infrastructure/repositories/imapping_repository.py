@@ -18,7 +18,7 @@ class IMappingRepository(MappingRepositoryInterface):
         return mapping
 
     async def get_total_count(self) -> int:
-        count_statement = select(func.count(DrugMapping.drug_id))
+        count_statement = select(func.count(DrugMapping._drug_id))
         return await self.session.scalar(count_statement)
 
     async def get_mappings_by_central_drug_id(
@@ -33,9 +33,9 @@ class IMappingRepository(MappingRepositoryInterface):
                 Drug.properties.label("properties")
             )
             .select_from(DrugMapping)
-            .join(Drug, Drug._id == DrugMapping.related_drug_id)
+            .join(Drug, Drug._id == DrugMapping._related_drug_id)
             .join(DrugCatalog, Drug._catalog_id == DrugCatalog._id)
-            .where(DrugMapping.drug_id == central_drug_id)
+            .where(DrugMapping._drug_id == central_drug_id)
         )
 
         result = await self.session.execute(stmt)

@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timezone
 
 from fastapi import UploadFile
 from src.utils.checksum import file_checksum
@@ -13,7 +13,7 @@ from src.infrastructure.repositories.contract import (
 
 
 def _created_at():
-    return datetime.now(datetime.timezone.utc).isoformat()
+    return datetime.now(timezone.utc).isoformat()
 
 
 class MappingImportUseCase:
@@ -64,9 +64,6 @@ class MappingImportUseCase:
             payload=self._transaction_data
         )
         await self._transaction_repository.save(transaction)
-
-        await self._drug_catalog_repository.status_update(
-            self._catalog_id, status)
 
     async def prepare_task(self, file: UploadFile):
         self._transaction_data = MappingTransactionData(

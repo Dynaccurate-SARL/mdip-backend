@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timezone
 from fastapi import UploadFile
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -13,7 +13,7 @@ from src.utils.checksum import file_checksum
 
 
 def _created_at():
-    return datetime.now(datetime.timezone.utc).isoformat()
+    return datetime.now(timezone.utc).isoformat()
 
 
 class CatalogImportUseCase:
@@ -32,6 +32,8 @@ class CatalogImportUseCase:
         self._session = session
 
     async def _update_status(self, status: TaskStatus):
+        await self._drug_catalog_repository.status_update(
+            self._catalog_id, status)
         self._transaction_data['status'] = status
         self._transaction_data['created_at'] = _created_at()
         ledger_transaction = self._ledger_service.insert_transaction(
@@ -43,9 +45,6 @@ class CatalogImportUseCase:
             payload=self._transaction_data
         )
         await self._transaction_repository.save(transaction)
-
-        await self._drug_catalog_repository.status_update(
-            self._catalog_id, status)
 
     async def prepare_task(self, file: UploadFile):
         self._transaction_data = CatalogTransactionData(

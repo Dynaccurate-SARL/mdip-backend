@@ -47,7 +47,7 @@ class CatalogTransaction(BaseTransaction):
     def __init__(self, transaction_id: uuid.UUID, catalog_id: int, 
                  payload: CatalogTransactionData):
         self.transaction_id = transaction_id
-        self.catalog_id = catalog_id
+        self._catalog_id = catalog_id
         self.payload = payload
 
     @property
