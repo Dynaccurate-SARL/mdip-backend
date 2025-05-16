@@ -4,7 +4,7 @@ from src.domain.entities.ltransactions import MappingTransaction
 from src.infrastructure.repositories.contract import MappingTransactionRepositoryInterface
 
 
-class MappingTransactionRepository(MappingTransactionRepositoryInterface):
+class IMappingTransactionRepository(MappingTransactionRepositoryInterface):
 
     async def save(self, transaction: MappingTransaction):
         self.session.add(transaction)

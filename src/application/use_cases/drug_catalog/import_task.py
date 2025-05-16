@@ -1,8 +1,8 @@
-import datetime
+from datetime import datetime
 from fastapi import UploadFile
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from src.domain.entities.drug_catalog import ImportStatus
+from src.domain.entities.drug_catalog import TaskStatus
 from src.domain.entities.ltransactions import CatalogTransaction, CatalogTransactionData
 from src.infrastructure.services.confidential_ledger.contract import LedgerInterface
 from src.infrastructure.services.pandas_parser.drug.contract import PandasParser
@@ -31,16 +31,16 @@ class CatalogImportUseCase:
         self._parser = parser
         self._session = session
 
-    async def _update_status(self, status: ImportStatus):
+    async def _update_status(self, status: TaskStatus):
         self._transaction_data['status'] = status
         self._transaction_data['created_at'] = _created_at()
         ledger_transaction = self._ledger_service.insert_transaction(
             self._transaction_data)
 
         transaction = CatalogTransaction(
+            transaction_id=ledger_transaction.transaction_id,
             catalog_id=self._catalog_id,
-            payload=self._transaction_data,
-            transaction_id=ledger_transaction.transaction_id
+            payload=self._transaction_data
         )
         await self._transaction_repository.save(transaction)
 
@@ -49,6 +49,8 @@ class CatalogImportUseCase:
 
     async def prepare_task(self, file: UploadFile):
         self._transaction_data = CatalogTransactionData(
+            status='created',
+            created_at=_created_at(),
             filename=file.filename,
             file_checksum=file_checksum(file),
             catalog_id=str(self._catalog_id),

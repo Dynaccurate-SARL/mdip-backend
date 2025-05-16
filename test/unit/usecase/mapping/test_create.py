@@ -2,7 +2,7 @@ import io
 import pytest
 from unittest.mock import AsyncMock, MagicMock
 from fastapi import UploadFile
-from src.application.use_cases.mapping.create import MappingCreateUseCase, ResourceNotFound
+from src.application.use_cases.mapping.create import MappingCheckUseCase, ResourceNotFound
 from src.domain.entities.drug_catalog import DrugCatalog
 from src.infrastructure.services.confidential_ledger.contract import OldTransactionData
 from src.utils.checksum import file_checksum
@@ -13,7 +13,7 @@ async def test_execute_success():
     # Arrange
     mock_drug_catalog_repository = AsyncMock()
     mock_ledger_service = AsyncMock()
-    use_case = MappingCreateUseCase(
+    use_case = MappingCheckUseCase(
         mock_drug_catalog_repository, mock_ledger_service)
 
     central_catalog = MagicMock(_id=1)
@@ -43,7 +43,7 @@ async def test_execute_central_catalog_not_found():
     # Arrange
     mock_drug_catalog_repository = AsyncMock()
     mock_ledger_service = AsyncMock()
-    use_case = MappingCreateUseCase(
+    use_case = MappingCheckUseCase(
         mock_drug_catalog_repository, mock_ledger_service)
 
     mock_drug_catalog_repository.get_central.return_value = None
@@ -63,7 +63,7 @@ async def test_execute_related_catalog_not_found():
     # Arrange
     mock_drug_catalog_repository = AsyncMock()
     mock_ledger_service = AsyncMock()
-    use_case = MappingCreateUseCase(
+    use_case = MappingCheckUseCase(
         mock_drug_catalog_repository, mock_ledger_service)
 
     central_catalog = MagicMock(_id=1)

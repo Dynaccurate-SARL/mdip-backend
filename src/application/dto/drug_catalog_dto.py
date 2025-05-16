@@ -9,7 +9,7 @@ CountryCode = Literal[
     'RO', 'PL', 'LV', 'IE', 'ES', 'BE'
 ]
 
-Status = Literal['created', 'processing', 'completed', 'failed']
+TaskStatus = Literal['created', 'processing', 'completed', 'failed']
 
 
 class DrugCatalogCreateDto(BaseSchema):
@@ -27,7 +27,7 @@ class DrugCatalogCreatedDto(BaseSchema):
     version: str
     notes: str
     is_central: bool
-    status: Status
+    status: TaskStatus
 
 
 class DrugCatalogDto(BaseSchema):
@@ -37,7 +37,7 @@ class DrugCatalogDto(BaseSchema):
     version: str
     notes: str
     is_central: bool
-    status: Status
+    status: TaskStatus
 
 
 class DrugCatalogPaginatedDto(BaseSchema):

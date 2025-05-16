@@ -5,13 +5,13 @@ from typing import Generic, List, TypeVar
 from abc import abstractmethod, ABC
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from src.application.dto.drug_catalog_dto import CountryCode
+from src.application.dto.drug_catalog_dto import CountryCode, TaskStatus
 from src.domain.entities.drug import Drug
 from src.domain.entities.drug_mapping_count_view import DrugMappingCountView
 from src.domain.entities.ltransactions import CatalogTransaction, MappingTransaction
 from src.domain.entities.user import User
 from src.domain.entities.drug_mapping import DrugMapping
-from src.domain.entities.drug_catalog import DrugCatalog, ImportStatus
+from src.domain.entities.drug_catalog import DrugCatalog
 
 
 T = TypeVar('T')
@@ -67,7 +67,7 @@ class DrugCatalogRepositoryInterface(BaseRepository):
         ...
 
     @abstractmethod
-    async def status_update(self, drug_catalog_id: int, status: ImportStatus):
+    async def status_update(self, drug_catalog_id: int, status: TaskStatus):
         """Update the import status of a drug catalog."""
         ...
 
@@ -154,6 +154,11 @@ class MappingRepositoryInterface(BaseRepository):
     @abstractmethod
     async def get_total_count(self) -> int:
         """Get the total count of drug mappings."""
+        ...
+
+    @abstractmethod
+    async def delete_all_by_mapping_id(self, mapping_id: int):
+        """Delete all mappings associated with a specific mapping ID."""
         ...
 
 

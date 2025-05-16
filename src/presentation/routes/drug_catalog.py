@@ -1,3 +1,4 @@
+import io
 import uuid
 from typing import Annotated
 from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, Query, status
@@ -91,7 +92,7 @@ async def create_catalog(
         is_central: Annotated[bool, Form(...)] = False,
         notes: Annotated[str, Form(examples=["Initial release"])] = ''):
     try:
-        file_bytes = await file.read()
+        file_bytes = io.BytesIO(await file.read())
         parser = drug_parser_factory(country, file_bytes)
     except InvalidFileFormat as err:
         return err.as_response(status_code=status.HTTP_400_BAD_REQUEST)
@@ -106,7 +107,6 @@ async def create_catalog(
             version=version,
             notes=notes,
             is_central=is_central,
-            file=file
         )
         drug_catalog_use_case = DrugCatalogCreateUseCase(
             drug_catalog_repository=drug_catalog_repository
@@ -122,8 +122,8 @@ async def create_catalog(
     if get_config().UPLOAD_STRATEGY == "AZURE":
         AzureFileService(
             get_config().AZURE_BLOB_CONTAINER_NAME,
-            get_config().AZURE_BLOB_STORAGE_CONNECTION_STRING).upload_file(
-            file.filename, file.file.read())
+            get_config().AZURE_BLOB_STORAGE_CONNECTION_STRING
+        ).upload_file(file.filename, file.file.read())
     if get_config().UPLOAD_STRATEGY == "DISK":
         DiskFileService(get_config().DOCUMENTS_STORAGE_PATH).upload_file(
             file.filename, file.file.read())

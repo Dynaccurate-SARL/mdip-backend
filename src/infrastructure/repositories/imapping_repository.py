@@ -1,5 +1,5 @@
 from typing import List
-from sqlalchemy import func
+from sqlalchemy import delete, func
 from sqlalchemy.future import select
 
 from src.domain.entities.drug import Drug
@@ -49,3 +49,9 @@ class IMappingRepository(MappingRepositoryInterface):
                 country=row.country,
             ) for row in rows
         ]
+
+    async def delete_all_by_mapping_id(self, mapping_id: int):
+        query = delete(DrugMapping).where(
+            DrugMapping._mapping_id == mapping_id)
+        await self.session.execute(query)
+        await self.session.commit()
