@@ -1,19 +1,26 @@
 import logging as log
 
-from src.domain.entities.drug_catalog import DrugCatalog
+from src.domain.entities.drug_catalog import DrugCatalog, ImportStatus
 from src.domain.entities.drug_mapping import DrugMapping
-from src.infrastructure.repositories.contract import DrugRepositoryInterface, MappingRepositoryInterface
-from src.infrastructure.services.confidential_ledger.contract import Ledger, OldTransactionData
+from src.domain.entities.ltransactions import MappingTransaction, MappingTransactionData
+from src.infrastructure.repositories.contract import DrugCatalogRepositoryInterface, DrugRepositoryInterface, MappingRepositoryInterface, MappingTransactionRepositoryInterface
+from src.infrastructure.services.confidential_ledger.contract import LedgerInterface
 from src.infrastructure.services.pandas_parser.mapping.parse import MappingParser
+from src.utils.exc import ResourceNotFound
 
 
 class MappingImportUseCase:
-    def __init__(self, drug_repository: DrugRepositoryInterface,
-                 mapping_repository: MappingRepositoryInterface,
-                 mapping_parser: MappingParser, ledger_service: Ledger,
-                 central_catalog_id: int, catalog_to_id: int):
+    def __init__(
+            self, drug_repository: DrugRepositoryInterface,
+            transaction_repository: MappingTransactionRepositoryInterface,
+            mapping_repository: MappingRepositoryInterface,
+            transaction_data: MappingTransactionData,
+            ledger_service: LedgerInterface, mapping_parser: MappingParser,
+            central_catalog_id: int, catalog_to_id: int):
         self._drug_repository = drug_repository
+        self._transaction_repository = transaction_repository
         self._mapping_repository = mapping_repository
+        self._transaction_data = transaction_data
         self._ledger_service = ledger_service
         self._mapping_parser = mapping_parser
         self._central_catalog_id = central_catalog_id
@@ -36,20 +43,23 @@ class MappingImportUseCase:
                 except Exception:
                     pass
 
-    async def execute(self):
-        transaction_data = OldTransactionData(
-            entity_name=DrugCatalog.__tablename__,
-            entity_id=self._catalog_to_id,
-            status='processing',
-            data={
-                'type': 'mapping_import',
-                'catalog_central_id': self._central_catalog_id,
-                'catalog_to_id': self._catalog_to_id,
-            }
-        )
+    async def _update_status(self, status: ImportStatus):
+        self._transaction_data['status'] = status
+        ledger_transaction = self._ledger_service.insert_transaction(
+            self._transaction_data)
 
-        log.info("Mapping import process started for catalog_id={}".format(
-            self._central_catalog_id))
+        transaction = MappingTransaction(
+            catalog_id=self._catalog_id,
+            payload=self._transaction_data,
+            transaction_id=ledger_transaction.transaction_id
+        )
+        await self._transaction_repository.save(transaction)
+        
+        await self._drug_catalog_repository.status_update(
+            self._catalog_id, status)
+
+    async def execute(self):
+
         await self._ledger_service.insert_transaction(transaction_data)
 
         try:
@@ -58,13 +68,9 @@ class MappingImportUseCase:
 
             await self._ledger_service.insert_transaction(
                 transaction_data.completed())
-            log.info("Mapping import process completed for catalog_id={}".format(
-                self._central_catalog_id))
+
         except Exception as err:
             await self._ledger_service.insert_transaction(
                 transaction_data.failed())
-            log.error("Mapping import process failed for catalog_id={}".format(
-                self._central_catalog_id))
-            log.exception(err)
 
         await self._drug_repository.close_session()

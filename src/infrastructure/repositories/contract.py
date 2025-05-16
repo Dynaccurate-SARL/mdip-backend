@@ -8,6 +8,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from src.application.dto.drug_catalog_dto import CountryCode
 from src.domain.entities.drug import Drug
 from src.domain.entities.drug_mapping_count_view import DrugMappingCountView
+from src.domain.entities.ltransactions import CatalogTransaction, MappingTransaction
 from src.domain.entities.user import User
 from src.domain.entities.drug_mapping import DrugMapping
 from src.domain.entities.drug_catalog import DrugCatalog, ImportStatus
@@ -167,33 +168,37 @@ class DrugMappingCountViewInterface(BaseRepository):
 
 class MappingTransactionRepositoryInterface(BaseRepository):
     @abstractmethod
-    async def save(self, transaction):
+    async def save(
+            self, transaction: MappingTransaction) -> MappingTransaction:
         """Save a mapping transaction to the database."""
         ...
 
     @abstractmethod
-    async def get_by_id(self, id: int):
+    async def get_by_id(self, id: int) -> MappingTransaction:
         """Get a mapping transaction by its ID."""
         ...
 
     @abstractmethod
-    async def get_latest_central_mappings(self, catalog_id: int):
+    async def get_latest_central_mappings(
+            self, catalog_id: int) -> List[MappingTransaction]:
         """Get the latest central mappings for a given catalog ID."""
         ...
 
 
 class CatalogTransactionRepositoryInterface(BaseRepository):
     @abstractmethod
-    async def save(self, transaction):
+    async def save(
+            self, transaction: CatalogTransaction) -> CatalogTransaction:
         """Save a catalog transaction to the database."""
         ...
 
     @abstractmethod
-    async def get_by_id(self, id: int):
+    async def get_by_id(self, id: int) -> CatalogTransaction:
         """Get a catalog transaction by its ID."""
         ...
 
     @abstractmethod
-    async def get_latest_by_catalog_id(self, catalog_id: int):
+    async def get_latest_by_catalog_id(
+            self, catalog_id: int) -> CatalogTransaction:
         """Get the latest catalog transaction for a given catalog ID."""
         ...

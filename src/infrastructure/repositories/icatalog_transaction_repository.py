@@ -4,7 +4,7 @@ from src.domain.entities.ltransactions import CatalogTransaction
 from src.infrastructure.repositories.contract import CatalogTransactionRepositoryInterface
 
 
-class CatalogTransactionRepository(CatalogTransactionRepositoryInterface):
+class ICatalogTransactionRepository(CatalogTransactionRepositoryInterface):
 
     async def save(self, transaction: CatalogTransaction):
         self.session.add(transaction)

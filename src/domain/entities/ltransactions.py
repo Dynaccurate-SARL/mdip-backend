@@ -1,6 +1,6 @@
 import uuid
 import sqlalchemy as sq
-from typing import TypedDict
+from typing import Literal, TypedDict
 from sqlalchemy.orm import Mapped, mapped_column
 
 from src.domain.entities.drug_catalog import ImportStatus
@@ -13,7 +13,7 @@ class BaseTransactionData(TypedDict):
     filename: str
     file_checksum: str
     created_at: str
-    created_at_tz: str
+    created_at_tz: Literal['UTC']
 
 
 class CatalogTransactionData(BaseTransactionData):
@@ -43,6 +43,12 @@ class CatalogTransaction(BaseTransaction):
     )
     payload: Mapped[CatalogTransactionData] = mapped_column(
         sq.JSON, nullable=False)
+    
+    def __init__(self, transaction_id: uuid.UUID, catalog_id: int, 
+                 payload: CatalogTransactionData):
+        self.transaction_id = transaction_id
+        self.catalog_id = catalog_id
+        self.payload = payload
 
     @property
     def catalog_id(self) -> str:

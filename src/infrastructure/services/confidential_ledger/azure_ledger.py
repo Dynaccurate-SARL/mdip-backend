@@ -1,20 +1,14 @@
-import os
 import json
-from typing import Dict, Literal, TypedDict
+from uuid import UUID
+from typing import Dict, TypedDict
 from azure.identity import DefaultAzureCredential
-from azure.confidentialledger import ConfidentialLedgerClient
-from azure.core.exceptions import ResourceNotFoundError
 from azure.core.exceptions import HttpResponseError
+from azure.core.exceptions import ResourceNotFoundError
+from azure.confidentialledger import ConfidentialLedgerClient
 
-from src.application.dto import BaseSchema
 from src.utils.checksum import dict_hash
-
-
-# def _created_at() -> str:
-#     if os.getenv('ENVIRONMENT', None) == 'TEST':
-#         date = datetime(2025, 1, 1, 0, 0, 0, tzinfo=timezone.utc)
-#         return date.isoformat()
-#     return datetime.now(timezone.utc).isoformat()
+from src.infrastructure.services.confidential_ledger.contract import (
+    LedgerInterface, TransactionInserted)
 
 
 class LedgerEntry(TypedDict):
@@ -22,13 +16,7 @@ class LedgerEntry(TypedDict):
     contents: str
 
 
-class TransactionInserted(BaseSchema):
-    transaction_id: str
-    status: Literal['ready', 'processing']
-    transaction_data: Dict | None = None
-
-
-class AzureLedger:
+class AzureLedger(LedgerInterface):
     def __init__(self, ledger_url: str, certificate_path: str):
         credential = DefaultAzureCredential()
         ledger_client = ConfidentialLedgerClient(
@@ -49,16 +37,17 @@ class AzureLedger:
         self.ledger_client.create_ledger_entry(entry=sample_entry)
         latest_entry: LedgerEntry = self.ledger_client.\
             get_current_ledger_entry()
-        transaction_id = latest_entry['transactionId']
+        transaction_id = UUID(latest_entry['transactionId'])
 
         return TransactionInserted(
             status='processing',
             transaction_id=transaction_id,
         )
 
-    def retrieve_transaction(self, transaction_id: str):
+    def retrieve_transaction(self, transaction_id: UUID):
         try:
-            poller = self.ledger_client.begin_get_ledger_entry(transaction_id)
+            poller = self.ledger_client.begin_get_ledger_entry(
+                str(transaction_id))
             entry = poller.result()
 
             data = TransactionInserted(

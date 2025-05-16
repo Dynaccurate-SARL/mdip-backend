@@ -18,7 +18,6 @@ class DrugCatalogCreateDto(BaseSchema):
     version: str
     notes: str
     is_central: bool
-    file: UploadFile
 
 
 class DrugCatalogCreatedDto(BaseSchema):
@@ -29,7 +28,6 @@ class DrugCatalogCreatedDto(BaseSchema):
     notes: str
     is_central: bool
     status: Status
-    transaction_id: str = ''
 
 
 class DrugCatalogDto(BaseSchema):
