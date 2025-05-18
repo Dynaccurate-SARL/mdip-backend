@@ -41,14 +41,13 @@ class MappingImportUseCase:
                 related_catalog_drug = await self._drug_repository.\
                     get_by_drug_code_on_catalog_id(
                         self._related_catalog_id, mapping.related_drug_code)
-                try:
-                    mapping = DrugMapping(
-                        mapping_id=self._mapping_id,
-                        drug_id=central_catalog_drug._id,
-                        related_drug_id=related_catalog_drug._id)
-                    await self._mapping_repository.save(mapping)
-                except Exception:
-                    pass
+
+                mapping = DrugMapping(
+                    mapping_id=self._mapping_id,
+                    drug_id=central_catalog_drug._id,
+                    related_drug_id=related_catalog_drug._id)
+                await self._mapping_repository.save(mapping)
+
 
     async def _update_status(self, status: TaskStatus):
         self._transaction_data['status'] = status

@@ -11,10 +11,12 @@ from src.infrastructure.repositories.contract import (
 
 class IMappingRepository(MappingRepositoryInterface):
 
-    async def save(self, mapping: DrugMapping) -> DrugMapping:
-        self.session.add(mapping)
-        await self.session.commit()
-        await self.session.refresh(mapping)
+    async def save(self, mapping: DrugMapping):
+        try:
+            self.session.add(mapping)
+            await self.session.commit()
+        except:
+            await self.session.rollback()
         return mapping
 
     async def get_total_count(self) -> int:
