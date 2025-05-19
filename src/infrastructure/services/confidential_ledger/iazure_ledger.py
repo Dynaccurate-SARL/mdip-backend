@@ -53,6 +53,7 @@ class AzureLedger(LedgerInterface):
             data = TransactionInserted(
                 transaction_id=transaction_id, status='processing')
             if (entry["state"] == 'Ready'):
+                data.status = 'ready'
                 data.transaction_data = json.loads(entry['entry']['contents'])
             return data
         except ResourceNotFoundError:

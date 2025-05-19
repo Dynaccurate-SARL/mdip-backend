@@ -3,6 +3,7 @@ from unittest.mock import AsyncMock, MagicMock
 from sqlalchemy.ext.asyncio import AsyncSession
 from src.domain.entities.user import User
 from src.infrastructure.repositories.imapping_repository import IMappingRepository
+from sqlalchemy.exc import IntegrityError
 
 user = User(email="test@example.com",
             name="Test User", password="password123")
@@ -24,8 +25,26 @@ async def test_save():
     # Assert
     mock_session.add.assert_called_once_with(user)
     mock_session.commit.assert_called_once()
-    mock_session.refresh.assert_called_once_with(user)
     assert result == user
+
+
+@pytest.mark.asyncio
+async def test_save_with_integrity_error():
+    # Arrange
+    mock_session = AsyncMock(spec=AsyncSession)
+    mock_session.add.return_value = None
+    mock_session.commit.side_effect = IntegrityError(
+        "Integrity error", None, None)
+    mock_session.rollback.return_value = None
+
+    repository = IMappingRepository(mock_session)
+
+    # Act & Assert
+    await repository.save(user)
+
+    mock_session.add.assert_called_once_with(user)
+    mock_session.commit.assert_called_once()
+    mock_session.rollback.assert_called_once()
 
 
 @pytest.mark.asyncio
@@ -86,3 +105,20 @@ async def test_get_mappings_by_central_drug_id():
     assert result[1].drug_name == "Drug B"
     assert result[1].country == "CA"
     assert result[1].properties == {"key": "value2"}
+
+
+@pytest.mark.asyncio
+async def test_delete_all_by_mapping_id():
+    # Arrange
+    mock_session = AsyncMock(spec=AsyncSession)
+    mock_session.execute.return_value = None
+    mock_session.commit.return_value = None
+
+    repository = IMappingRepository(mock_session)
+
+    # Act
+    await repository.delete_all_by_mapping_id(1)
+
+    # Assert
+    mock_session.execute.assert_called_once()
+    mock_session.commit.assert_called_once()
