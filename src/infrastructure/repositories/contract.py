@@ -184,9 +184,9 @@ class MappingTransactionRepositoryInterface(BaseRepository):
         ...
 
     @abstractmethod
-    async def get_latest_central_mappings(
+    async def get_by_catalog_id(
             self, catalog_id: int) -> List[MappingTransaction]:
-        """Get the latest central mappings for a given catalog ID."""
+        """Get all mapping transactions for a given catalog ID."""
         ...
 
 
@@ -203,7 +203,7 @@ class CatalogTransactionRepositoryInterface(BaseRepository):
         ...
 
     @abstractmethod
-    async def get_latest_by_catalog_id(
-            self, catalog_id: int) -> CatalogTransaction:
-        """Get the latest catalog transaction for a given catalog ID."""
+    async def get_all_by_catalog_id(
+            self, catalog_id: int) -> List[CatalogTransaction]:
+        """Get all catalog transactions for a given catalog ID."""
         ...

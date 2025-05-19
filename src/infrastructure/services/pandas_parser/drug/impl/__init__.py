@@ -2,11 +2,11 @@ import io
 from typing import Literal
 
 from src.infrastructure.services.pandas_parser.drug.contract import PandasParser
-from src.infrastructure.services.pandas_parser.drug.impl.iatc import ATC_Parser
-from src.infrastructure.services.pandas_parser.drug.impl.ibe import BE_Parser
 from src.infrastructure.services.pandas_parser.drug.impl.ica_pillcheck import CA_PillcheckParser
-from src.infrastructure.services.pandas_parser.drug.impl.ies import ES_Parser
 from src.infrastructure.services.pandas_parser.drug.impl.ieu import EU_Parser
+
+from src.infrastructure.services.pandas_parser.drug.impl.ibe import BE_Parser
+from src.infrastructure.services.pandas_parser.drug.impl.ies import ES_Parser
 from src.infrastructure.services.pandas_parser.drug.impl.ifr import FR_Parser
 from src.infrastructure.services.pandas_parser.drug.impl.iie import IE_Parser
 from src.infrastructure.services.pandas_parser.drug.impl.ilv import LV_Parser
@@ -17,15 +17,18 @@ from src.infrastructure.services.pandas_parser.drug.impl.iuk import UK_Parser
 from src.infrastructure.services.pandas_parser.drug.impl.ius import US_Parser
 
 
-ParserType = Literal['ATC', 'CA', 'EU', 'FR', 'US', 'UK', 'SE',
+ParserType = Literal['CENTRAL', 'EU', 'CA', 'FR', 'US', 'UK', 'SE',
                      'RO', 'PL', 'LV', 'IE', 'ES', 'BE']
 
 
 def drug_parser_factory(parser_type: ParserType,
                         file: io.BytesIO) -> PandasParser:
     match(parser_type):
+        case 'CENTRAL':
+            return CA_PillcheckParser(file)
         case 'EU':
             return EU_Parser(file)
+        # -------------------------------------------------------
         case 'FR':
             return FR_Parser(file)
         case 'US':
@@ -46,9 +49,5 @@ def drug_parser_factory(parser_type: ParserType,
             return ES_Parser(file)
         case 'BE':
             return BE_Parser(file)
-        case 'ATC':
-            return ATC_Parser(file)
-        case 'CA':
-            return CA_PillcheckParser(file)
         case _:
             raise ValueError("Unsupported parser type")

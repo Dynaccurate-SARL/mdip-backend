@@ -1,3 +1,4 @@
+import asyncio
 from datetime import datetime, timezone
 
 from fastapi import UploadFile
@@ -76,14 +77,17 @@ class MappingImportUseCase:
             related_catalog_id=str(self._related_catalog_id)
         )
         await self._update_status('created')
+        await asyncio.sleep(1)
 
     async def execute(self):
         await self._update_status('processing')
+        await asyncio.sleep(1)
 
         try:
             for mappings in self._mapping_parser.parse():
                 await self._save_mappings(mappings)
             await self._update_status('completed')
+            
         except Exception as err:
             await self._update_status('failed')
             await self._mapping_repository.delete_all_by_mapping_id(

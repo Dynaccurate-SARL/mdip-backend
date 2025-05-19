@@ -16,26 +16,13 @@ class IMappingTransactionRepository(MappingTransactionRepositoryInterface):
         result = await self.session.get(MappingTransaction, id)
         return result
 
-    async def get_latest_central_mappings(self, catalog_id: int):
-        subquery = (
-            sq.select(
-                sq.func.max(MappingTransaction._id).label("max_id"),
-            )
-            .where(MappingTransaction._catalog_id == catalog_id)
-            .group_by(
-                MappingTransaction._catalog_id,
-                MappingTransaction._related_catalog_id,
-                MappingTransaction._mapping_id,
-            )
-            .subquery()
-        )
-
+    async def get_by_catalog_id(self, catalog_id: int):
         stmt = (
             sq.select(MappingTransaction)
-            .join(
-                subquery,
-                MappingTransaction._id == subquery.c.max_id,
-            )
+            .where(MappingTransaction._catalog_id == catalog_id)
+            .order_by(MappingTransaction._related_catalog_id.desc())
+            .order_by(MappingTransaction._mapping_id.desc())
+            .order_by(MappingTransaction._id.desc())
         )
 
         result = await self.session.execute(stmt)

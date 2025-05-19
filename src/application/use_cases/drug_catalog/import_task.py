@@ -1,3 +1,4 @@
+import asyncio
 from datetime import datetime, timezone
 from fastapi import UploadFile
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -56,9 +57,12 @@ class CatalogImportUseCase:
             created_at_tz='UTC'
         )
         await self._update_status('created')
+        await asyncio.sleep(1)
 
     async def execute(self):
         await self._update_status('processing')
+        await asyncio.sleep(1)
+        
         try:
             self._parser.parse()
             await self._parser.save_all(self._session, self._catalog_id)

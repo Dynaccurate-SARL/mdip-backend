@@ -69,7 +69,6 @@ omit = [
     'src\infrastructure\services\confidential_ledger\ifake_json_ledger.py', # fake ledger used only in dev environment
     'src\infrastructure\services\confidential_ledger\__init__.py',          # factory method for the fake ledger,
     'src\infrastructure\services\pandas_parser\drug\impl\__init__.py',      # factory method for drug parser,
-    'src\infrastructure\services\pandas_parser\drug\impl\*',                # ignore all drug parsers
 ]
 exclude_also = [
     'def __repr__',

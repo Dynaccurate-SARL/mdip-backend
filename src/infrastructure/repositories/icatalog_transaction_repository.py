@@ -16,12 +16,11 @@ class ICatalogTransactionRepository(CatalogTransactionRepositoryInterface):
         result = await self.session.get(CatalogTransaction, id)
         return result
 
-    async def get_latest_by_catalog_id(self, catalog_id: int):
+    async def get_all_by_catalog_id(self, catalog_id: int):
         stmt = (
             sq.select(CatalogTransaction)
             .where(CatalogTransaction._catalog_id == catalog_id)
             .order_by(CatalogTransaction._id.desc())
-            .limit(1)
         )
         result = await self.session.execute(stmt)
-        return result.scalar_one_or_none()
+        return result.scalars().all()
