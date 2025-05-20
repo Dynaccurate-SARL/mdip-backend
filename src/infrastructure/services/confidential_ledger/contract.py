@@ -1,14 +1,20 @@
 from uuid import UUID
 from typing import Dict, Literal
+from typing_extensions import TypedDict
 from abc import ABC, abstractmethod
 
 from src.application.dto import BaseSchema
 
 
+class TransactionData(TypedDict):
+    data: Dict[str, str]
+    hash: str
+
+
 class TransactionInserted(BaseSchema):
     transaction_id: UUID
     status: Literal['ready', 'processing']
-    transaction_data: Dict | None = None
+    transaction_data: TransactionData | None = None
 
 
 class LedgerInterface(ABC):

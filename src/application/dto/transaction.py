@@ -23,3 +23,7 @@ class MappingTransactionDto(BaseTransactionDto):
     mapping_id: str
     catalog_id: str
     related_catalog_id: str
+
+
+class TransactionDto(BaseSchema):
+    valid: bool

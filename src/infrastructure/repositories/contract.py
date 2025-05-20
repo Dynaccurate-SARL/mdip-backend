@@ -1,3 +1,5 @@
+from ast import Dict
+from uuid import UUID
 from pydantic import EmailStr
 from sqlalchemy import Sequence
 from dataclasses import dataclass
@@ -8,7 +10,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from src.application.dto.drug_catalog_dto import CountryCode, TaskStatus
 from src.domain.entities.drug import Drug
 from src.domain.entities.drug_mapping_count_view import DrugMappingCountView
-from src.domain.entities.ltransactions import CatalogTransaction, MappingTransaction
+from src.domain.entities.ltransactions import CatalogTransaction, CatalogTransactionData, MappingTransaction, MappingTransactionData
 from src.domain.entities.user import User
 from src.domain.entities.drug_mapping import DrugMapping
 from src.domain.entities.drug_catalog import DrugCatalog
@@ -168,6 +170,14 @@ class DrugMappingCountViewInterface(BaseRepository):
             self, name_or_code_filter: str = "",
             limit: int = 0) -> List[DrugMappingCountView]:
         """Get all drugs that match the given name or code."""
+        ...
+
+
+class TransactionRepositoryInterface(BaseRepository):
+    @abstractmethod
+    async def get_payload_by_transaction_id(self, transaction_id: UUID) -> (
+            MappingTransactionData | CatalogTransactionData | None):
+        """Get the payload of a transaction by its ID."""
         ...
 
 
