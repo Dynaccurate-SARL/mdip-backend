@@ -1,5 +1,4 @@
 from typing import Literal
-from fastapi import UploadFile
 
 from src.application.dto import BaseSchema
 
@@ -9,7 +8,7 @@ CountryCode = Literal[
     'RO', 'PL', 'LV', 'IE', 'ES', 'BE'
 ]
 
-Status = Literal['created', 'processing', 'completed', 'failed']
+TaskStatus = Literal['created', 'processing', 'completed', 'failed']
 
 
 class DrugCatalogCreateDto(BaseSchema):
@@ -18,7 +17,6 @@ class DrugCatalogCreateDto(BaseSchema):
     version: str
     notes: str
     is_central: bool
-    file: UploadFile
 
 
 class DrugCatalogCreatedDto(BaseSchema):
@@ -28,8 +26,7 @@ class DrugCatalogCreatedDto(BaseSchema):
     version: str
     notes: str
     is_central: bool
-    status: Status
-    transaction_id: str = ''
+    status: TaskStatus
 
 
 class DrugCatalogDto(BaseSchema):
@@ -39,7 +36,7 @@ class DrugCatalogDto(BaseSchema):
     version: str
     notes: str
     is_central: bool
-    status: Status
+    status: TaskStatus
 
 
 class DrugCatalogPaginatedDto(BaseSchema):

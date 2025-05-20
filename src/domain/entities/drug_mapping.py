@@ -8,16 +8,22 @@ from src.infrastructure.db.base import Base
 class DrugMapping(Base):
     __tablename__ = 'drug_mappings'
 
-    drug_id: Mapped[int] = mapped_column(
-        sq.BigInteger, sq.ForeignKey('drugs.id'), nullable=False)
-    related_drug_id: Mapped[int] = mapped_column(
-        sq.BigInteger, sq.ForeignKey('drugs.id'), nullable=False)
+    _mapping_id: Mapped[int] = mapped_column(
+        'mapping_id', sq.BigInteger, nullable=False)
+    
+    _drug_id: Mapped[int] = mapped_column(
+        'drug_id', sq.BigInteger, sq.ForeignKey('drugs.id'),
+        nullable=False)
+    _related_drug_id: Mapped[int] = mapped_column(
+        'related_drug_id', sq.BigInteger, sq.ForeignKey('drugs.id'),
+        nullable=False)
 
     __table_args__ = (
         sq.PrimaryKeyConstraint('drug_id', 'related_drug_id',
                                 name='uq_drug_related_drug'),
     )
 
-    def __init__(self, drug_id: int, related_drug_id: int):
-        self.drug_id = drug_id
-        self.related_drug_id = related_drug_id
+    def __init__(self, mapping_id: int, drug_id: int, related_drug_id: int):
+        self._mapping_id = mapping_id
+        self._drug_id = drug_id
+        self._related_drug_id = related_drug_id

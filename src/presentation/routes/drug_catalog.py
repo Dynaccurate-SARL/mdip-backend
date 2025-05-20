@@ -1,3 +1,4 @@
+import io
 import uuid
 from typing import Annotated
 from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, Query, status
@@ -14,15 +15,15 @@ from src.domain.entities.user import User
 from src.domain.services.auth_service import manager
 from src.infrastructure.db.base import IdInt
 from src.infrastructure.db.engine import get_session
+from src.infrastructure.repositories.icatalog_transaction_repository import ICatalogTransactionRepository
 from src.infrastructure.repositories.idrug_catalog_repository import IDrugCatalogRepository
 from src.infrastructure.repositories.idrug_repository import IDrugRepository
-from src.infrastructure.repositories.iledger_transaction_repository import ILedgerTransactionRepository
 from src.application.use_cases.drug_catalog.create import DrugCatalogCreateUseCase
 from src.infrastructure.services.blob_storage.azure_storage import AzureFileService
 from src.infrastructure.services.blob_storage.disk_storage import DiskFileService
 from src.infrastructure.services.pandas_parser.drug.exc import InvalidFileFormat
 from src.infrastructure.services.pandas_parser.drug.impl import drug_parser_factory
-from src.infrastructure.services.confidential_ledger import get_confidential_ledger
+from src.infrastructure.services.confidential_ledger import ledger_builder
 from src.utils.exc import ConflictErrorCode
 
 
@@ -91,10 +92,28 @@ async def create_catalog(
         is_central: Annotated[bool, Form(...)] = False,
         notes: Annotated[str, Form(examples=["Initial release"])] = ''):
     try:
-        file_bytes = await file.read()
+        file_bytes = io.BytesIO(await file.read())
         parser = drug_parser_factory(country, file_bytes)
     except InvalidFileFormat as err:
         return err.as_response(status_code=status.HTTP_400_BAD_REQUEST)
+
+    # Prepare the dependencies for the create catalog use case
+    drug_catalog_repository = IDrugCatalogRepository(session)
+    try:
+        # Create a new drug catalog entry in the database
+        data = DrugCatalogCreateDto(
+            name=name,
+            country=country,
+            version=version,
+            notes=notes,
+            is_central=is_central,
+        )
+        drug_catalog_use_case = DrugCatalogCreateUseCase(
+            drug_catalog_repository=drug_catalog_repository
+        )
+        result = await drug_catalog_use_case.execute(data)
+    except ConflictErrorCode as e:
+        return e.as_response(status_code=status.HTTP_409_CONFLICT)
 
     # rename filename to ensure uniqueness
     file.filename = f"{str(uuid.uuid4())}_{file.filename}"
@@ -103,51 +122,34 @@ async def create_catalog(
     if get_config().UPLOAD_STRATEGY == "AZURE":
         AzureFileService(
             get_config().AZURE_BLOB_CONTAINER_NAME,
-            get_config().AZURE_BLOB_STORAGE_CONNECTION_STRING).upload_file(
-            file.filename, file.file.read())
+            get_config().AZURE_BLOB_STORAGE_CONNECTION_STRING
+        ).upload_file(file.filename, file.file.read())
     if get_config().UPLOAD_STRATEGY == "DISK":
         DiskFileService(get_config().DOCUMENTS_STORAGE_PATH).upload_file(
             file.filename, file.file.read())
 
-    # Prepare the repository and service for the use case
-    drug_catalog_repository = IDrugCatalogRepository(session)
-    lt_repository = ILedgerTransactionRepository(session)
+    # Prepare the dependencies for the import task use case
+    transaction_repository = ICatalogTransactionRepository(session)
     drug_repository = IDrugRepository(session)
-    ledger_service = get_confidential_ledger(
-        lt_repository,
+    ledger_service = ledger_builder(
         get_config().AZURE_LEDGER_URL,
         get_config().AZURE_CERTIFICATE_PATH
     )
 
-    try:
-        # Create a new drug catalog entry in the database and ledger
-        drug_catalog_use_case = DrugCatalogCreateUseCase(
-            drug_catalog_repository,
-            ledger_service
-        )
-        data = DrugCatalogCreateDto(
-            name=name,
-            country=country,
-            version=version,
-            notes=notes,
-            is_central=is_central,
-            file=file
-        )
-        drug_catalog = await drug_catalog_use_case.execute(data)
+    use_case = CatalogImportUseCase(
+        drug_catalog_repository=drug_catalog_repository,
+        transaction_repository=transaction_repository,
+        drug_repository=drug_repository,
+        ledger_service=ledger_service,
+        catalog_id=int(result.id),
+        parser=parser,
+        session=session
+    )
+    await use_case.prepare_task(file)
+    # Add task to be processed in the background tasks
+    background_tasks.add_task(
+        drug_catalog_import_task,
+        use_case=use_case
+    )
 
-        use_case = CatalogImportUseCase(
-            drug_catalog_repository=drug_catalog_repository,
-            drug_repository=drug_repository,
-            catalog_id=int(drug_catalog.id),
-            parser=parser,
-            session=session,
-            ledger_service=ledger_service
-        )
-        background_tasks.add_task(
-            drug_catalog_import_task,
-            use_case=use_case
-        )
-
-        return drug_catalog
-    except ConflictErrorCode as e:
-        return e.as_response(status_code=status.HTTP_409_CONFLICT)
+    return result

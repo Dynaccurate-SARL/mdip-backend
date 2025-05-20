@@ -1,23 +1,37 @@
-import logging as log
+import asyncio
+from datetime import datetime, timezone
 
-from src.domain.entities.drug_catalog import DrugCatalog
+from fastapi import UploadFile
+from src.utils.checksum import file_checksum
+from src.domain.entities.drug_catalog import TaskStatus
 from src.domain.entities.drug_mapping import DrugMapping
-from src.infrastructure.repositories.contract import DrugRepositoryInterface, MappingRepositoryInterface
-from src.infrastructure.services.confidential_ledger.contract import Ledger, TransactionData
+from src.domain.entities.ltransactions import MappingTransaction, MappingTransactionData
+from src.infrastructure.services.confidential_ledger.contract import LedgerInterface
 from src.infrastructure.services.pandas_parser.mapping.parse import MappingParser
+from src.infrastructure.repositories.contract import (
+    DrugRepositoryInterface, MappingRepositoryInterface, 
+    MappingTransactionRepositoryInterface)
+
+
+def _created_at():
+    return datetime.now(timezone.utc).isoformat()
 
 
 class MappingImportUseCase:
-    def __init__(self, drug_repository: DrugRepositoryInterface,
-                 mapping_repository: MappingRepositoryInterface,
-                 mapping_parser: MappingParser, ledger_service: Ledger,
-                 central_catalog_id: int, catalog_to_id: int):
+    def __init__(
+            self, drug_repository: DrugRepositoryInterface,
+            transaction_repository: MappingTransactionRepositoryInterface,
+            mapping_repository: MappingRepositoryInterface,
+            ledger_service: LedgerInterface, mapping_parser: MappingParser,
+            mapping_id: int, central_catalog_id: int, related_catalog_id: int):
         self._drug_repository = drug_repository
+        self._transaction_repository = transaction_repository
         self._mapping_repository = mapping_repository
         self._ledger_service = ledger_service
         self._mapping_parser = mapping_parser
+        self._mapping_id = mapping_id
         self._central_catalog_id = central_catalog_id
-        self._catalog_to_id = catalog_to_id
+        self._related_catalog_id = related_catalog_id
 
     async def _save_mappings(self, mappings: list[DrugMapping]):
         for mapping in mappings:
@@ -27,44 +41,56 @@ class MappingImportUseCase:
             if central_catalog_drug:
                 related_catalog_drug = await self._drug_repository.\
                     get_by_drug_code_on_catalog_id(
-                        self._catalog_to_id, mapping.related_drug_code)
-                try:
-                    mapping = DrugMapping(
-                        drug_id=central_catalog_drug._id,
-                        related_drug_id=related_catalog_drug._id)
-                    await self._mapping_repository.save(mapping)
-                except Exception:
-                    pass
+                        self._related_catalog_id, mapping.related_drug_code)
+
+                mapping = DrugMapping(
+                    mapping_id=self._mapping_id,
+                    drug_id=central_catalog_drug._id,
+                    related_drug_id=related_catalog_drug._id)
+                await self._mapping_repository.save(mapping)
+
+
+    async def _update_status(self, status: TaskStatus):
+        self._transaction_data['status'] = status
+        self._transaction_data['created_at'] = _created_at()
+        ledger_transaction = self._ledger_service.insert_transaction(
+            self._transaction_data)
+
+        transaction = MappingTransaction(
+            transaction_id=ledger_transaction.transaction_id,
+            mapping_id=self._mapping_id,
+            catalog_id=self._central_catalog_id,
+            related_catalog_id=self._related_catalog_id,
+            payload=self._transaction_data
+        )
+        await self._transaction_repository.save(transaction)
+
+    async def prepare_task(self, file: UploadFile):
+        self._transaction_data = MappingTransactionData(
+            status='created',
+            created_at=_created_at(),
+            filename=file.filename,
+            file_checksum=file_checksum(file),
+            created_at_tz='UTC',
+            mapping_id=str(self._mapping_id),
+            catalog_id=str(self._central_catalog_id),
+            related_catalog_id=str(self._related_catalog_id)
+        )
+        await self._update_status('created')
+        await asyncio.sleep(1)
 
     async def execute(self):
-        transaction_data = TransactionData(
-            entity_name=DrugCatalog.__tablename__,
-            entity_id=self._catalog_to_id,
-            status='processing',
-            data={
-                'type': 'mapping_import',
-                'catalog_central_id': self._central_catalog_id,
-                'catalog_to_id': self._catalog_to_id,
-            }
-        )
-
-        log.info("Mapping import process started for catalog_id={}".format(
-            self._central_catalog_id))
-        await self._ledger_service.insert_transaction(transaction_data)
+        await self._update_status('processing')
+        await asyncio.sleep(1)
 
         try:
             for mappings in self._mapping_parser.parse():
                 await self._save_mappings(mappings)
-
-            await self._ledger_service.insert_transaction(
-                transaction_data.completed())
-            log.info("Mapping import process completed for catalog_id={}".format(
-                self._central_catalog_id))
-        except Exception as err:
-            await self._ledger_service.insert_transaction(
-                transaction_data.failed())
-            log.error("Mapping import process failed for catalog_id={}".format(
-                self._central_catalog_id))
-            log.exception(err)
+            await self._update_status('completed')
+            
+        except Exception:
+            await self._update_status('failed')
+            await self._mapping_repository.delete_all_by_mapping_id(
+                self._mapping_id)
 
         await self._drug_repository.close_session()

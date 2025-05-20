@@ -8,6 +8,7 @@ from src.presentation.routes.stats import stats_router
 from src.presentation.routes.drug import drug_router
 from src.presentation.routes.drug_catalog import drug_catalog_router
 from src.presentation.routes.mapping import mapping_router
+from src.presentation.routes.transaction import transaction_router
 
 
 def register_api_routes(app: FastAPI):
@@ -24,4 +25,6 @@ def register_api_routes(app: FastAPI):
     app.include_router(drug_router, tags=['Drug'],
                        prefix=C.URL_PREFIX)
     app.include_router(mapping_router, tags=['Mapping'],
+                       prefix=C.URL_PREFIX)
+    app.include_router(transaction_router, tags=['Transaction'],
                        prefix=C.URL_PREFIX)

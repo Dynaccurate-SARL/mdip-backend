@@ -1,15 +1,14 @@
 import json
-from typing import TypedDict
+from uuid import UUID
+from typing import Dict, TypedDict
 from azure.identity import DefaultAzureCredential
-from azure.confidentialledger import ConfidentialLedgerClient
-from azure.core.exceptions import ResourceNotFoundError
 from azure.core.exceptions import HttpResponseError
-from src.domain.entities.ledger_transaction import LedgerTransaction
-from src.infrastructure.repositories.contract import LedgerTransactionRepositoryInterface
+from azure.core.exceptions import ResourceNotFoundError
+from azure.confidentialledger import ConfidentialLedgerClient
+
+from src.utils.checksum import dict_hash
 from src.infrastructure.services.confidential_ledger.contract import (
-    Ledger,
-    TransactionData,
-    TransactionInserted)
+    LedgerInterface, TransactionInserted)
 
 
 class LedgerEntry(TypedDict):
@@ -17,9 +16,8 @@ class LedgerEntry(TypedDict):
     contents: str
 
 
-class AzureLedger(Ledger):
-    def __init__(self, ledger_url: str, certificate_path: str,
-                 lt_repository: LedgerTransactionRepositoryInterface):
+class AzureLedger(LedgerInterface):
+    def __init__(self, ledger_url: str, certificate_path: str):
         credential = DefaultAzureCredential()
         ledger_client = ConfidentialLedgerClient(
             endpoint=ledger_url,
@@ -27,39 +25,36 @@ class AzureLedger(Ledger):
             ledger_certificate_path=certificate_path
         )
         self.ledger_client = ledger_client
-        self.lt_repository = lt_repository
 
-    async def insert_transaction(self, data: TransactionData):
-        sample_entry = {"contents": json.dumps(
-            data.model_dump(exclude_none=True, exclude={
-                'entity_name', 'entity_id'}))}
+    def insert_transaction(self, data: Dict):
+        sample_entry = {
+            "contents": {
+                "data": json.dumps(data),
+                'hash': dict_hash(data)
+            }
+        }
 
         self.ledger_client.create_ledger_entry(entry=sample_entry)
-        latest_entry: LedgerEntry = self.ledger_client.get_current_ledger_entry()
-        transaction_id = latest_entry['transactionId']
-
-        ltransaction = LedgerTransaction(
-            transaction_id=transaction_id,
-            entity_name=data.entity_name,
-            entity_id=data.entity_id,
-        )
-        ltransaction = await self.lt_repository.save(ltransaction)
+        latest_entry: LedgerEntry = self.ledger_client.\
+            get_current_ledger_entry()
+        transaction_id = UUID(latest_entry['transactionId'])
 
         return TransactionInserted(
             status='processing',
             transaction_id=transaction_id,
-            content=json.loads(latest_entry['contents'])
         )
 
-    async def retrieve_transaction(self, transaction_id: str):
+    def retrieve_transaction(self, transaction_id: UUID):
         try:
-            poller = self.ledger_client.begin_get_ledger_entry(transaction_id)
+            poller = self.ledger_client.begin_get_ledger_entry(
+                str(transaction_id))
             entry = poller.result()
 
-            data = TransactionInserted(status='processing')
+            data = TransactionInserted(
+                transaction_id=transaction_id, status='processing')
             if (entry["state"] == 'Ready'):
-                data.transaction_id = transaction_id
-                data.content = json.loads(entry['entry']['contents'])
+                data.status = 'ready'
+                data.transaction_data = json.loads(entry['entry']['contents'])
             return data
         except ResourceNotFoundError:
             return None

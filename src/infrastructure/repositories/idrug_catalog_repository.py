@@ -1,6 +1,6 @@
 from sqlalchemy import func, select, update
 
-from src.domain.entities.drug_catalog import DrugCatalog, ImportStatus
+from src.domain.entities.drug_catalog import DrugCatalog, TaskStatus
 from src.infrastructure.repositories.contract import (
     DrugCatalogRepositoryInterface, PagedItems)
 
@@ -19,7 +19,7 @@ class IDrugCatalogRepository(DrugCatalogRepositoryInterface):
         result = await self.session.execute(stmt)
         return result.scalars().one_or_none()
 
-    async def status_update(self, drug_catalog_id: int, status: ImportStatus):
+    async def status_update(self, drug_catalog_id: int, status: TaskStatus):
         stmt = update(DrugCatalog).where(DrugCatalog._id == drug_catalog_id)\
             .values(status=status)
         if status == 'failed':

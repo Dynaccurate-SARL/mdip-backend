@@ -1,7 +1,7 @@
 import io
-from typing import List, NoReturn
 import pandas as pd
 import sqlalchemy as sq
+from typing import List, NoReturn
 from abc import ABC, abstractmethod
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -11,8 +11,8 @@ from src.infrastructure.services.pandas_parser.drug.exc import (
 
 
 class PandasParser(ABC):
-    def __init__(self, file_bytes: bytes):
-        self._file = io.BytesIO(file_bytes)
+    def __init__(self, file_bytes: io.BytesIO):
+        self._file = file_bytes
         self._df: pd.DataFrame | None = None
         self._open_and_validate()
 
@@ -34,7 +34,7 @@ class PandasParser(ABC):
 
             required_columns = self._required_columns()
             if not all([col in self._df.columns for col in required_columns]):
-                raise InvalidFileFormat()
+                raise InvalidFileFormat('')
         except Exception:
             raise InvalidFileFormat("Invalid file format or missing required columns")
 
@@ -60,7 +60,7 @@ class PandasParser(ABC):
 
         conn = await session.connection()
         await conn.run_sync(
-            lambda sync_conn: self._df.to_sql(
+            lambda sync_conn: self._df.to_sql( # type: ignore
                 'drugs', con=sync_conn, if_exists='append',
                 index=False, dtype={"properties": sq.JSON}
             ),
