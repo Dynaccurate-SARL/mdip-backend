@@ -88,7 +88,7 @@ class MappingImportUseCase:
                 await self._save_mappings(mappings)
             await self._update_status('completed')
             
-        except Exception as err:
+        except Exception:
             await self._update_status('failed')
             await self._mapping_repository.delete_all_by_mapping_id(
                 self._mapping_id)

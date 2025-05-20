@@ -1,6 +1,7 @@
 from typing import List
 from sqlalchemy import delete, func
 from sqlalchemy.future import select
+from sqlalchemy.exc import IntegrityError
 
 from src.domain.entities.drug import Drug
 from src.domain.entities.drug_catalog import DrugCatalog
@@ -15,7 +16,7 @@ class IMappingRepository(MappingRepositoryInterface):
         try:
             self.session.add(mapping)
             await self.session.commit()
-        except:
+        except IntegrityError:
             await self.session.rollback()
         return mapping
 

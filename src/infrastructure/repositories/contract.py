@@ -1,4 +1,3 @@
-from ast import Dict
 from uuid import UUID
 from pydantic import EmailStr
 from sqlalchemy import Sequence

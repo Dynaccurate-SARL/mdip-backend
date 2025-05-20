@@ -1,5 +1,4 @@
 from typing import Literal
-from fastapi import UploadFile
 
 from src.application.dto import BaseSchema
 

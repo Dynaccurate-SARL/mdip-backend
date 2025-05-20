@@ -68,7 +68,7 @@ class CatalogImportUseCase:
             await self._parser.save_all(self._session, self._catalog_id)
             await self._update_status('completed')
 
-        except Exception as e:
+        except Exception:
             await self._update_status('failed')
             await self._drug_repository.delete_all_by_catalog_id(
                 self._catalog_id)
