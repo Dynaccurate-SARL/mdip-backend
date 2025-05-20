@@ -39,22 +39,28 @@ async def test_get_by_id_should_return_transaction():
     mock_session.get.assert_awaited_once_with(CatalogTransaction, 1)
     assert result == transaction
 
+
 @pytest.mark.asyncio
-async def test_get_latest_by_catalog_id_should_return_latest_transaction():
+async def test_get_all_by_catalog_id_should_return_transactions():
     # Arrange
     mock_session = AsyncMock()
     repo = ICatalogTransactionRepository(mock_session)
     repo.session = mock_session
-    catalog_id = 123
-    transaction = MagicMock(spec=CatalogTransaction)
-    mock_scalar = MagicMock()
-    mock_scalar.scalar_one_or_none.return_value = transaction
-    mock_session.execute.return_value = mock_scalar
+
+    catalog_id = 42
+    mock_transactions = [MagicMock(spec=CatalogTransaction), MagicMock(spec=CatalogTransaction)]
+    mock_scalars = MagicMock()
+    mock_scalars.all.return_value = mock_transactions
+
+    mock_result = MagicMock()
+    mock_result.scalars.return_value = mock_scalars
+    mock_session.execute.return_value = mock_result
 
     # Act
-    result = await repo.get_latest_by_catalog_id(catalog_id)
+    result = await repo.get_all_by_catalog_id(catalog_id)
 
     # Assert
-    mock_session.execute.assert_awaited()
-    mock_scalar.scalar_one_or_none.assert_called_once()
-    assert result == transaction
+    assert result == mock_transactions
+    mock_session.execute.assert_awaited_once()
+    mock_result.scalars.assert_called_once()
+    mock_scalars.all.assert_called_once()

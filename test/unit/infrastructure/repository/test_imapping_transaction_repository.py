@@ -1,8 +1,10 @@
 import pytest
+
 from sqlalchemy.ext.asyncio import AsyncSession
 from unittest.mock import AsyncMock, MagicMock
-from src.infrastructure.repositories.imapping_transaction_repository import IMappingTransactionRepository
 from src.domain.entities.ltransactions import MappingTransaction
+from src.infrastructure.repositories.imapping_transaction_repository import (
+    IMappingTransactionRepository)
 
 
 @pytest.mark.asyncio
@@ -45,24 +47,52 @@ async def test_get_by_id():
 
 
 @pytest.mark.asyncio
-async def test_get_latest_central_mappings():
+async def test_get_by_catalog_id_returns_transactions_ordered():
     # Arrange
     mock_session = AsyncMock(spec=AsyncSession)
 
-    expected_transactions = [
-        MagicMock(spec=MappingTransaction), MagicMock(spec=MappingTransaction)]
-    mock_scalars = MagicMock()
-    mock_scalars.all.return_value = expected_transactions
-    mock_execute_result = MagicMock()
-    mock_execute_result.scalars.return_value = mock_scalars
-    mock_session.execute.return_value = mock_execute_result
+    mock_transaction1 = MagicMock(spec=MappingTransaction)
+    mock_transaction2 = MagicMock(spec=MappingTransaction)
 
+    mock_scalars = MagicMock()
+    mock_scalars.all.return_value = [
+        mock_transaction1, 
+        mock_transaction2
+    ]
+    mock_result = MagicMock()
+
+    mock_result.scalars.return_value = mock_scalars
+    mock_session.execute.return_value = mock_result
+    
+    catalog_id = 42
     repo = IMappingTransactionRepository(mock_session)
-    catalog_id = 1
 
     # Act
-    result = await repo.get_latest_central_mappings(catalog_id)
+    result = await repo.get_by_catalog_id(catalog_id)
 
     # Assert
-    mock_session.execute.assert_awaited()
-    assert result == expected_transactions
+    assert result == [mock_transaction1, mock_transaction2]
+    mock_session.execute.assert_awaited_once()
+
+
+@pytest.mark.asyncio
+async def test_get_by_catalog_id_returns_empty_list_when_no_results():
+    # Arrange
+    mock_session = AsyncMock(spec=AsyncSession)
+
+    mock_scalars = MagicMock()
+    mock_scalars.all.return_value = []
+    mock_result = MagicMock()
+
+    mock_result.scalars.return_value = mock_scalars
+    mock_session.execute.return_value = mock_result
+
+    catalog_id = 99
+    repo = IMappingTransactionRepository(mock_session)
+
+    # Act
+    result = await repo.get_by_catalog_id(catalog_id)
+
+    # Assert
+    assert result == []
+    mock_session.execute.assert_awaited_once()
