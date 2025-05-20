@@ -33,11 +33,11 @@ drug_catalog_router = APIRouter()
 @drug_catalog_router.get(
     "/catalogs/{catalog_id}",
     status_code=status.HTTP_200_OK,
-    response_model=DrugCatalogDto,
-    include_in_schema=False)
+    response_model=DrugCatalogDto)
 async def get_catalog_by_id(
+        catalog_id: IdInt,
         session: Annotated[AsyncSession, Depends(get_session)],
-        catalog_id: IdInt):
+        user: Annotated[User, Depends(manager)]):
     # Prepare the repository
     drug_catalog_repository = IDrugCatalogRepository(session)
 
