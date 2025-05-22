@@ -1,11 +1,12 @@
 import sqlalchemy as sq
 
 from src.domain.entities.ltransactions import CatalogTransaction
-from src.infrastructure.repositories.contract import CatalogTransactionRepositoryInterface
+from src.infrastructure.repositories.contract import (
+    CatalogTransactionRepositoryInterface,
+)
 
 
 class ICatalogTransactionRepository(CatalogTransactionRepositoryInterface):
-
     async def save(self, transaction: CatalogTransaction):
         self.session.add(transaction)
         await self.session.commit()

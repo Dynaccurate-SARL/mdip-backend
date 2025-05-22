@@ -9,7 +9,9 @@ from src.infrastructure.services.confidential_ledger.contract import LedgerInter
 from src.infrastructure.services.pandas_parser.drug.contract import PandasParser
 from src.infrastructure.repositories.contract import (
     CatalogTransactionRepositoryInterface,
-    DrugCatalogRepositoryInterface, DrugRepositoryInterface)
+    DrugCatalogRepositoryInterface,
+    DrugRepositoryInterface,
+)
 from src.utils.checksum import file_checksum
 
 
@@ -19,11 +21,15 @@ def _created_at():
 
 class CatalogImportUseCase:
     def __init__(
-            self, drug_catalog_repository: DrugCatalogRepositoryInterface,
-            transaction_repository: CatalogTransactionRepositoryInterface,
-            drug_repository: DrugRepositoryInterface,
-            ledger_service: LedgerInterface,
-            catalog_id: int, parser: PandasParser, session: AsyncSession):
+        self,
+        drug_catalog_repository: DrugCatalogRepositoryInterface,
+        transaction_repository: CatalogTransactionRepositoryInterface,
+        drug_repository: DrugRepositoryInterface,
+        ledger_service: LedgerInterface,
+        catalog_id: int,
+        parser: PandasParser,
+        session: AsyncSession,
+    ):
         self._drug_catalog_repository = drug_catalog_repository
         self._transaction_repository = transaction_repository
         self._drug_repository = drug_repository
@@ -33,44 +39,43 @@ class CatalogImportUseCase:
         self._session = session
 
     async def _update_status(self, status: TaskStatus):
-        await self._drug_catalog_repository.status_update(
-            self._catalog_id, status)
-        self._transaction_data['status'] = status
-        self._transaction_data['created_at'] = _created_at()
+        await self._drug_catalog_repository.status_update(self._catalog_id, status)
+        self._transaction_data["status"] = status
+        self._transaction_data["created_at"] = _created_at()
         ledger_transaction = self._ledger_service.insert_transaction(
-            self._transaction_data)
+            self._transaction_data
+        )
 
         transaction = CatalogTransaction(
             transaction_id=ledger_transaction.transaction_id,
             catalog_id=self._catalog_id,
-            payload=self._transaction_data
+            payload=self._transaction_data,
         )
         await self._transaction_repository.save(transaction)
 
     async def prepare_task(self, file: UploadFile):
         self._transaction_data = CatalogTransactionData(
-            status='created',
+            status="created",
             created_at=_created_at(),
             filename=file.filename,
             file_checksum=file_checksum(file),
             catalog_id=str(self._catalog_id),
-            created_at_tz='UTC'
+            created_at_tz="UTC",
         )
-        await self._update_status('created')
+        await self._update_status("created")
         await asyncio.sleep(1)
 
     async def execute(self):
-        await self._update_status('processing')
+        await self._update_status("processing")
         await asyncio.sleep(1)
-        
+
         try:
             self._parser.parse()
             await self._parser.save_all(self._session, self._catalog_id)
-            await self._update_status('completed')
+            await self._update_status("completed")
 
         except Exception:
-            await self._update_status('failed')
-            await self._drug_repository.delete_all_by_catalog_id(
-                self._catalog_id)
+            await self._update_status("failed")
+            await self._drug_repository.delete_all_by_catalog_id(self._catalog_id)
         finally:
             await self._drug_catalog_repository.close_session()

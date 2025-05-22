@@ -12,13 +12,13 @@ from src.application.use_cases.auth.api_authorization import ApiAuthorizationUse
 from src.utils.exc import UnauthorizedAccessError
 
 
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl=f'{C.URL_PREFIX}/docs/jwt')
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl=f"{C.URL_PREFIX}/docs/jwt")
 
 
 async def manager(
     security_scopes: SecurityScopes,
     token: Annotated[str, Depends(oauth2_scheme)],
-    session: Annotated[AsyncSession, Depends(get_session)]
+    session: Annotated[AsyncSession, Depends(get_session)],
 ):
     # Dependencies
     user_repository = IUserRepository(session)

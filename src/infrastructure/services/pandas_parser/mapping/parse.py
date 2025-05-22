@@ -22,18 +22,18 @@ class MappingParser:
 
     def _open_and_validate(self):
         try:
-            self._df = pd.read_csv(self._file, delimiter=',')
+            self._df = pd.read_csv(self._file, delimiter=",")
 
             required_columns = self._required_columns()
             if not all([col in self._df.columns for col in required_columns]):
                 raise InvalidFileFormat()
         except Exception:
-            raise InvalidFileFormat(
-                "Invalid file format or missing required columns")
+            raise InvalidFileFormat("Invalid file format or missing required columns")
 
     def parse(self, chunk_size: int = 100):
         for i in range(0, len(self._df), chunk_size):
-            chunk = self._df.iloc[
-                i:i + chunk_size][["drug_code", "related_drug_code"]]
+            chunk = self._df.iloc[i : i + chunk_size][
+                ["drug_code", "related_drug_code"]
+            ]
             records = chunk.to_dict(orient="records")
             yield [DrugMapping(**record) for record in records]

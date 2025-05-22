@@ -12,7 +12,7 @@ class BaseTransactionDto(BaseSchema):
     filename: str
     file_checksum: str
     created_at: str
-    created_at_tz: Literal['UTC']
+    created_at_tz: Literal["UTC"]
 
 
 class CatalogTransactionDto(BaseTransactionDto):

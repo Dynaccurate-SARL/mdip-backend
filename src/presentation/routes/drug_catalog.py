@@ -6,17 +6,28 @@ from fastapi import Form, UploadFile, File
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.application.dto.drug_catalog_dto import (
-    CountryCode, DrugCatalogCreateDto, DrugCatalogCreatedDto, DrugCatalogDto, DrugCatalogPaginatedDto)
+    CountryCode,
+    DrugCatalogCreateDto,
+    DrugCatalogCreatedDto,
+    DrugCatalogDto,
+    DrugCatalogPaginatedDto,
+)
 from src.application.use_cases.drug_catalog.get_by_id import GetDrugCatalogByIdUseCase
-from src.application.use_cases.drug_catalog.get_paginated import GetPaginatedDrugCatalogUseCase
+from src.application.use_cases.drug_catalog.get_paginated import (
+    GetPaginatedDrugCatalogUseCase,
+)
 from src.application.use_cases.drug_catalog.import_task import CatalogImportUseCase
 from src.config.settings import get_config
 from src.domain.entities.user import User
 from src.domain.services.auth_service import manager
 from src.infrastructure.db.base import IdInt
 from src.infrastructure.db.engine import get_session
-from src.infrastructure.repositories.icatalog_transaction_repository import ICatalogTransactionRepository
-from src.infrastructure.repositories.idrug_catalog_repository import IDrugCatalogRepository
+from src.infrastructure.repositories.icatalog_transaction_repository import (
+    ICatalogTransactionRepository,
+)
+from src.infrastructure.repositories.idrug_catalog_repository import (
+    IDrugCatalogRepository,
+)
 from src.infrastructure.repositories.idrug_repository import IDrugRepository
 from src.application.use_cases.drug_catalog.create import DrugCatalogCreateUseCase
 from src.infrastructure.services.blob_storage.azure_storage import AzureFileService
@@ -33,11 +44,13 @@ drug_catalog_router = APIRouter()
 @drug_catalog_router.get(
     "/catalogs/{catalog_id}",
     status_code=status.HTTP_200_OK,
-    response_model=DrugCatalogDto)
+    response_model=DrugCatalogDto,
+)
 async def get_catalog_by_id(
-        catalog_id: IdInt,
-        session: Annotated[AsyncSession, Depends(get_session)],
-        user: Annotated[User, Depends(manager)]):
+    catalog_id: IdInt,
+    session: Annotated[AsyncSession, Depends(get_session)],
+    user: Annotated[User, Depends(manager)],
+):
     # Prepare the repository
     drug_catalog_repository = IDrugCatalogRepository(session)
 
@@ -46,8 +59,7 @@ async def get_catalog_by_id(
     drug_catalog = await use_case.execute(catalog_id)
     if not drug_catalog:
         raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Drug catalog not found"
+            status_code=status.HTTP_404_NOT_FOUND, detail="Drug catalog not found"
         )
     return drug_catalog
 
@@ -56,13 +68,15 @@ async def get_catalog_by_id(
     "/p/catalogs",
     status_code=status.HTTP_200_OK,
     response_model=DrugCatalogPaginatedDto,
-    summary="Get paginated drug catalogs")
+    summary="Get paginated drug catalogs",
+)
 async def get_catalogs(
-        user: Annotated[User, Depends(manager)],
-        session: Annotated[AsyncSession, Depends(get_session)],
-        page: Annotated[int, Query(gt=0, example=1)] = 1,
-        psize: Annotated[int, Query(gt=0, example=10)] = 10,
-        name: Annotated[str, Query(...)] = ''):
+    user: Annotated[User, Depends(manager)],
+    session: Annotated[AsyncSession, Depends(get_session)],
+    page: Annotated[int, Query(gt=0, example=1)] = 1,
+    psize: Annotated[int, Query(gt=0, example=10)] = 10,
+    name: Annotated[str, Query(...)] = "",
+):
     # Prepare the repository
     drug_catalog_repository = IDrugCatalogRepository(session)
 
@@ -79,18 +93,20 @@ async def drug_catalog_import_task(use_case: CatalogImportUseCase):
     "/catalogs",
     status_code=status.HTTP_201_CREATED,
     response_model=DrugCatalogCreatedDto,
-    summary="Create a new drug catalog")
+    summary="Create a new drug catalog",
+)
 async def create_catalog(
-        background_tasks: BackgroundTasks,
-        user: Annotated[User, Depends(manager)],
-        session: Annotated[AsyncSession, Depends(get_session)],
-        # http form data
-        file: Annotated[UploadFile, File(...)],
-        name: Annotated[str, Form(examples=["Pharmaceutical Catalog"])],
-        country: Annotated[CountryCode, Form(examples=["US"])],
-        version: Annotated[str, Form(examples=["1.0"])],
-        is_central: Annotated[bool, Form(...)] = False,
-        notes: Annotated[str, Form(examples=["Initial release"])] = ''):
+    background_tasks: BackgroundTasks,
+    user: Annotated[User, Depends(manager)],
+    session: Annotated[AsyncSession, Depends(get_session)],
+    # http form data
+    file: Annotated[UploadFile, File(...)],
+    name: Annotated[str, Form(examples=["Pharmaceutical Catalog"])],
+    country: Annotated[CountryCode, Form(examples=["US"])],
+    version: Annotated[str, Form(examples=["1.0"])],
+    is_central: Annotated[bool, Form(...)] = False,
+    notes: Annotated[str, Form(examples=["Initial release"])] = "",
+):
     try:
         file_bytes = io.BytesIO(await file.read())
         parser = drug_parser_factory(country, file_bytes)
@@ -122,18 +138,18 @@ async def create_catalog(
     if get_config().UPLOAD_STRATEGY == "AZURE":
         AzureFileService(
             get_config().AZURE_BLOB_CONTAINER_NAME,
-            get_config().AZURE_BLOB_STORAGE_CONNECTION_STRING
+            get_config().AZURE_BLOB_STORAGE_CONNECTION_STRING,
         ).upload_file(file.filename, file.file.read())
     if get_config().UPLOAD_STRATEGY == "DISK":
         DiskFileService(get_config().DOCUMENTS_STORAGE_PATH).upload_file(
-            file.filename, file.file.read())
+            file.filename, file.file.read()
+        )
 
     # Prepare the dependencies for the import task use case
     transaction_repository = ICatalogTransactionRepository(session)
     drug_repository = IDrugRepository(session)
     ledger_service = ledger_builder(
-        get_config().AZURE_LEDGER_URL,
-        get_config().AZURE_CERTIFICATE_PATH
+        get_config().AZURE_LEDGER_URL, get_config().AZURE_CERTIFICATE_PATH
     )
 
     use_case = CatalogImportUseCase(
@@ -143,13 +159,10 @@ async def create_catalog(
         ledger_service=ledger_service,
         catalog_id=int(result.id),
         parser=parser,
-        session=session
+        session=session,
     )
     await use_case.prepare_task(file)
     # Add task to be processed in the background tasks
-    background_tasks.add_task(
-        drug_catalog_import_task,
-        use_case=use_case
-    )
+    background_tasks.add_task(drug_catalog_import_task, use_case=use_case)
 
     return result

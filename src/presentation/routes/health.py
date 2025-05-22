@@ -6,9 +6,9 @@ health_router = APIRouter()
 
 @health_router.get("/readiness")
 def readiness():
-    return {'message': 'ok'}
+    return {"message": "ok"}
 
 
 @health_router.get("/liveness")
 def liveness():
-    return {'status': 'up'}
+    return {"status": "up"}

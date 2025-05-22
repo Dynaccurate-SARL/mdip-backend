@@ -21,8 +21,12 @@ def generate_snowflake_id() -> int:
 
 class IdMixin:
     _id: Mapped[int] = mapped_column(
-        "id", sq.BigInteger, primary_key=True, nullable=False,
-        default=generate_snowflake_id)
+        "id",
+        sq.BigInteger,
+        primary_key=True,
+        nullable=False,
+        default=generate_snowflake_id,
+    )
 
     @property
     def id(self) -> str:
@@ -33,7 +37,7 @@ class IdInt(str):
     @classmethod
     def validate(cls, value: Any) -> int:
         def is_64bits(num):
-            return -2**63 <= num < 2**63
+            return -(2**63) <= num < 2**63
 
         if not (isinstance(value, str) and value.isdigit()):
             raise ValueError("Value must be a string representing an integer")

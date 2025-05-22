@@ -7,15 +7,14 @@ from src.infrastructure.repositories.contract import DrugMappingCountViewInterfa
 
 class IDrugMappingCountViewInterface(DrugMappingCountViewInterface):
     async def get_all_like_code_or_name(
-            self, name_or_code_filter: str = "",
-            limit: int = 0) -> List[DrugMappingCountView]:
+        self, name_or_code_filter: str = "", limit: int = 0
+    ) -> List[DrugMappingCountView]:
         stmt = select(DrugMappingCountView)
         if name_or_code_filter:
             stmt = stmt.where(
-                (DrugMappingCountView.drug_name.ilike(
-                    f'%{name_or_code_filter}%')) | (
-                        DrugMappingCountView.drug_code.ilike(
-                            f'%{name_or_code_filter}%')))
+                (DrugMappingCountView.drug_name.ilike(f"%{name_or_code_filter}%"))
+                | (DrugMappingCountView.drug_code.ilike(f"%{name_or_code_filter}%"))
+            )
         if limit:
             stmt = stmt.limit(limit)
 

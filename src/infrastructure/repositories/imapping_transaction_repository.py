@@ -1,11 +1,12 @@
 import sqlalchemy as sq
 
 from src.domain.entities.ltransactions import MappingTransaction
-from src.infrastructure.repositories.contract import MappingTransactionRepositoryInterface
+from src.infrastructure.repositories.contract import (
+    MappingTransactionRepositoryInterface,
+)
 
 
 class IMappingTransactionRepository(MappingTransactionRepositoryInterface):
-
     async def save(self, transaction: MappingTransaction):
         self.session.add(transaction)
         await self.session.commit()

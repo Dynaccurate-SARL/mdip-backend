@@ -4,7 +4,7 @@ from src.application.dto import BaseSchema
 from src.application.dto.drug_catalog_dto import TaskStatus
 
 
-StatsKind = Literal['all', 'central', 'total_catalogs', 'total_mappins']
+StatsKind = Literal["all", "central", "total_catalogs", "total_mappins"]
 
 
 class CentralCatalogStatsDto(BaseSchema):

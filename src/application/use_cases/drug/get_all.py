@@ -5,11 +5,13 @@ from src.infrastructure.repositories.contract import DrugMappingCountViewInterfa
 
 
 class GetDrugsUseCase:
-    def __init__(
-            self, drug_mapping_count_repository: DrugMappingCountViewInterface):
+    def __init__(self, drug_mapping_count_repository: DrugMappingCountViewInterface):
         self.drug_mapping_count_repository = drug_mapping_count_repository
 
-    async def execute(self, drug_name_or_code: str, limit: int) -> List[DrugMappingCountView]:
-        drugs = await self.drug_mapping_count_repository.\
-            get_all_like_code_or_name(drug_name_or_code, limit)
+    async def execute(
+        self, drug_name_or_code: str, limit: int
+    ) -> List[DrugMappingCountView]:
+        drugs = await self.drug_mapping_count_repository.get_all_like_code_or_name(
+            drug_name_or_code, limit
+        )
         return drugs

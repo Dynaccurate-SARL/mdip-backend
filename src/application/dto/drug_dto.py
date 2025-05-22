@@ -9,6 +9,7 @@ class DrugDto(BaseSchema):
     drug_name: str
     properties: dict
 
+
 class DrugPaginatedDto(BaseSchema):
     data: list[DrugDto]
     page: int
@@ -22,7 +23,7 @@ class DrugMappingsCount(BaseSchema):
     drug_id: str
     mapping_count: int
 
-    @field_validator('drug_id', mode='before')
+    @field_validator("drug_id", mode="before")
     def convert_timestamp_to_datetime(cls, value, values):
         if value is None:
             return None

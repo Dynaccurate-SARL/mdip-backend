@@ -12,12 +12,16 @@ class CA_Parser(PandasParser):
 
     def parse(self):
         # Rename the DataFrame columns
-        self._df.rename(columns={
-            "DRUG_CODE": "drug_code",
-            "BRAND_NAME": "drug_name",
-        }, inplace=True)
+        self._df.rename(
+            columns={
+                "DRUG_CODE": "drug_code",
+                "BRAND_NAME": "drug_name",
+            },
+            inplace=True,
+        )
 
-        self._df["properties"] = self._df.apply(lambda row: row.drop(
-            ["drug_code", "drug_name"]).to_dict(), axis=1)
+        self._df["properties"] = self._df.apply(
+            lambda row: row.drop(["drug_code", "drug_name"]).to_dict(), axis=1
+        )
 
         self._df = self._df[["drug_code", "drug_name", "properties"]]

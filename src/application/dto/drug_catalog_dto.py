@@ -4,11 +4,10 @@ from src.application.dto import BaseSchema
 
 
 CountryCode = Literal[
-    'CA', 'EU', 'FR', 'US', 'UK', 'SE',
-    'RO', 'PL', 'LV', 'IE', 'ES', 'BE'
+    "CA", "EU", "FR", "US", "UK", "SE", "RO", "PL", "LV", "IE", "ES", "BE"
 ]
 
-TaskStatus = Literal['created', 'processing', 'completed', 'failed']
+TaskStatus = Literal["created", "processing", "completed", "failed"]
 
 
 class DrugCatalogCreateDto(BaseSchema):

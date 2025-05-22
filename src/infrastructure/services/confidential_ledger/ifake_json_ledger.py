@@ -3,7 +3,9 @@ from uuid import UUID, uuid4
 from pathlib import Path
 
 from src.infrastructure.services.confidential_ledger.contract import (
-    LedgerInterface, TransactionInserted)
+    LedgerInterface,
+    TransactionInserted,
+)
 from src.utils.checksum import dict_hash
 
 
@@ -31,10 +33,7 @@ class FakeJsonLedger(LedgerInterface):
         transaction = {
             "transaction_id": str(transaction_id),
             "status": "ready",
-            "transaction_data": {
-                "data": data,
-                'hash': dict_hash(data)
-            },
+            "transaction_data": {"data": data, "hash": dict_hash(data)},
         }
         db = self._read_db()
         db[str(transaction_id)] = transaction
@@ -42,8 +41,7 @@ class FakeJsonLedger(LedgerInterface):
 
         return TransactionInserted(**transaction)
 
-    def retrieve_transaction(
-            self, transaction_id: UUID) -> TransactionInserted | None:
+    def retrieve_transaction(self, transaction_id: UUID) -> TransactionInserted | None:
         db = self._read_db()
         transaction = db.get(str(transaction_id), None)
         if transaction:

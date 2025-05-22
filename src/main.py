@@ -21,9 +21,9 @@ def create_app() -> FastAPI:
         title=C.TITLE,
         version=C.PROJECT_VERSION,
         # Docs prefix
-        redoc_url=C.URL_PREFIX + '/redoc',
-        docs_url=C.URL_PREFIX + '/docs',
-        openapi_url=C.URL_PREFIX + '/docs/openapi.json',
+        redoc_url=C.URL_PREFIX + "/redoc",
+        docs_url=C.URL_PREFIX + "/docs",
+        openapi_url=C.URL_PREFIX + "/docs/openapi.json",
         lifespan=__lifespan,
     )
     config = get_config()
@@ -34,7 +34,7 @@ def create_app() -> FastAPI:
         allow_origins=config.CORS_ORIGINS,
         allow_methods=config.CORS_METHODS,
         allow_headers=config.CORS_HEADERS,
-        expose_headers=['X-Reason', 'X-Request-ID'],
+        expose_headers=["X-Reason", "X-Request-ID"],
     )
 
     # Register routes

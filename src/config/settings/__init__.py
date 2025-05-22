@@ -8,16 +8,16 @@ from src.config.settings.blob import BlobEnvs
 from src.config.settings.ledger import LedgerEnvs
 
 
-class Envs(LedgerEnvs, BlobEnvs, BaseEnvs, BaseSettings):
-    ...
+class Envs(LedgerEnvs, BlobEnvs, BaseEnvs, BaseSettings): ...
 
 
 @lru_cache
-def get_config(env: Literal['TEST'] | None = getenv('ENVIRONMENT', None)) -> Envs:
-    if env == 'TEST':
+def get_config(env: Literal["TEST"] | None = getenv("ENVIRONMENT", None)) -> Envs:
+    if env == "TEST":
         return Envs(
-            DATABASE_URL='sqlite+aiosqlite:///:memory:',
-            UPLOAD_STRATEGY='DISK',
-            _env_file='.env.test', _env_file_encoding='utf-8'
+            DATABASE_URL="sqlite+aiosqlite:///:memory:",
+            UPLOAD_STRATEGY="DISK",
+            _env_file=".env.test",
+            _env_file_encoding="utf-8",
         )
-    return Envs(_env_file='.env', _env_file_encoding='utf-8')
+    return Envs(_env_file=".env", _env_file_encoding="utf-8")

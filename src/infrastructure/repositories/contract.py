@@ -9,13 +9,18 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from src.application.dto.drug_catalog_dto import CountryCode, TaskStatus
 from src.domain.entities.drug import Drug
 from src.domain.entities.drug_mapping_count_view import DrugMappingCountView
-from src.domain.entities.ltransactions import CatalogTransaction, CatalogTransactionData, MappingTransaction, MappingTransactionData
+from src.domain.entities.ltransactions import (
+    CatalogTransaction,
+    CatalogTransactionData,
+    MappingTransaction,
+    MappingTransactionData,
+)
 from src.domain.entities.user import User
 from src.domain.entities.drug_mapping import DrugMapping
 from src.domain.entities.drug_catalog import DrugCatalog
 
 
-T = TypeVar('T')
+T = TypeVar("T")
 
 
 @dataclass
@@ -84,8 +89,8 @@ class DrugCatalogRepositoryInterface(BaseRepository):
 
     @abstractmethod
     async def get_paginated(
-            self, page: int, page_size: int,
-            name_filter: str = None) -> PagedItems[DrugCatalog]:
+        self, page: int, page_size: int, name_filter: str = None
+    ) -> PagedItems[DrugCatalog]:
         """Get paginated drug catalogs, optionally filtered by name."""
         ...
 
@@ -107,26 +112,33 @@ class DrugRepositoryInterface(BaseRepository):
 
     @abstractmethod
     async def get_by_drug_code_on_catalog_id(
-            self, catalog_id: int, drug_code: str) -> Drug | None:
+        self, catalog_id: int, drug_code: str
+    ) -> Drug | None:
         """Get a drug by its drug code."""
         ...
 
     @abstractmethod
     async def get_all_like_code_or_name_by_catalog_id(
-            self, name_or_code: str) -> List[Drug]:
+        self, name_or_code: str
+    ) -> List[Drug]:
         """Get all drugs that match the given name or code."""
         ...
 
     @abstractmethod
-    async def get_total_count(self, drug_catalog_id: int,
-                              name_or_code_filter: str = None) -> int:
+    async def get_total_count(
+        self, drug_catalog_id: int, name_or_code_filter: str = None
+    ) -> int:
         """Get the total count of drugs, optionally filtered by name or code."""
         ...
 
     @abstractmethod
     async def get_paginated_by_catalog_id(
-            self, page: int, page_size: int, drug_catalog_id: int,
-            name_or_code_filter: str = None) -> PagedItems[Drug]:
+        self,
+        page: int,
+        page_size: int,
+        drug_catalog_id: int,
+        name_or_code_filter: str = None,
+    ) -> PagedItems[Drug]:
         """Get paginated drugs, optionally filtered by name or code."""
         ...
 
@@ -148,7 +160,8 @@ class MappingRepositoryInterface(BaseRepository):
 
     @abstractmethod
     async def get_mappings_by_central_drug_id(
-            self, central_drug_id: int) -> List[CentralDrugMapping]:
+        self, central_drug_id: int
+    ) -> List[CentralDrugMapping]:
         """Get all mappings for a given central drug ID."""
         ...
 
@@ -166,24 +179,24 @@ class MappingRepositoryInterface(BaseRepository):
 class DrugMappingCountViewInterface(BaseRepository):
     @abstractmethod
     async def get_all_like_code_or_name(
-            self, name_or_code_filter: str = "",
-            limit: int = 0) -> List[DrugMappingCountView]:
+        self, name_or_code_filter: str = "", limit: int = 0
+    ) -> List[DrugMappingCountView]:
         """Get all drugs that match the given name or code."""
         ...
 
 
 class TransactionRepositoryInterface(BaseRepository):
     @abstractmethod
-    async def get_payload_by_transaction_id(self, transaction_id: UUID) -> (
-            MappingTransactionData | CatalogTransactionData | None):
+    async def get_payload_by_transaction_id(
+        self, transaction_id: UUID
+    ) -> MappingTransactionData | CatalogTransactionData | None:
         """Get the payload of a transaction by its ID."""
         ...
 
 
 class MappingTransactionRepositoryInterface(BaseRepository):
     @abstractmethod
-    async def save(
-            self, transaction: MappingTransaction) -> MappingTransaction:
+    async def save(self, transaction: MappingTransaction) -> MappingTransaction:
         """Save a mapping transaction to the database."""
         ...
 
@@ -193,16 +206,14 @@ class MappingTransactionRepositoryInterface(BaseRepository):
         ...
 
     @abstractmethod
-    async def get_by_catalog_id(
-            self, catalog_id: int) -> List[MappingTransaction]:
+    async def get_by_catalog_id(self, catalog_id: int) -> List[MappingTransaction]:
         """Get all mapping transactions for a given catalog ID."""
         ...
 
 
 class CatalogTransactionRepositoryInterface(BaseRepository):
     @abstractmethod
-    async def save(
-            self, transaction: CatalogTransaction) -> CatalogTransaction:
+    async def save(self, transaction: CatalogTransaction) -> CatalogTransaction:
         """Save a catalog transaction to the database."""
         ...
 
@@ -212,7 +223,6 @@ class CatalogTransactionRepositoryInterface(BaseRepository):
         ...
 
     @abstractmethod
-    async def get_all_by_catalog_id(
-            self, catalog_id: int) -> List[CatalogTransaction]:
+    async def get_all_by_catalog_id(self, catalog_id: int) -> List[CatalogTransaction]:
         """Get all catalog transactions for a given catalog ID."""
         ...

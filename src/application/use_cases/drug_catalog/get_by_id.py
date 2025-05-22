@@ -7,8 +7,7 @@ class GetDrugCatalogByIdUseCase:
         self.drug_catalog_repository = drug_catalog_repository
 
     async def execute(self, drug_catalog_id: int) -> DrugCatalogDto | None:
-        drug_catalog = await self.drug_catalog_repository.get_by_id(
-            drug_catalog_id)
+        drug_catalog = await self.drug_catalog_repository.get_by_id(drug_catalog_id)
         if drug_catalog:
             result = DrugCatalogDto.model_validate(drug_catalog)
             return result

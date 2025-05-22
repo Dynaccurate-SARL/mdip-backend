@@ -1,17 +1,17 @@
 from typing import List, Literal
 
 
-EnvType = Literal['PROD', 'DEV', 'TEST']
+EnvType = Literal["PROD", "DEV", "TEST"]
 
 
 class BaseEnvs:
-    ENVIRONMENT: EnvType = 'PROD'
+    ENVIRONMENT: EnvType = "PROD"
 
-    CORS_ORIGINS: List[str] = ['*']
-    CORS_HEADERS: List[str] = ['*']
-    CORS_METHODS: List[str] = ['*']
+    CORS_ORIGINS: List[str] = ["*"]
+    CORS_HEADERS: List[str] = ["*"]
+    CORS_METHODS: List[str] = ["*"]
 
-    JWT_SECRET: str = 'thisissecret'
+    JWT_SECRET: str = "thisissecret"
     JWT_ACCESS_EXPIRATION: int = 900  # 900 seconds = 15 minutes
     JWT_REFRESH_EXPIRATION: int = 1800  # 1800 seconds = 30 minutes
 

@@ -6,7 +6,6 @@ from src.infrastructure.repositories.contract import UserRepositoryInterface
 
 
 class IUserRepository(UserRepositoryInterface):
-
     async def save(self, user: User) -> User:
         self.session.add(user)
         await self.session.commit()

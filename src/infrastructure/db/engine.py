@@ -9,7 +9,8 @@ _async_engine = create_async_engine(
 )
 
 AsyncLocalSession = async_sessionmaker(
-    _async_engine, autoflush=False, expire_on_commit=False)
+    _async_engine, autoflush=False, expire_on_commit=False
+)
 
 
 class Base(DeclarativeBase):

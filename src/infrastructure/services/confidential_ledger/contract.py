@@ -13,7 +13,7 @@ class TransactionData(TypedDict):
 
 class TransactionInserted(BaseSchema):
     transaction_id: UUID
-    status: Literal['ready', 'processing']
+    status: Literal["ready", "processing"]
     transaction_data: TransactionData | None = None
 
 
@@ -23,6 +23,5 @@ class LedgerInterface(ABC):
         pass
 
     @abstractmethod
-    def retrieve_transaction(
-            self, transaction_id: UUID) -> TransactionInserted | None:
+    def retrieve_transaction(self, transaction_id: UUID) -> TransactionInserted | None:
         pass
