@@ -1,6 +1,7 @@
 import io
-from typing import Literal, Dict
+from typing import Dict
 
+from src.application.dto.drug_catalog_dto import CountryCode as ParserType
 from src.infrastructure.services.pandas_parser.drug.contract import PandasParser
 from src.infrastructure.services.pandas_parser.drug.impl.iat import AT_Parser
 from src.infrastructure.services.pandas_parser.drug.impl.ica import CA_Parser
@@ -31,38 +32,6 @@ from src.infrastructure.services.pandas_parser.drug.impl.ise import SE_Parser
 from src.infrastructure.services.pandas_parser.drug.impl.isk import SK_Parser
 from src.infrastructure.services.pandas_parser.drug.impl.iuk import UK_Parser
 from src.infrastructure.services.pandas_parser.drug.impl.ius import US_Parser
-
-
-_OtherCode = Literal["CENTRAL", "EU"]
-_CountryCode = Literal[
-    "AT",
-    "BE",
-    "CA",
-    "CY",
-    "CZ",
-    "DK",
-    "EE",
-    "ES",
-    "EU",
-    "FI",
-    "FR",
-    "GR",
-    "HR",
-    "HU",
-    "IE",
-    "LU",
-    "LV",
-    "MT",
-    "NL",
-    "PL",
-    "PT",
-    "RO",
-    "SE",
-    "SK",
-    "UK",
-    "US",
-]
-ParserType = _OtherCode | _CountryCode
 
 
 def drug_parser_factory(parser_type: ParserType, file: io.BytesIO) -> PandasParser:

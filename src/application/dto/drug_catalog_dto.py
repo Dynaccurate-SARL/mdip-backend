@@ -3,11 +3,37 @@ from typing import Literal
 from src.application.dto import BaseSchema
 
 
-CountryCode = Literal[
-    "CA", "EU", "FR", "US", "UK", "SE", "RO", "PL", "LV", "IE", "ES", "BE"
-]
-
 TaskStatus = Literal["created", "processing", "completed", "failed"]
+_CountryCode = Literal[
+    "AT",
+    "BE",
+    "CA",
+    "CY",
+    "CZ",
+    "DK",
+    "EE",
+    "ES",
+    "EU",
+    "FI",
+    "FR",
+    "GR",
+    "HR",
+    "HU",
+    "IE",
+    "LU",
+    "LV",
+    "MT",
+    "NL",
+    "PL",
+    "PT",
+    "RO",
+    "SE",
+    "SK",
+    "UK",
+    "US",
+]
+_OtherCode = Literal["CENTRAL", "EU"]
+CountryCode = _OtherCode | _CountryCode
 
 
 class DrugCatalogCreateDto(BaseSchema):
