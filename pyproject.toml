@@ -112,6 +112,7 @@ ruff = "ruff check ./src --fix"
 ruff-check = "ruff check ./src"
 ruff-format = "ruff format ./src"
 pytest = 'pytest .'
+pytest-parsers = 'pytest test/unit/infrastructure/services/drug_pandas_parser'
 pytest-cov = 'start "" "%cd%\htmlcov\index.html"'
 run = "uvicorn src.main:app --port 8000 --reload --log-level debug"
 run-trace = "uvicorn src.main:app --port 8000 --reload --log-level trace"

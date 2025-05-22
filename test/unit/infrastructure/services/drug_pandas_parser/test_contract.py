@@ -1,11 +1,32 @@
+from io import BytesIO
 import pytest
 import pandas as pd
-from io import BytesIO
 from unittest.mock import AsyncMock
 
 from src.infrastructure.services.pandas_parser.drug.contract import PandasParser
 from src.infrastructure.services.pandas_parser.drug.exc import (
-    InvalidParsedData, MissingPreExecutionError)
+    InvalidFileFormat, InvalidParsedData, MissingPreExecutionError)
+
+
+class DummyInvalidFileParser(PandasParser):
+    def _open(self):
+        return pd.read_excel(self._file)
+
+    def _required_columns(self):
+        return []
+
+    def parse(self):
+        pass
+
+
+def test_invalid_file():
+    # Arrange
+    file = BytesIO(b"dummy content")
+    # Act & Assert
+    with pytest.raises(InvalidFileFormat, match="Invalid file format"):
+        DummyInvalidFileParser(file)
+
+# ----------------------------------------------------------------------
 
 
 class DummyParser(PandasParser):
