@@ -1,5 +1,4 @@
 import io
-import traceback
 import pandas as pd
 import sqlalchemy as sq
 from typing import List, NoReturn
