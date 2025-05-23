@@ -21,7 +21,7 @@ def test_eu_open_and_validate_invalid_file():
     # Act & Assert
     with pytest.raises(
             InvalidFileFormat,
-            match="Invalid file format or missing required columns"):
+            match="Missing required columns"):
         EU_Parser(mock_file)
 
 

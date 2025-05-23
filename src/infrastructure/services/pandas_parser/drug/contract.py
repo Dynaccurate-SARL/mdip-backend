@@ -1,4 +1,5 @@
 import io
+import traceback
 import pandas as pd
 import sqlalchemy as sq
 from typing import List, NoReturn
@@ -38,10 +39,14 @@ class PandasParser(ABC):
             print(f"Error opening file: {err}")
             raise InvalidFileFormat("Invalid file format")
 
-        required_columns = self._required_columns()
-        if not all([col in self._df.columns for col in required_columns]):
+        r_columns = self._required_columns()
+        df_columns = self._df.columns.tolist()
+        missing = [item for item in r_columns if item not in df_columns]
+        if missing:
+            print(f"Dataframe columns: {df_columns}")
+            print(f"Required columns: {r_columns}")
             raise InvalidFileFormat(
-                "Invalid file format or missing required columns")
+                f"Missing required columns: {missing}")
 
     async def save_all(self, session: AsyncSession, catalog_id: int):
         if self._df is None:

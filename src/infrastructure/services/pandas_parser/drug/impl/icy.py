@@ -3,7 +3,7 @@ import pandas as pd
 from src.infrastructure.services.pandas_parser.drug.contract import PandasParser
 
 
-class CY_Parser(PandasParser):
+class GR_Parser(PandasParser):
     def _open(self):
         return pd.read_excel(self._file, engine="openpyxl")
 
