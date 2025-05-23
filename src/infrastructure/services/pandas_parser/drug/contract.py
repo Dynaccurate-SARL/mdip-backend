@@ -1,4 +1,5 @@
 import io
+import traceback
 import pandas as pd
 import sqlalchemy as sq
 from typing import List, NoReturn
@@ -36,6 +37,7 @@ class PandasParser(ABC):
             self._df = self._open()
         except Exception as err:
             print(f"Error opening file: {err}")
+            # print(traceback.format_exc())
             raise InvalidFileFormat("Invalid file format")
 
         r_columns = self._required_columns()

@@ -40,7 +40,8 @@ class CatalogTransaction(BaseTransaction):
     _catalog_id: Mapped[int] = mapped_column(
         "catalog_id", sq.BigInteger, sq.ForeignKey("drug_catalogs.id"), nullable=False
     )
-    payload: Mapped[CatalogTransactionData] = mapped_column(sq.JSON, nullable=False)
+    payload: Mapped[CatalogTransactionData] = mapped_column(
+        sq.JSON, nullable=False)
 
     def __init__(
         self,
@@ -51,10 +52,6 @@ class CatalogTransaction(BaseTransaction):
         self.transaction_id = transaction_id
         self._catalog_id = catalog_id
         self.payload = payload
-
-    @property
-    def catalog_id(self) -> str:
-        return str(self._catalog_id)
 
 
 class MappingTransaction(BaseTransaction):
@@ -74,7 +71,8 @@ class MappingTransaction(BaseTransaction):
     _mapping_id: Mapped[int] = mapped_column(
         "mapping_id", sq.BigInteger, nullable=False
     )
-    payload: Mapped[MappingTransactionData] = mapped_column(sq.JSON, nullable=False)
+    payload: Mapped[MappingTransactionData] = mapped_column(
+        sq.JSON, nullable=False)
 
     def __init__(
         self,
@@ -89,15 +87,3 @@ class MappingTransaction(BaseTransaction):
         self._related_catalog_id = related_catalog_id
         self._mapping_id = mapping_id
         self.payload = payload
-
-    @property
-    def mapping_id(self) -> str:
-        return str(self._mapping_id)
-
-    @property
-    def catalog_id(self) -> str:
-        return str(self._catalog_id)
-
-    @property
-    def related_catalog_id(self) -> str:
-        return str(self._related_catalog_id)
