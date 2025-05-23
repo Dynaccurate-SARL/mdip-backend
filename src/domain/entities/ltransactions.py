@@ -40,8 +40,7 @@ class CatalogTransaction(BaseTransaction):
     _catalog_id: Mapped[int] = mapped_column(
         "catalog_id", sq.BigInteger, sq.ForeignKey("drug_catalogs.id"), nullable=False
     )
-    payload: Mapped[CatalogTransactionData] = mapped_column(
-        sq.JSON, nullable=False)
+    payload: Mapped[CatalogTransactionData] = mapped_column(sq.JSON, nullable=False)
 
     def __init__(
         self,
@@ -71,8 +70,7 @@ class MappingTransaction(BaseTransaction):
     _mapping_id: Mapped[int] = mapped_column(
         "mapping_id", sq.BigInteger, nullable=False
     )
-    payload: Mapped[MappingTransactionData] = mapped_column(
-        sq.JSON, nullable=False)
+    payload: Mapped[MappingTransactionData] = mapped_column(sq.JSON, nullable=False)
 
     def __init__(
         self,

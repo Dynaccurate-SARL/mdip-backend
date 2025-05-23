@@ -12,8 +12,7 @@ class PL_Parser(PandasParser):
         ).where(pd.notnull, None)
 
     def _required_columns(self):
-        return ["Identyfikator Produktu Leczniczego", 
-                "Nazwa Produktu Leczniczego"]
+        return ["Identyfikator Produktu Leczniczego", "Nazwa Produktu Leczniczego"]
 
     def parse(self):
         # Mapping of Polish to English column names
@@ -23,9 +22,12 @@ class PL_Parser(PandasParser):
         }
 
         self._df["properties"] = self._df.apply(
-            lambda row: row.drop(["Identyfikator Produktu Leczniczego",
-                                  "Nazwa Produktu Leczniczego"]).
-            dropna().to_dict(), axis=1
+            lambda row: row.drop(
+                ["Identyfikator Produktu Leczniczego", "Nazwa Produktu Leczniczego"]
+            )
+            .dropna()
+            .to_dict(),
+            axis=1,
         )
 
         # Rename the DataFrame columns
