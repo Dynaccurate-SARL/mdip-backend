@@ -11,7 +11,10 @@ class CA_PillcheckParser(PandasParser):
         return ["Generic Name"]
 
     def parse(self):
-        self._df.drop(columns=["Unnamed: 6"], inplace=True)
+        try:
+            self._df.drop(columns=["Unnamed: 6"], inplace=True)
+        except KeyError:
+            ...
 
         self._df["ID"] = [f"CAPC_{i + 1}" for i in range(len(self._df))]
 

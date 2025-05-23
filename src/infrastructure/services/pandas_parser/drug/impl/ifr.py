@@ -6,8 +6,8 @@ from src.infrastructure.services.pandas_parser.drug.contract import PandasParser
 
 class FR_Parser(PandasParser):
     def _open(self):
-        encoding = chardet.detect(self._file)["encoding"]
-        return pd.read_csv(
+        encoding = chardet.detect(self._file.getvalue())["encoding"]
+        df = pd.read_csv(
             self._file,
             delimiter="\t",
             encoding=encoding,
@@ -15,14 +15,11 @@ class FR_Parser(PandasParser):
             header=None,
         ).where(pd.notnull, None)
 
-    def _required_columns(self):
-        return ["CIS code", "Presentation title"]
-
-    def parse(self):
         # Reset the index
-        self._df = self._df.reset_index(drop=True)
+        df = df.reset_index(drop=True)
 
-        columns = [
+        # Assign your column names
+        df.columns = [
             "CIS code",
             "CIP7 code",
             "Presentation title",
@@ -37,10 +34,12 @@ class FR_Parser(PandasParser):
             "description not specified",
             "Reimbursement indications",
         ]
+        return df
 
-        # Assign your column names
-        self._df.columns = columns
+    def _required_columns(self):
+        return []
 
+    def parse(self):
         # Strip whitespace from column names
         self._df.columns = self._df.columns.str.strip()
 

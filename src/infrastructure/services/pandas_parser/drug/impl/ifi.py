@@ -14,16 +14,16 @@ class FI_Parser(PandasParser):
 
     def parse(self):
         # Strip whitespace from column names
-        self._dt.columns = self._dt.columns.str.strip()
+        self._df.columns = self._df.columns.str.strip()
 
         # Convert to Dict format for properties
-        self._dt["properties"] = self._dt.apply(
+        self._df["properties"] = self._df.apply(
             lambda row: row.drop(["id", "Kauppanimi"]).dropna().to_dict(), axis=1
         )
 
         # Select relevant columns
-        self._dt = self._dt[["id", "Kauppanimi", "properties"]]
-        self._dt.rename(
+        self._df = self._df[["id", "Kauppanimi", "properties"]]
+        self._df.rename(
             columns={
                 "id": "drug_code",
                 "Kauppanimi": "drug_name",

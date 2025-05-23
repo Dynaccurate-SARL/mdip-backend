@@ -127,7 +127,11 @@ async def test_save_all_with_invalid_data_types():
 
 class DummyParserNone(PandasParser):
     def _open(self):
-        return None
+        return pd.DataFrame({
+            "drug_name": ["Aspirin", "Ibuprofen"],
+            "drug_code": [1, 2],
+            "properties": ["tablet", "capsule"]
+        })
 
     def _required_columns(self):
         return []
@@ -141,6 +145,7 @@ async def test_save_all_with_missing_pre_execution():
     # Arrange
     file = b"dummy content"
     parser = DummyParserNone(file)
+    parser._df = None
 
     mock_session = AsyncMock()
     mock_connection = AsyncMock()

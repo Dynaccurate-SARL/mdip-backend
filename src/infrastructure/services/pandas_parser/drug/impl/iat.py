@@ -1,4 +1,3 @@
-import chardet
 import pandas as pd
 
 from src.infrastructure.services.pandas_parser.drug.contract import PandasParser
@@ -6,11 +5,9 @@ from src.infrastructure.services.pandas_parser.drug.contract import PandasParser
 
 class AT_Parser(PandasParser):
     def _open(self):
-        encoding = chardet.detect(self._file)["encoding"]
         return pd.read_excel(
             self._file,
             engine="openpyxl",
-            encoding=encoding,
             sheet_name="Search results",
         ).where(pd.notnull, None)
 

@@ -14,9 +14,12 @@ class DK_Parser(PandasParser):
         self._df["properties"] = self._df.apply(
             lambda row: row.drop(["Drugid", "Navn"]).dropna().to_dict(), axis=1
         )
-        self._df["Registreringsdato"] = self._df["Registreringsdato"].dt.strftime(
-            "%Y-%m-%d"
-        )
+        try:
+            self._df["Registreringsdato"] = self._df["Registreringsdato"].dt.strftime(
+                "%Y-%m-%d"
+            )
+        except KeyError:
+            ...
         self._df = self._df.dropna(thresh=3)
 
         # Select relevant columns
