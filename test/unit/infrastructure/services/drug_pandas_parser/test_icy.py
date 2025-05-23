@@ -2,7 +2,7 @@ import io
 import pytest
 import pandas as pd
 
-from src.infrastructure.services.pandas_parser.drug.impl.icy import GR_Parser
+from src.infrastructure.services.pandas_parser.drug.impl.icy import CY_Parser
 from src.infrastructure.services.pandas_parser.drug.exc import (
     InvalidFileFormat)
 
@@ -21,7 +21,7 @@ def test_cy_open_and_validate_invalid_file():
     with pytest.raises(
             InvalidFileFormat,
             match="Missing required columns"):
-        GR_Parser(mock_file)
+        CY_Parser(mock_file)
 
 
 def test_cy_parse_valid_data():
@@ -35,7 +35,7 @@ def test_cy_parse_valid_data():
     mock_file.seek(0)
 
     # Act
-    parser = GR_Parser(mock_file)
+    parser = CY_Parser(mock_file)
     parser.parse()
 
     # Assert

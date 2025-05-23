@@ -3,7 +3,7 @@ import pandas as pd
 from src.infrastructure.services.pandas_parser.drug.contract import PandasParser
 
 
-class HR_Parser(PandasParser):
+class CA_Parser(PandasParser):
     def _open(self):
         return pd.read_json(self._file)
 

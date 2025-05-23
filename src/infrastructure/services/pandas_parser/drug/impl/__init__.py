@@ -4,11 +4,11 @@ from typing import Dict
 from src.application.dto.drug_catalog_dto import CountryCode as ParserType
 from src.infrastructure.services.pandas_parser.drug.contract import PandasParser
 from src.infrastructure.services.pandas_parser.drug.impl.iat import AT_Parser
-from src.infrastructure.services.pandas_parser.drug.impl.ica import HR_Parser
+from src.infrastructure.services.pandas_parser.drug.impl.ica import CA_Parser
 from src.infrastructure.services.pandas_parser.drug.impl.ica_pillcheck import (
     CA_PillcheckParser,
 )
-from src.infrastructure.services.pandas_parser.drug.impl.icy import GR_Parser
+from src.infrastructure.services.pandas_parser.drug.impl.icy import CY_Parser
 from src.infrastructure.services.pandas_parser.drug.impl.icz import CZ_Parser
 from src.infrastructure.services.pandas_parser.drug.impl.idk import DK_Parser
 from src.infrastructure.services.pandas_parser.drug.impl.iee import EE_Parser
@@ -41,15 +41,15 @@ def drug_parser_factory(parser_type: ParserType, file: io.BytesIO) -> PandasPars
     } | {
         "AT": AT_Parser(file),
         "BE": BE_Parser(file),
-        "CA": HR_Parser(file),
-        "CY": HR_Parser(file),
-        "CZ": HR_Parser(file),
-        "DK": HR_Parser(file),
-        "EE": HR_Parser(file),
-        "ES": HR_Parser(file),
-        "FI": HR_Parser(file),
-        "FR": HR_Parser(file),
-        "GR": HR_Parser(file),
+        "CA": CA_Parser(file),
+        "CY": CY_Parser(file),
+        "CZ": CZ_Parser(file),
+        "DK": DK_Parser(file),
+        "EE": EE_Parser(file),
+        "ES": ES_Parser(file),
+        "FI": FI_Parser(file),
+        "FR": FR_Parser(file),
+        "GR": GR_Parser(file),
         "HR": HR_Parser(file),
         "HU": HU_Parser(file),
         "IE": IE_Parser(file),

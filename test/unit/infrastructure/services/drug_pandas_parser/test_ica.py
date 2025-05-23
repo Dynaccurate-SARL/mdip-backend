@@ -2,7 +2,7 @@ import io
 import pytest
 import pandas as pd
 
-from src.infrastructure.services.pandas_parser.drug.impl.ica import HR_Parser
+from src.infrastructure.services.pandas_parser.drug.impl.ica import CA_Parser
 from src.infrastructure.services.pandas_parser.drug.exc import (
     InvalidFileFormat)
 
@@ -21,7 +21,7 @@ def test_ca_open_and_validate_invalid_file():
     with pytest.raises(
             InvalidFileFormat,
             match="Missing required columns"):
-        HR_Parser(mock_file)
+        CA_Parser(mock_file)
 
 
 def test_ca_parse_valid_data():
@@ -35,7 +35,7 @@ def test_ca_parse_valid_data():
     mock_file.seek(0)
 
     # Act
-    parser = HR_Parser(mock_file)
+    parser = CA_Parser(mock_file)
     parser.parse()
 
     # Assert

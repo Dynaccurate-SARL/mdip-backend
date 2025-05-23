@@ -19,7 +19,7 @@ class FR_Parser(PandasParser):
         df = df.reset_index(drop=True)
 
         # Assign your column names
-        df.columns =  [
+        df.columns = [
             "CIS code",
             "CIP7 code",
             "Presentation title",
