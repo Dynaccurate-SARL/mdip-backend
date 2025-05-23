@@ -52,10 +52,6 @@ class CatalogTransaction(BaseTransaction):
         self._catalog_id = catalog_id
         self.payload = payload
 
-    @property
-    def catalog_id(self) -> str:
-        return str(self._catalog_id)
-
 
 class MappingTransaction(BaseTransaction):
     __tablename__ = "mapping_transactions"
@@ -89,15 +85,3 @@ class MappingTransaction(BaseTransaction):
         self._related_catalog_id = related_catalog_id
         self._mapping_id = mapping_id
         self.payload = payload
-
-    @property
-    def mapping_id(self) -> str:
-        return str(self._mapping_id)
-
-    @property
-    def catalog_id(self) -> str:
-        return str(self._catalog_id)
-
-    @property
-    def related_catalog_id(self) -> str:
-        return str(self._related_catalog_id)

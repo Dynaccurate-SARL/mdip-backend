@@ -6,7 +6,7 @@ from src.infrastructure.services.pandas_parser.drug.contract import PandasParser
 
 class HU_Parser(PandasParser):
     def _open(self):
-        encoding = chardet.detect(self._file)["encoding"]
+        encoding = chardet.detect(self._file.getvalue())["encoding"]
         return pd.read_csv(
             self._file, delimiter=";", header=1, encoding=encoding, on_bad_lines="skip"
         ).where(pd.notnull, None)

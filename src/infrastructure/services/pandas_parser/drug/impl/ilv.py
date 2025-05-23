@@ -1,19 +1,23 @@
-import os
+import io
 import zipfile
-import tempfile
 import pandas as pd
 
 from src.infrastructure.services.pandas_parser.drug.contract import PandasParser
 
 
+def _extract_xml_from_zip(zip_bytesio: io.BytesIO) -> io.BytesIO:
+    zip_bytesio.seek(0)
+    with zipfile.ZipFile(zip_bytesio, "r") as zipf:
+        for name in zipf.namelist():
+            if name.lower().endswith(".xml"):
+                return io.BytesIO(zipf.read(name))
+        raise FileNotFoundError("No XML file found in ZIP.")
+
+
 class LV_Parser(PandasParser):
     def _open(self):
-        temp_folder = tempfile.mkdtemp()
-        with zipfile.ZipFile(self._file, "r") as zip_ref:
-            zip_ref.extractall(temp_folder)
-
-        drug_file = [f for f in zip_ref.namelist() if f.endswith(".xml")][0]
-        return pd.read_xml(os.path.join(temp_folder, drug_file), xpath=".//product")
+        self._file = _extract_xml_from_zip(self._file)
+        return pd.read_xml(self._file, xpath=".//product")
 
     def _required_columns(self):
         return ["product_id", "original_name"]
