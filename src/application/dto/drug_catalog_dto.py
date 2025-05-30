@@ -32,7 +32,7 @@ _CountryCode = Literal[
     "UK",
     "US",
 ]
-_OtherCode = Literal["CENTRAL", "EU"]
+_OtherCode = Literal["XX", "EU"]
 CountryCode = _OtherCode | _CountryCode
 
 

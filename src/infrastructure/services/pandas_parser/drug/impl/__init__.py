@@ -37,7 +37,7 @@ from src.infrastructure.services.pandas_parser.drug.impl.ius import US_Parser
 def drug_parser_factory(parser_type: ParserType, file: io.BytesIO) -> PandasParser:
     parsers: Dict[ParserType, PandasParser] = {
         "EU": EU_Parser,
-        "CENTRAL": CA_PillcheckParser,
+        "XX": CA_PillcheckParser,
     } | {
         "AT": AT_Parser,
         "BE": BE_Parser,
