@@ -5,6 +5,7 @@ from typing import List, NoReturn
 from abc import ABC, abstractmethod
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from src.domain.entities.drug import Drug
 from src.infrastructure.db.base import generate_snowflake_id
 from src.infrastructure.services.pandas_parser.drug.exc import (
     InvalidFileFormat,
@@ -73,18 +74,17 @@ class PandasParser(ABC):
         ):
             raise InvalidParsedData("Invalid data types in dataframe")
 
-        self._df["catalog_id"] = catalog_id
-        self._df["id"] = self._df.apply(
-            lambda _: generate_snowflake_id(), axis=1)
-
-        conn = await session.connection()
-        await conn.run_sync(
-            lambda sync_conn: self._df.to_sql(  # type: ignore
-                "drugs",
-                con=sync_conn,
-                if_exists="append",
-                index=False,
-                dtype={"properties": sq.JSON},
-            ),
-        )
-        await session.commit()
+        for idx, (_, row) in enumerate(self._df.iterrows(), start=1):
+            drug = Drug(
+                catalog_id=catalog_id,
+                drug_code=str(row["drug_code"]),
+                drug_name=str(row["drug_name"]),
+                properties=row["properties"],
+            )
+            session.add(drug)
+            # Commit every 100 rows
+            if idx % 100 == 0:
+                await session.commit()
+        # Commit the remaining rows
+        if len(self._df) % 100 != 0:
+            await session.commit()
