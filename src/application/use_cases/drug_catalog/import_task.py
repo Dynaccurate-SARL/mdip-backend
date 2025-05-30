@@ -1,4 +1,6 @@
 import asyncio
+import logging
+import traceback
 from datetime import datetime, timezone
 from fastapi import UploadFile
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -74,7 +76,11 @@ class CatalogImportUseCase:
             await self._parser.save_all(self._session, self._catalog_id)
             await self._update_status("completed")
 
-        except Exception:
+        except Exception as err:
+            logger = logging.getLogger("uvicorn.error")
+            logger.error(f"Catalog ID: {self._catalog_id}")
+            logger.error("Error during catalog import: %s\n%s",
+                         err, traceback.format_exc())
             await self._update_status("failed")
             await self._drug_repository.delete_all_by_catalog_id(self._catalog_id)
         finally:
