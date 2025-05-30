@@ -5,18 +5,12 @@ from src.infrastructure.services.pandas_parser.drug.contract import PandasParser
 
 class DK_Parser(PandasParser):
     def _open(self):
-        return pd.read_excel(self._file, engine="openpyxl")
+        return pd.read_excel(self._file, engine="openpyxl", dtype=str)
 
     def _required_columns(self):
         return ["Drugid", "Navn"]
 
     def parse(self):        
-        try:
-            self._df["Registreringsdato"] = self._df["Registreringsdato"].dt.strftime(
-                "%Y-%m-%d"
-            )
-        except KeyError:
-            ...
         
         self._df = self._df.dropna(thresh=3)
 
