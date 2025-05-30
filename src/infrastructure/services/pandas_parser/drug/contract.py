@@ -49,23 +49,33 @@ class PandasParser(ABC):
 
     async def save_all(self, session: AsyncSession, catalog_id: int):
         if self._df is None:
-            raise MissingPreExecutionError("parse() must be called before insert()")
+            raise MissingPreExecutionError(
+                "parse() must be called before insert()")
 
         required_columns = ["drug_name", "drug_code", "properties"]
         if not all([col in self._df.columns for col in required_columns]):
             raise InvalidParsedData("Invalid dataframe columns")
 
+        # Ensure that the data types are correct
+        self._df["drug_name"].apply(lambda x: str(x))
+        self._df["drug_code"].apply(lambda x: str(x))
+
+        # Could be redundant, but it's a good idea to check
         if not all(
             [
-                self._df["drug_name"].apply(lambda x: isinstance(x, str)).all(),
-                self._df["drug_code"].apply(lambda x: isinstance(x, str)).all(),
-                self._df["properties"].apply(lambda x: isinstance(x, dict)).all(),
+                self._df["drug_name"].apply(
+                    lambda x: isinstance(x, str)).all(),
+                self._df["drug_code"].apply(
+                    lambda x: isinstance(x, str)).all(),
+                self._df["properties"].apply(
+                    lambda x: isinstance(x, dict)).all(),
             ]
         ):
             raise InvalidParsedData("Invalid data types in dataframe")
 
         self._df["catalog_id"] = catalog_id
-        self._df["id"] = self._df.apply(lambda _: generate_snowflake_id(), axis=1)
+        self._df["id"] = self._df.apply(
+            lambda _: generate_snowflake_id(), axis=1)
 
         conn = await session.connection()
         await conn.run_sync(
