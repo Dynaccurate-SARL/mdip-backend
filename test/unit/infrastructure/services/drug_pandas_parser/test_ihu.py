@@ -28,7 +28,7 @@ def test_hu_parse_valid_data():
     # Arrange
     mock_file = io.BytesIO()
     valid_data = pd.DataFrame([
-        ["Név", "Extra"],
+        [" Név", "Extra"],
         ["Attack 2", "android"],
         ["2 Mo. Battle", "android"],
     ])

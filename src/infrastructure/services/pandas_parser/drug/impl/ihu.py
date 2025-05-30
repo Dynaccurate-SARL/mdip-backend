@@ -12,7 +12,7 @@ class HU_Parser(PandasParser):
         ).where(pd.notnull, None)
 
     def _required_columns(self):
-        return ["Név"]
+        return [" Név"]
 
     def parse(self):
         self._df["ID"] = [f"HU_{i + 1}" for i in range(len(self._df))]
