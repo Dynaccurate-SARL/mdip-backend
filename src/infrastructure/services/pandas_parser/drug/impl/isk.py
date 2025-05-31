@@ -5,7 +5,7 @@ from src.infrastructure.services.pandas_parser.drug.contract import PandasParser
 
 class SK_Parser(PandasParser):
     def _open(self):
-        return pd.read_excel(self._file, engine="xlrd")
+        return pd.read_excel(self._file, engine="xlrd", dtype=str)
 
     def _required_columns(self):
         return ["ŠÚKL kód", "Názov"]
@@ -25,3 +25,5 @@ class SK_Parser(PandasParser):
             },
             inplace=True,
         )
+
+        self._df = self._df.dropna()
