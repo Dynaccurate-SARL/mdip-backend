@@ -8,7 +8,7 @@ class HU_Parser(PandasParser):
     def _open(self):
         encoding = chardet.detect(self._file.getvalue())["encoding"]
         return pd.read_csv(
-            self._file, delimiter=";", header=1, encoding=encoding, on_bad_lines="skip"
+            self._file, delimiter=";", header=1, encoding=encoding, on_bad_lines="skip", dtype=str
         ).where(pd.notnull, None)
 
     def _required_columns(self):
@@ -30,4 +30,4 @@ class HU_Parser(PandasParser):
             inplace=True,
         )
 
-        self._df.dropna(subset=["drug_code", "drug_name"], inplace=True)
+        self._df = self._df.dropna()

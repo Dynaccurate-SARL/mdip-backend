@@ -8,7 +8,7 @@ class PL_Parser(PandasParser):
     def _open(self):
         encoding = chardet.detect(self._file.getvalue())["encoding"]
         return pd.read_csv(
-            self._file, delimiter=";", encoding=encoding, on_bad_lines="skip"
+            self._file, delimiter=";", encoding=encoding, on_bad_lines="skip", dtype=str
         ).where(pd.notnull, None)
 
     def _required_columns(self):
@@ -33,3 +33,5 @@ class PL_Parser(PandasParser):
         # Rename the DataFrame columns
         self._df.rename(columns=column_mapping, inplace=True)
         self._df = self._df[["drug_code", "drug_name", "properties"]]
+
+        self._df.dropna()

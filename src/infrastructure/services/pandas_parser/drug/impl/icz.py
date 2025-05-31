@@ -29,3 +29,5 @@ class CZ_Parser(PandasParser):
             },
             inplace=True,
         )
+
+        self._df = self._df.dropna()

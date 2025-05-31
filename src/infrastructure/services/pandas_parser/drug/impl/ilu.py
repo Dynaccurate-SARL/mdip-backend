@@ -5,7 +5,7 @@ from src.infrastructure.services.pandas_parser.drug.contract import PandasParser
 
 class LU_Parser(PandasParser):
     def _open(self):
-        return pd.read_excel(self._file, skiprows=2, engine="openpyxl")
+        return pd.read_excel(self._file, skiprows=2, engine="openpyxl", dtype=str)
 
     def _required_columns(self):
         return ["Nr. AMM", "Dénomination"]
@@ -24,3 +24,5 @@ class LU_Parser(PandasParser):
             },
             inplace=True,
         )
+
+        self._df = self._df.dropna()
