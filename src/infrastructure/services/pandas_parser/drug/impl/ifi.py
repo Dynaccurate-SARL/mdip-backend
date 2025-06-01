@@ -1,20 +1,39 @@
 import pandas as pd
+import xml.etree.ElementTree as ET
 
 from src.infrastructure.services.pandas_parser.drug.contract import PandasParser
 
 
 class FI_Parser(PandasParser):
     def _open(self):
-        return pd.read_xml(self._file, xpath=".//Laakevalmiste").dropna(
-            axis=1, how="all"
-        )
+        tree = ET.parse(self._file)
+        root = tree.getroot()
+        records = []
+        for product in root.findall(".//Laakevalmiste"):
+            record = {}
+            record["id"] = product.attrib.get("id")
+            for child in product:
+                tag = child.tag
+                if tag == "ATC-koodi":
+                    record["ATC-koodi"] = child.attrib.get("id")
+                elif tag == "Laakemuoto":
+                    record["Laakemuoto"] = child.attrib.get("value")
+                elif tag == "Myyntilupa":
+                    myyntilupa = {}
+                    for subchild in child:
+                        myyntilupa[subchild.tag] = subchild.text
+                    record["Myyntilupa"] = myyntilupa
+                else:
+                    record[tag] = child.text
+            records.append(record)
+        
+
+        return pd.DataFrame(records)
 
     def _required_columns(self):
         return ["id", "Kauppanimi"]
 
     def parse(self):
-        # Strip whitespace from column names
-        self._df.columns = self._df.columns.str.strip()
 
         # Convert to Dict format for properties
         self._df["properties"] = self._df.apply(
@@ -31,3 +50,5 @@ class FI_Parser(PandasParser):
             },
             inplace=True,
         )
+
+        self._df = self._df.dropna()

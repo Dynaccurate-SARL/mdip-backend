@@ -5,7 +5,7 @@ from src.infrastructure.services.pandas_parser.drug.contract import PandasParser
 
 class CA_Parser(PandasParser):
     def _open(self):
-        return pd.read_json(self._file)
+        return pd.read_json(self._file, dtype={'DRUG_CODE': str, 'BRAND_NAME': str})
 
     def _required_columns(self):
         return ["DRUG_CODE", "BRAND_NAME"]
@@ -25,3 +25,5 @@ class CA_Parser(PandasParser):
         )
 
         self._df = self._df[["drug_code", "drug_name", "properties"]]
+
+        self._df = self._df.dropna()

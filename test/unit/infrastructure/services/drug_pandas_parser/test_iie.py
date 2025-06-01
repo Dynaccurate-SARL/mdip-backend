@@ -37,12 +37,10 @@ def test_ie_parse_valid_data():
         b"""
         <h:Products xmlns:h="https://assets.hpra.ie/products//xml/Human">
             <h:Product>
-                <h:DrugIDPK>A2</h:DrugIDPK>
                 <h:ProductName>Attack 2</h:ProductName>
                 <h:Extra>android</h:Extra>
             </h:Product>
             <h:Product>
-                <h:DrugIDPK>2B</h:DrugIDPK>
                 <h:ProductName>2 Mo. Battle</h:ProductName>
                 <h:Extra>android</h:Extra>
             </h:Product>
