@@ -39,11 +39,15 @@ class CatalogImportUseCase:
         self._catalog_id = catalog_id
         self._parser = parser
         self._session = session
+        self._logger = logging.getLogger("uvicorn.info")
 
     async def _update_status(self, status: TaskStatus):
+        self._logger.info(
+            f"Updating catalog {self._catalog_id} status to '{status}'")
         await self._drug_catalog_repository.status_update(self._catalog_id, status)
         self._transaction_data["status"] = status
         self._transaction_data["created_at"] = _created_at()
+        self._logger.info("Inserting transaction into ledger")
         ledger_transaction = self._ledger_service.insert_transaction(
             self._transaction_data
         )
@@ -53,9 +57,12 @@ class CatalogImportUseCase:
             catalog_id=self._catalog_id,
             payload=self._transaction_data,
         )
+        self._logger.info("Saving transaction in repository")
         await self._transaction_repository.save(transaction)
 
     async def prepare_task(self, file: UploadFile):
+        self._logger.info(
+            f"Preparing task for file '{file.filename}' of catalog {self._catalog_id}")
         self._transaction_data = CatalogTransactionData(
             status="created",
             created_at=_created_at(),
@@ -65,15 +72,21 @@ class CatalogImportUseCase:
             created_at_tz="UTC",
         )
         await self._update_status("created")
-        await asyncio.sleep(1)
+        await asyncio.sleep(2)
 
     async def execute(self):
+        self._logger.info(f"Starting execution of catalog {self._catalog_id}")
         await self._update_status("processing")
-        await asyncio.sleep(1)
+        await asyncio.sleep(5)
 
         try:
+            self._logger.info("Starting file parsing")
             self._parser.parse()
+
+            self._logger.info("Saving parsed data to database")
             await self._parser.save_all(self._session, self._catalog_id)
+
+            self._logger.info("Updating status to 'completed'")
             await self._update_status("completed")
 
         except Exception as err:
@@ -81,7 +94,13 @@ class CatalogImportUseCase:
             logger.error(f"Catalog ID: {self._catalog_id}")
             logger.error("Error during catalog import: %s\n%s",
                          err, traceback.format_exc())
+            
+            self._logger.info("Updating status to 'failed' due to error")
             await self._update_status("failed")
+            self._logger.info(
+                "Removing all drug records from catalog due to failure")
             await self._drug_repository.delete_all_by_catalog_id(self._catalog_id)
+            
         finally:
+            self._logger.info("Closing catalog repository session")
             await self._drug_catalog_repository.close_session()
