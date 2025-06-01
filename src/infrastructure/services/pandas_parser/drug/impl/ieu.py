@@ -5,28 +5,33 @@ from src.infrastructure.services.pandas_parser.drug.contract import PandasParser
 
 class EU_Parser(PandasParser):
     def _open(self):
-        return pd.read_excel(self._file, engine="openpyxl", skiprows=4)
+        return pd.read_excel(self._file, engine="openpyxl", skiprows=8, dtype=str)
 
     def _required_columns(self):
-        return ["ProductNumber", "ProductName"]
+        return ["EMA product number", "Name of medicine"]
 
     def parse(self):
-        # Strip whitespace from column names
-        self._df.columns = self._df.columns.str.strip()
+
+        self._df = self._df[self._df["Category"] != "Veterinary"]
 
         # Convert to JSON-like format for properties
         self._df["properties"] = self._df.apply(
-            lambda row: row.drop(["ProductNumber", "ProductName"]).dropna().to_dict(),
+            lambda row: row.drop(
+                ["EMA product number", "Name of medicine"]
+            ).dropna().to_dict(),
             axis=1,
         )
 
         # Select relevant columns
-        self._df = self._df[["ProductNumber", "ProductName", "properties"]]
+        self._df = self._df[["EMA product number",
+                             "Name of medicine", "properties"]]
         self._df.rename(
             columns={
-                "ProductNumber": "drug_code",
-                "ProductName": "drug_name",
+                "EMA product number": "drug_code",
+                "Name of medicine": "drug_name",
                 "properties": "properties",
             },
             inplace=True,
         )
+
+        self._df = self._df.dropna()

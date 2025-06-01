@@ -13,6 +13,7 @@ class FR_Parser(PandasParser):
             encoding=encoding,
             on_bad_lines="skip",
             header=None,
+            dtype=str,
         ).where(pd.notnull, None)
 
         # Reset the index
@@ -21,18 +22,9 @@ class FR_Parser(PandasParser):
         # Assign your column names
         df.columns = [
             "CIS code",
-            "CIP7 code",
-            "Presentation title",
-            "Admin status",
-            "Marketing status",
-            "Marketing declaration date",
-            "CIP13 code",
-            "Community approval",
-            "Reimbursement rate(s)",
-            "Drug price in euros",
-            "description not specified",
-            "description not specified",
-            "Reimbursement indications",
+            "ATC code",
+            "Drug name",
+            "BDPM link",
         ]
         return df
 
@@ -40,23 +32,21 @@ class FR_Parser(PandasParser):
         return []
 
     def parse(self):
-        # Strip whitespace from column names
-        self._df.columns = self._df.columns.str.strip()
 
         self._df["properties"] = self._df.apply(
-            lambda row: row.drop(["CIS code", "Presentation title"]).dropna().to_dict(),
+            lambda row: row.drop(["CIS code", "Drug name"]).dropna().to_dict(),
             axis=1,
         )
 
         # Select relevant columns
-        self._df = self._df[["CIS code", "Presentation title", "properties"]]
+        self._df = self._df[["CIS code", "Drug name", "properties"]]
         self._df.rename(
             columns={
                 "CIS code": "drug_code",
-                "Presentation title": "drug_name",
+                "Drug name": "drug_name",
                 "properties": "properties",
             },
             inplace=True,
         )
 
-        self._df.dropna(subset=["drug_code", "drug_name"], inplace=True)
+        self._df = self._df.dropna()
