@@ -109,7 +109,7 @@ async def create_catalog(
     notes: Annotated[str, Form(examples=["Initial release"])] = "",
 ):
     try:
-        file_bytes = read_chunk(file)
+        file_bytes = await read_chunk(file)
         parser = drug_parser_factory(country, file_bytes)
     except InvalidFileFormat as err:
         return err.as_response(status_code=status.HTTP_400_BAD_REQUEST)
