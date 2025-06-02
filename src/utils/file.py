@@ -8,3 +8,4 @@ async def read_chunk(file: UploadFile):
     while chunk := await file.read(chunk_size):
         file_bytes.write(chunk)
     file_bytes.seek(0)
+    return file_bytes
