@@ -36,6 +36,7 @@ from src.infrastructure.services.pandas_parser.drug.exc import InvalidFileFormat
 from src.infrastructure.services.pandas_parser.drug.impl import drug_parser_factory
 from src.infrastructure.services.confidential_ledger import ledger_builder
 from src.utils.exc import ConflictErrorCode
+from src.utils.file import read_chunk
 
 
 drug_catalog_router = APIRouter()
@@ -108,7 +109,7 @@ async def create_catalog(
     notes: Annotated[str, Form(examples=["Initial release"])] = "",
 ):
     try:
-        file_bytes = io.BytesIO(await file.read())
+        file_bytes = read_chunk(file)
         parser = drug_parser_factory(country, file_bytes)
     except InvalidFileFormat as err:
         return err.as_response(status_code=status.HTTP_400_BAD_REQUEST)
@@ -139,10 +140,10 @@ async def create_catalog(
         AzureFileService(
             get_config().AZURE_BLOB_CONTAINER_NAME,
             get_config().AZURE_BLOB_STORAGE_CONNECTION_STRING,
-        ).upload_file(file.filename, file.file.read())
+        ).upload_file(file.filename, file_bytes)
     if get_config().UPLOAD_STRATEGY == "DISK":
         DiskFileService(get_config().DOCUMENTS_STORAGE_PATH).upload_file(
-            file.filename, file.file.read()
+            file.filename, file_bytes
         )
 
     # Prepare the dependencies for the import task use case

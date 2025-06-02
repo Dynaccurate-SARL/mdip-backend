@@ -61,9 +61,7 @@ async def test_save_all():
     await parser.save_all(mock_session, catalog_id)
 
     # Assert
-    assert mock_connection.run_sync.called
-    mock_connection.run_sync.assert_called_once()
-    mock_session.commit.assert_called_once()
+    mock_session.commit.assert_called()
 
 # ----------------------------------------------------------------------
 

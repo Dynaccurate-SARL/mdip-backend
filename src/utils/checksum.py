@@ -3,14 +3,18 @@ import hashlib
 from typing import Dict
 
 from fastapi import UploadFile
+import asyncio
 
 
-def file_checksum(file: UploadFile, algorithm: str = "sha256") -> str:
-    """Calculates the checksum of a file using the specified algorithm."""
+async def file_checksum(file: UploadFile, algorithm: str = "sha256") -> str:
+    """Calculates the checksum of a file using the specified algorithm asynchronously."""
     hash_func = hashlib.new(algorithm)
-    while chunk := file.file.read(8192):  # Reads the file in 8 KB chunks
+    while True:
+        chunk = await file.read(8192)  # Asynchronously read 8 KB chunks
+        if not chunk:
+            break
         hash_func.update(chunk)
-    file.file.seek(0)  # Resets the file pointer after reading
+    await file.seek(0)  # Reset the file pointer after reading
     return hash_func.hexdigest()
 
 

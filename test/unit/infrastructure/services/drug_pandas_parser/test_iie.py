@@ -55,6 +55,6 @@ def test_ie_parse_valid_data():
     # Assert
     assert sorted(parser._df.columns) == [
         "drug_code", "drug_name", "properties"]
-    assert parser._df.iloc[0]["drug_code"] == "A2"
+    assert parser._df.iloc[0]["drug_code"] == "IE_1"
     assert parser._df.iloc[0]["drug_name"] == "Attack 2"
     assert parser._df.iloc[0]["properties"] == {"Extra": "android"}

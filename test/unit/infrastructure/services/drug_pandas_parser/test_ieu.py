@@ -33,7 +33,11 @@ def test_eu_parse_valid_data():
         ["0", "0", "0"],
         ["0", "0", "0"],
         ["0", "0", "0"],
-        ["ProductNumber", "ProductName", "Extra"],
+        ["0", "0", "0"],
+        ["0", "0", "0"],
+        ["0", "0", "0"],
+        ["0", "0", "0"],
+        ["EMA product number", "Name of medicine", "Extra"],
         ["Drug 1", "Drug A", "test"],
         ["Drug 2", "Drug B", "test"],
         ["Drug 3", "Drug C", "test"]

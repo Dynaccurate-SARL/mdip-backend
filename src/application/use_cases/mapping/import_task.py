@@ -82,7 +82,7 @@ class MappingImportUseCase:
             status="created",
             created_at=_created_at(),
             filename=file.filename,
-            file_checksum=file_checksum(file),
+            file_checksum=await file_checksum(file),
             created_at_tz="UTC",
             mapping_id=str(self._mapping_id),
             catalog_id=str(self._central_catalog_id),

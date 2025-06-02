@@ -67,7 +67,7 @@ class CatalogImportUseCase:
             status="created",
             created_at=_created_at(),
             filename=file.filename,
-            file_checksum=file_checksum(file),
+            file_checksum=await file_checksum(file),
             catalog_id=str(self._catalog_id),
             created_at_tz="UTC",
         )

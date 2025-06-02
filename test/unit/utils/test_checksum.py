@@ -4,42 +4,44 @@ from fastapi import UploadFile
 
 from src.utils.checksum import file_checksum, dict_hash
 
-
-def test_file_checksum_consistent_hashing():
+@pytest.mark.asyncio
+async def test_file_checksum_consistent_hashing():
     # Arrange
     file_content = b"Test content for checksum"
     file = UploadFile(filename="test.txt", file=BytesIO(file_content))
 
     # Act
-    hash1 = file_checksum(file)
+    hash1 = await file_checksum(file)
     file.file.seek(0)  # Reset file pointer
-    hash2 = file_checksum(file)
+    hash2 = await file_checksum(file)
 
     # Assert
     assert hash1 == hash2, \
         "Hashing the same file should produce consistent results"
 
 
-def test_file_checksum_different_content_different_hash():
+@pytest.mark.asyncio
+async def test_file_checksum_different_content_different_hash():
     # Arrange
     file1 = UploadFile(filename="test1.txt", file=BytesIO(b"Content A"))
     file2 = UploadFile(filename="test2.txt", file=BytesIO(b"Content B"))
 
     # Act
-    hash1 = file_checksum(file1)
-    hash2 = file_checksum(file2)
+    hash1 = await file_checksum(file1)
+    hash2 = await file_checksum(file2)
 
     # Assert
     assert hash1 != hash2, \
         "Hashing files with different content should produce different hashes"
 
 
-def test_file_checksum_empty_file():
+@pytest.mark.asyncio
+async def test_file_checksum_empty_file():
     # Arrange
     file = UploadFile(filename="empty.txt", file=BytesIO(b""))
 
     # Act
-    hash_value = file_checksum(file)
+    hash_value = await file_checksum(file)
 
     # Assert
     assert isinstance(hash_value, str), \
@@ -47,15 +49,16 @@ def test_file_checksum_empty_file():
     assert len(hash_value) > 0, "Hash of an empty file should not be empty"
 
 
-def test_file_checksum_custom_algorithm():
+@pytest.mark.asyncio
+async def test_file_checksum_custom_algorithm():
     # Arrange
     file_content = b"Test content for checksum"
     file = UploadFile(filename="test.txt", file=BytesIO(file_content))
 
     # Act
-    hash_sha256 = file_checksum(file, algorithm="sha256")
+    hash_sha256 = await file_checksum(file, algorithm="sha256")
     file.file.seek(0)  # Reset file pointer
-    hash_md5 = file_checksum(file, algorithm="md5")
+    hash_md5 = await file_checksum(file, algorithm="md5")
 
     # Assert
     assert hash_sha256 != hash_md5, \
@@ -79,6 +82,7 @@ def test_dict_hash_algorithm_length(data, algorithm, expected_length):
         f"Hash length for {algorithm} should be {expected_length}"
 
 
+@pytest.mark.asyncio
 @pytest.mark.parametrize(
     "file_content,algorithm,expected_length",
     [
@@ -87,12 +91,12 @@ def test_dict_hash_algorithm_length(data, algorithm, expected_length):
         (b"Test content", "sha1", 40),
     ],
 )
-def test_file_checksum_algorithm_length(file_content, algorithm, expected_length):
+async def test_file_checksum_algorithm_length(file_content, algorithm, expected_length):
     # Arrange
     file = UploadFile(filename="test.txt", file=BytesIO(file_content))
 
     # Act
-    hash_value = file_checksum(file, algorithm=algorithm)
+    hash_value = await file_checksum(file, algorithm=algorithm)
 
     # Assert
     assert len(hash_value) == expected_length, \
