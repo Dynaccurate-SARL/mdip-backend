@@ -38,6 +38,7 @@ class IDrugRepository(DrugRepositoryInterface):
         query = (
             select(Drug)
             .where(Drug._catalog_id == catalog_id)
+            .order_by(Drug.id)
             .where(
                 (Drug.drug_name.ilike(f"%{name_or_code}%"))
                 | (Drug.drug_code.ilike(f"%{name_or_code}%"))
@@ -71,6 +72,7 @@ class IDrugRepository(DrugRepositoryInterface):
         stmt = (
             select(Drug)
             .where(Drug._catalog_id == drug_catalog_id)
+            .order_by(Drug.id)
             .offset(offset)
             .limit(page_size)
         )

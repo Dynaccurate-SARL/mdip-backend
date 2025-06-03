@@ -37,12 +37,19 @@ class IDrugCatalogRepository(DrugCatalogRepositoryInterface):
     async def get_total_count(self, name_filter: str = None) -> int:
         count_stmt = select(func.count(DrugCatalog._id))
         if name_filter:
-            count_stmt = count_stmt.where(DrugCatalog.name.ilike(f"%{name_filter}%"))
+            count_stmt = count_stmt.where(
+                DrugCatalog.name.ilike(f"%{name_filter}%"))
         return await self.session.scalar(count_stmt)
 
-    async def get_paginated(self, page: int, page_size: int, name_filter: str = None):
+    async def get_paginated(
+            self, page: int, page_size: int, name_filter: str = None):
         offset = (page - 1) * page_size
-        stmt = select(DrugCatalog).offset(offset).limit(page_size)
+        stmt = (
+            select(DrugCatalog)
+            .order_by(DrugCatalog.id)
+            .offset(offset)
+            .limit(page_size)
+        )
 
         if name_filter:
             stmt = stmt.where(DrugCatalog.name.ilike(f"%{name_filter}%"))
@@ -53,5 +60,6 @@ class IDrugCatalogRepository(DrugCatalogRepositoryInterface):
         total_count = await self.get_total_count(name_filter)
 
         return PagedItems[DrugCatalog](
-            current_page=page, page_size=page_size, total_count=total_count, items=items
+            current_page=page, page_size=page_size, 
+            total_count=total_count, items=items
         )
