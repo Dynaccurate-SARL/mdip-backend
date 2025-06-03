@@ -54,7 +54,7 @@ async def get_drug_by_id(
 async def get_all_by_name_or_code(
     session: Annotated[AsyncSession, Depends(get_session)],
     drugnc: Annotated[
-        str, Query(min_length=3, description="Filter by 'drug name' or 'drud code'")
+        str, Query(description="Filter by 'drug name' or 'drud code'")
     ] = "",
     limit: Annotated[int, Query(ge=0)] = 0,
 ):
