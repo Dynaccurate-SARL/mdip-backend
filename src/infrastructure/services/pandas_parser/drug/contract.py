@@ -1,12 +1,11 @@
 import io
+import traceback
 import pandas as pd
-import sqlalchemy as sq
 from typing import List, NoReturn
 from abc import ABC, abstractmethod
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.domain.entities.drug import Drug
-from src.infrastructure.db.base import generate_snowflake_id
 from src.infrastructure.services.pandas_parser.drug.exc import (
     InvalidFileFormat,
     InvalidParsedData,
@@ -37,7 +36,7 @@ class PandasParser(ABC):
             self._df = self._open()
         except Exception as err:
             print(f"Error opening file: {err}")
-            # print(traceback.format_exc())
+            print(traceback.format_exc())
             raise InvalidFileFormat("Invalid file format")
 
         r_columns = self._required_columns()

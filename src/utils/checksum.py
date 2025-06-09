@@ -3,7 +3,6 @@ import hashlib
 from typing import Dict
 
 from fastapi import UploadFile
-import asyncio
 
 
 async def file_checksum(file: UploadFile, algorithm: str = "sha256") -> str:
