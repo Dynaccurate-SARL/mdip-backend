@@ -37,3 +37,13 @@ class Drug(IdMixin, Base):
         )
         drug._id = number
         return drug
+
+    __table_args__ = (
+        sq.Index("idx_drugs_catalog_id_id", "catalog_id", "id"),
+        sq.Index(
+            "idx_drugs_drug_name_trgm",
+            "drug_name",
+            postgresql_using="gin",
+            postgresql_ops={"drug_name": "gin_trgm_ops"},
+        ),
+    )

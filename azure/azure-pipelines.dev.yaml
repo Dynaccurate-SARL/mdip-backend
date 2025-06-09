@@ -1,5 +1,6 @@
 trigger:
   - develop
+  - feature/indexes
 
 resources:
   - repo: self

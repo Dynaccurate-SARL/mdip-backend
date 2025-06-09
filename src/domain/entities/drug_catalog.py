@@ -44,3 +44,14 @@ class DrugCatalog(IdMixin, Base):
         catalog._id = number
         catalog.status = status
         return catalog
+
+    __table_args__ = (
+        sq.Index("idx_drug_catalogs_country_id", "country", "id"),
+        sq.Index(
+            "idx_drug_catalogs_name_trgm",
+            "name",
+            postgresql_using="gin",
+            postgresql_ops={"name": "gin_trgm_ops"},
+        ),
+    )
+

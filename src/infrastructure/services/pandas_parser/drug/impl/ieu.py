@@ -8,7 +8,7 @@ class EU_Parser(PandasParser):
         return pd.read_excel(self._file, engine="openpyxl", skiprows=8, dtype=str)
 
     def _required_columns(self):
-        return ["EMA product number", "Name of medicine"]
+        return ["EMA product number", "Name of medicine", "Category"]
 
     def parse(self):
 

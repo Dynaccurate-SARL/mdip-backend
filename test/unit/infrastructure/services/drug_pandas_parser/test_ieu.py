@@ -29,18 +29,18 @@ def test_eu_parse_valid_data():
     # Arrange
     mock_file = io.BytesIO()
     valid_data = pd.DataFrame([
-        ["0", "0", "0"],
-        ["0", "0", "0"],
-        ["0", "0", "0"],
-        ["0", "0", "0"],
-        ["0", "0", "0"],
-        ["0", "0", "0"],
-        ["0", "0", "0"],
-        ["0", "0", "0"],
-        ["EMA product number", "Name of medicine", "Extra"],
-        ["Drug 1", "Drug A", "test"],
-        ["Drug 2", "Drug B", "test"],
-        ["Drug 3", "Drug C", "test"]
+        ["0"],
+        ["0"],
+        ["0"],
+        ["0"],
+        ["0"],
+        ["0"],
+        ["0"],
+        ["0"],
+        ["EMA product number", "Name of medicine", "Extra", "Category"],
+        ["Drug 1", "Drug A", "test", "NonVeterinary"],
+        ["Drug 2", "Drug B", "test", "NonVeterinary"],
+        ["Drug 3", "Drug C", "test", "NonVeterinary"]
     ])
     valid_data.columns = valid_data.iloc[0]
     valid_data = valid_data[1:]
@@ -52,7 +52,9 @@ def test_eu_parse_valid_data():
     parser.parse()
 
     # Assert
-    assert sorted(parser._df.columns) == ["drug_code", "drug_name", "properties"]
+    assert sorted(parser._df.columns) == [
+        "drug_code", "drug_name", "properties"]
     assert parser._df.iloc[0]["drug_code"] == "Drug 1"
     assert parser._df.iloc[0]["drug_name"] == "Drug A"
-    assert parser._df.iloc[0]["properties"] == {"Extra": "test"}
+    assert parser._df.iloc[0]["properties"] == {
+        "Category": "NonVeterinary", "Extra": "test"}

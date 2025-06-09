@@ -8,7 +8,8 @@ class HU_Parser(PandasParser):
     def _open(self):
         encoding = chardet.detect(self._file.getvalue())["encoding"]
         return pd.read_csv(
-            self._file, delimiter=";", encoding=encoding, on_bad_lines="skip", dtype=str
+            self._file, delimiter=";", encoding=encoding, 
+            on_bad_lines="skip", dtype=str
         ).where(pd.notnull, None)
 
     def _required_columns(self):

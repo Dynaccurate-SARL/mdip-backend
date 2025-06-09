@@ -1,4 +1,5 @@
 import io
+from numpy import dtype
 import pandas as pd
 
 from src.infrastructure.services.pandas_parser.drug.impl.ifr import FR_Parser
@@ -8,11 +9,11 @@ def test_fr_parse_valid_data():
     # Arrange
     mock_file = io.BytesIO()
     valid_data = pd.DataFrame([
-        ["A2", "0", "Attack 2", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0"],
-        ["2B", "0", "2 Mo. Battle", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0"],
+        ["A2", "1", "Attack 2", "A"],
+        ["2B", "2", "2 Mo. Battle", "B"],
     ])
-    valid_data.to_csv(mock_file, sep="\t", index=False,
-                      header=False, na_rep="")
+    valid_data.to_csv(mock_file, sep='\t', index=False, 
+                      header=False, encoding='utf-8')
     mock_file.seek(0)
 
     # Act
