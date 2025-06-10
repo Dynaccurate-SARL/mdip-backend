@@ -4,11 +4,13 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from src.config.constants import C
 from src.config.settings import get_config
+from src.infrastructure.taskiq.broker import broker
 from src.presentation.view import register_api_routes
 
 
 @asynccontextmanager
 async def __lifespan(app: FastAPI):
+    await broker.startup()
     yield
 
 

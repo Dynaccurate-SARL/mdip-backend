@@ -1,3 +1,8 @@
-alembic upgrade head
-uvicorn src.main:app --host 0.0.0.0 --port 8000
-# gunicorn src.main:app -k uvicorn.workers.UvicornWorker --workers 4 --bind 0.0.0.0:8000
+#!/bin/bash
+
+if [ -z "$RUNNER" ] || [ "$RUNNER" = "API" ]; then
+    alembic upgrade head
+    uvicorn src.api_main:app --host 0.0.0.0 --port 8000
+elif [ "$RUNNER" = "WORKER" ]; then
+    taskiq worker --ack-type when_executed src.taskiq_main:broker
+fi

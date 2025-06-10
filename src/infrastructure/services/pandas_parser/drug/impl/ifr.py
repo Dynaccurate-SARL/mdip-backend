@@ -1,13 +1,13 @@
-import chardet
 import pandas as pd
 
 from src.infrastructure.services.pandas_parser.drug.contract import PandasParser
+from src.utils.file import detect_file_encoding
 
 
 class FR_Parser(PandasParser):
     def _open(self):
         self._file.seek(0)
-        encoding = chardet.detect(self._file.read1(10000))["encoding"]
+        encoding = detect_file_encoding(self._file)
         self._file.seek(0)
         df = pd.read_csv(
             self._file,

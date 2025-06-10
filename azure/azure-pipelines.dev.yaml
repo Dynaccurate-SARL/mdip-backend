@@ -1,6 +1,6 @@
 trigger:
   - develop
-  - feature/indexes
+  - feature/taskiq
 
 resources:
   - repo: self
@@ -10,9 +10,6 @@ variables:
   tag: "$(Build.BuildId)"
   # Agent VM image name
   vmImageName: "ubuntu-latest"
-  # Kubernets manifests path
-  manifestsPath: "$(Build.SourcesDirectory)/azure/k8s/dev/k8s.yaml"
-  namespace: "sargasso-dev"
 
 stages:
   - stage: Build
@@ -34,11 +31,11 @@ stages:
                 $(tag)
                 latest
 
-  - stage: Deploy_Container
+  - stage: Deploy
     displayName: Deploy
     jobs:
       - deployment:
-        displayName: Deploy
+        displayName: Deploy Api
         pool: Azure Pipelines
         timeoutInMinutes: 5
         environment: "$(devopsEnvironment)"
@@ -51,9 +48,19 @@ stages:
                   inputs:
                     action: "patch"
                     kind: "Deployment"
-                    name: "sargasso-api-dev"
+                    name: "$(apiDeploymentName)"
                     namespace: "$(namespace)"
                     connectionType: "kubernetesServiceConnection"
                     kubernetesServiceConnection: "$(kubernetesServiceConnection)"
                     mergeStrategy: strategic
-                    patch: '{"spec":{"template":{"spec":{"containers":[{"name":"sargasso-api-dev","image":"$(containerRegistry)/$(imageRepository):$(tag)"}]}}}}'
+                    patch: '{"spec":{"template":{"spec":{"containers":[{"name":"$(apiDeploymentName)","image":"$(containerRegistry)/$(imageRepository):$(tag)"}]}}}}'
+                - task: KubernetesManifest@1
+                  inputs:
+                    action: "patch"
+                    kind: "Deployment"
+                    name: "$(workerDeploymentName)"
+                    namespace: "$(namespace)"
+                    connectionType: "kubernetesServiceConnection"
+                    kubernetesServiceConnection: "$(kubernetesServiceConnection)"
+                    mergeStrategy: strategic
+                    patch: '{"spec":{"template":{"spec":{"containers":[{"name":"$(workerDeploymentName)","image":"$(containerRegistry)/$(imageRepository):$(tag)"}]}}}}'

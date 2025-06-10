@@ -1,19 +1,18 @@
 import json
 import hashlib
+import aiofiles
 from typing import Dict
 
-from fastapi import UploadFile
 
-
-async def file_checksum(file: UploadFile, algorithm: str = "sha256") -> str:
-    """Calculates the checksum of a file using the specified algorithm asynchronously."""
+async def file_checksum(source: str, algorithm: str = "sha256") -> str:
+    """Calculates the checksum of a file at the given path asynchronously."""
     hash_func = hashlib.new(algorithm)
-    while True:
-        chunk = await file.read(8192)  # Asynchronously read 8 KB chunks
-        if not chunk:
-            break
-        hash_func.update(chunk)
-    await file.seek(0)  # Reset the file pointer after reading
+    async with aiofiles.open(source, "rb") as file:
+        while True:
+            chunk = await file.read(8192)
+            if not chunk:
+                break
+            hash_func.update(chunk)
     return hash_func.hexdigest()
 
 

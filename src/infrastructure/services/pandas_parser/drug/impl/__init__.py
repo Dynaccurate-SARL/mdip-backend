@@ -1,4 +1,3 @@
-import io
 from typing import Dict
 
 from src.application.dto.drug_catalog_dto import CountryCode as ParserType
@@ -34,7 +33,7 @@ from src.infrastructure.services.pandas_parser.drug.impl.iuk import UK_Parser
 from src.infrastructure.services.pandas_parser.drug.impl.ius import US_Parser
 
 
-def drug_parser_factory(parser_type: ParserType, file: io.BytesIO) -> PandasParser:
+def drug_parser_factory(parser_type: ParserType) -> PandasParser:
     parsers: Dict[ParserType, PandasParser] = {
         "EU": EU_Parser,
         "XX": CA_PillcheckParser,
@@ -66,6 +65,6 @@ def drug_parser_factory(parser_type: ParserType, file: io.BytesIO) -> PandasPars
         "US": US_Parser,
     }
     try:
-        return parsers[parser_type](file)
+        return parsers[parser_type]
     except KeyError:
         raise ValueError(f"Unsupported parser type: {parser_type}")

@@ -14,8 +14,8 @@ from src.infrastructure.services.pandas_parser.drug.exc import (
 
 
 class PandasParser(ABC):
-    def __init__(self, file_bytes: io.BytesIO):
-        self._file = file_bytes
+    def __init__(self, source: io.BytesIO | str):
+        self._file = source
         self._df: pd.DataFrame | None = None
         self._open_and_validate()
 

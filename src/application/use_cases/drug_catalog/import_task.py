@@ -2,7 +2,6 @@ import asyncio
 import logging
 import traceback
 from datetime import datetime, timezone
-from fastapi import UploadFile
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.domain.entities.drug_catalog import TaskStatus
@@ -39,7 +38,7 @@ class CatalogImportUseCase:
         self._catalog_id = catalog_id
         self._parser = parser
         self._session = session
-        self._logger = logging.getLogger("uvicorn.info")
+        self._logger = logging.getLogger(__name__)
 
     async def _update_status(self, status: TaskStatus):
         self._logger.info(
@@ -60,14 +59,14 @@ class CatalogImportUseCase:
         self._logger.info("Saving transaction in repository")
         await self._transaction_repository.save(transaction)
 
-    async def prepare_task(self, file: UploadFile):
+    async def prepare_transaction_data(self, filename: str, source: str):
         self._logger.info(
-            f"Preparing task for file '{file.filename}' of catalog {self._catalog_id}")
+            f"Preparing task for file '{filename}' of catalog {self._catalog_id}")
         self._transaction_data = CatalogTransactionData(
             status="created",
             created_at=_created_at(),
-            filename=file.filename,
-            file_checksum=await file_checksum(file),
+            filename=filename,
+            file_checksum=await file_checksum(source),
             catalog_id=str(self._catalog_id),
             created_at_tz="UTC",
         )
@@ -94,13 +93,9 @@ class CatalogImportUseCase:
             logger.error(f"Catalog ID: {self._catalog_id}")
             logger.error("Error during catalog import: %s\n%s",
                          err, traceback.format_exc())
-            
+
             self._logger.info("Updating status to 'failed' due to error")
             await self._update_status("failed")
             self._logger.info(
                 "Removing all drug records from catalog due to failure")
             await self._drug_repository.delete_all_by_catalog_id(self._catalog_id)
-            
-        finally:
-            self._logger.info("Closing catalog repository session")
-            await self._drug_catalog_repository.close_session()

@@ -26,7 +26,6 @@ class FI_Parser(PandasParser):
                 else:
                     record[tag] = child.text
             records.append(record)
-        
 
         return pd.DataFrame(records)
 
