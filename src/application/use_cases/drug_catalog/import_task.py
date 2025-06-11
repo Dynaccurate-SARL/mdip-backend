@@ -13,7 +13,7 @@ from src.infrastructure.repositories.contract import (
     DrugCatalogRepositoryInterface,
     DrugRepositoryInterface,
 )
-from src.utils.checksum import file_checksum
+from src.utils.checksum import filepath_checksum
 
 
 def _created_at():
@@ -60,14 +60,14 @@ class CatalogImportUseCase:
         self._logger.info("Saving transaction in repository")
         await self._transaction_repository.save(transaction)
 
-    async def prepare_transaction_data(self, filename: str, source: str):
+    async def prepare_transaction_data(self, filename: str, file_path: str):
         self._logger.info(
             f"Preparing task for file '{filename}' of catalog {self._catalog_id}")
         self._transaction_data = CatalogTransactionData(
             status="created",
             created_at=_created_at(),
             filename=filename,
-            file_checksum=await file_checksum(source),
+            file_checksum=await filepath_checksum(file_path),
             catalog_id=str(self._catalog_id),
             created_at_tz="UTC",
         )

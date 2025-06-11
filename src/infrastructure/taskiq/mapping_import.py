@@ -29,7 +29,7 @@ async def task(session: AsyncSession, data: MappingsTaskData,
     for mapping in data.mappings:
         central_drug_codes.append(mapping.drug_code)
         related_drug_codes.append(mapping.related_drug_code)
-
+    
     loginfo("Creating a hash map with all central drug codes")
     central_drug_codes = await drug_repository.get_drug_map_by_catalog_id(
         data.central_catalog_id, central_drug_codes)
@@ -41,7 +41,8 @@ async def task(session: AsyncSession, data: MappingsTaskData,
     loginfo("Importing mappins")
     for mapping in data.mappings:
         cid = central_drug_codes.get(mapping.drug_code)
-        rid = related_drug_codes.get(mapping.related_drug_codes)
+        rid = related_drug_codes.get(mapping.related_drug_code)
+
         if cid and rid:
             db_mapping = DrugMapping(
                 mapping_id=data.mapping_id,

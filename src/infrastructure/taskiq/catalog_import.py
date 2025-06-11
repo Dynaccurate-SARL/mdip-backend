@@ -19,7 +19,7 @@ class ParseTaskData(BaseModel):
 
 
 async def task(session: AsyncSession, data: ParseTaskData, config: Envs):
-    filepath = await get_file(data.filename, config)
+    file_path = await get_file(data.filename, config)
 
     FileParser = drug_parser_factory(data.parser)
     drug_catalog_repository = IDrugCatalogRepository(session)
@@ -35,8 +35,8 @@ async def task(session: AsyncSession, data: ParseTaskData, config: Envs):
         drug_repository=drug_repository,
         ledger_service=ledger_service,
         catalog_id=data.catalog_id,
-        parser=FileParser(filepath),
+        parser=FileParser(file_path),
         session=session,
     )
-    await use_case.prepare_transaction_data(data.filename, filepath)
+    await use_case.prepare_transaction_data(data.filename, file_path)
     await use_case.execute()

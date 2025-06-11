@@ -3,7 +3,7 @@ from datetime import datetime, timezone
 
 from src.infrastructure.taskiq.broker import mapping_import_taskiq
 from src.infrastructure.taskiq.mapping_import import MappingsTaskData
-from src.utils.checksum import file_checksum
+from src.utils.checksum import uploadfile_checksum
 from src.domain.entities.drug_catalog import TaskStatus
 from src.domain.entities.ltransactions import MappingTransaction, MappingTransactionData
 from src.infrastructure.services.confidential_ledger.contract import LedgerInterface
@@ -55,7 +55,7 @@ class MappingImportUseCase:
             status="created",
             created_at=_created_at(),
             filename=file.filename,
-            file_checksum=await file_checksum(file),
+            file_checksum=await uploadfile_checksum(file),
             created_at_tz="UTC",
             mapping_id=str(self._mapping_id),
             catalog_id=str(self._central_catalog_id),

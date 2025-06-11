@@ -1,3 +1,4 @@
+from logging import getLogger
 from typing import Dict, List
 from sqlalchemy import delete, func
 from sqlalchemy.future import select
@@ -27,7 +28,7 @@ class IDrugRepository(DrugRepositoryInterface):
     async def get_drug_map_by_catalog_id(
             self, catalog_id: int, drug_codes: List[str] | None) -> Dict[str, int]:
         stmt = select(Drug._id, Drug.drug_code).where(
-            Drug.catalog_id == catalog_id)
+            Drug._catalog_id == catalog_id)
         if drug_codes:
             stmt = stmt.where(Drug.drug_code.in_(drug_codes))
         result = await self.session.execute(stmt)
