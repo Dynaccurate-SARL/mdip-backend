@@ -1,4 +1,4 @@
-from typing import List
+from typing import Dict, List
 from sqlalchemy import delete, func
 from sqlalchemy.future import select
 
@@ -24,13 +24,14 @@ class IDrugRepository(DrugRepositoryInterface):
         await self.session.execute(query)
         await self.session.commit()
 
-    async def get_by_drug_code_on_catalog_id(self, catalog_id: int, drug_code: str):
-        query = select(Drug).where(
-            (Drug.drug_code == drug_code) & (Drug._catalog_id == catalog_id)
-        )
-        result = await self.session.execute(query)
-        drug = result.scalar_one_or_none()
-        return drug
+    async def get_drug_map_by_catalog_id(
+            self, catalog_id: int, drug_codes: List[str] | None) -> Dict[str, int]:
+        stmt = select(Drug._id, Drug.drug_code).where(
+            Drug.catalog_id == catalog_id)
+        if drug_codes:
+            stmt = stmt.where(Drug.drug_code.in_(drug_codes))
+        result = await self.session.execute(stmt)
+        return {drug_code: id for id, drug_code in result.all()}
 
     async def get_all_like_code_or_name_by_catalog_id(
         self, catalog_id: int, name_or_code: str

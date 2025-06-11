@@ -17,9 +17,10 @@ class IMappingRepository(MappingRepositoryInterface):
         try:
             self.session.add(mapping)
             await self.session.commit()
+            return True
         except IntegrityError:
             await self.session.rollback()
-        return mapping
+            return False
 
     async def get_total_count(self) -> int:
         count_statement = select(func.count(DrugMapping._drug_id))

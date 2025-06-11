@@ -1,6 +1,6 @@
 import uuid
 from typing import Annotated
-from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, Query, status
+from fastapi import APIRouter, Depends, HTTPException, Query, status
 from fastapi import Form, UploadFile, File
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -15,7 +15,6 @@ from src.application.use_cases.drug_catalog.get_by_id import GetDrugCatalogByIdU
 from src.application.use_cases.drug_catalog.get_paginated import (
     GetPaginatedDrugCatalogUseCase,
 )
-from src.application.use_cases.drug_catalog.import_task import CatalogImportUseCase
 from src.domain.entities.user import User
 from src.domain.services.auth_service import manager
 from src.infrastructure.db.base import IdInt
@@ -25,7 +24,7 @@ from src.infrastructure.repositories.idrug_catalog_repository import (
 )
 from src.application.use_cases.drug_catalog.create import DrugCatalogCreateUseCase
 from src.infrastructure.services.blob_storage import upload_file
-from src.infrastructure.taskiq.broker import catalog_import_task
+from src.infrastructure.taskiq.broker import catalog_import_taskiq
 from src.infrastructure.taskiq.catalog_import import ParseTaskData
 from src.utils.exc import ConflictErrorCode
 
@@ -77,8 +76,6 @@ async def get_catalogs(
     return await use_case.execute(page, psize, name)
 
 
-async def drug_catalog_import_task(use_case: CatalogImportUseCase):
-    await use_case.execute()
 
 
 @drug_catalog_router.post(
@@ -88,7 +85,6 @@ async def drug_catalog_import_task(use_case: CatalogImportUseCase):
     summary="Create a new drug catalog",
 )
 async def create_catalog(
-    background_tasks: BackgroundTasks,
     user: Annotated[User, Depends(manager)],
     session: Annotated[AsyncSession, Depends(get_session)],
     # http form data
@@ -128,6 +124,6 @@ async def create_catalog(
         filename=filename,
         parser=country,
     )
-    await catalog_import_task.kiq(data.model_dump())
+    await catalog_import_taskiq.kiq(data.model_dump())
 
     return result

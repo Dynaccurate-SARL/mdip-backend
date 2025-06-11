@@ -111,10 +111,10 @@ class DrugRepositoryInterface(BaseRepository):
         ...
 
     @abstractmethod
-    async def get_by_drug_code_on_catalog_id(
-        self, catalog_id: int, drug_code: str
+    async def get_drug_map_by_catalog_id(
+        self, catalog_id: int, drug_codes: List[str] | None
     ) -> Drug | None:
-        """Get a drug by its drug code."""
+        """Get a hashmap containing id and drug code for a specific catalog ID."""
         ...
 
     @abstractmethod
@@ -154,7 +154,7 @@ class CentralDrugMapping:
 
 class MappingRepositoryInterface(BaseRepository):
     @abstractmethod
-    async def save(self, mapping: DrugMapping) -> DrugMapping:
+    async def save(self, mapping: DrugMapping) -> bool:
         """Save a drug to the database."""
         ...
 

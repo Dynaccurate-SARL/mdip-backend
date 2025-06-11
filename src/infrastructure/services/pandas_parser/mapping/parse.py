@@ -6,7 +6,7 @@ from typing import List
 from src.infrastructure.services.pandas_parser.drug.exc import InvalidFileFormat
 
 
-class DrugMapping(BaseModel):
+class DrugMappingParse(BaseModel):
     drug_code: str
     related_drug_code: str
 
@@ -36,4 +36,4 @@ class MappingParser:
                 ["drug_code", "related_drug_code"]
             ]
             records = chunk.to_dict(orient="records")
-            yield [DrugMapping(**record) for record in records]
+            yield [DrugMappingParse(**record) for record in records]

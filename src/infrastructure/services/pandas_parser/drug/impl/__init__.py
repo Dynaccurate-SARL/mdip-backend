@@ -34,6 +34,18 @@ from src.infrastructure.services.pandas_parser.drug.impl.ius import US_Parser
 
 
 def drug_parser_factory(parser_type: ParserType) -> PandasParser:
+    """
+    Factory method.
+
+    Args:
+        parser_type (ParserType): The country code or parser type to select the appropriate parser.
+
+    Returns:
+        PandasParser: A class implementation of PandasParser.
+
+    Raises:
+        ValueError: If the parser type is not supported
+    """
     parsers: Dict[ParserType, PandasParser] = {
         "EU": EU_Parser,
         "XX": CA_PillcheckParser,

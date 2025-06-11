@@ -1,16 +1,14 @@
-import asyncio
+from fastapi import UploadFile
 from datetime import datetime, timezone
 
-from fastapi import UploadFile
+from src.infrastructure.taskiq.broker import mapping_import_taskiq
+from src.infrastructure.taskiq.mapping_import import MappingsTaskData
 from src.utils.checksum import file_checksum
 from src.domain.entities.drug_catalog import TaskStatus
-from src.domain.entities.drug_mapping import DrugMapping
 from src.domain.entities.ltransactions import MappingTransaction, MappingTransactionData
 from src.infrastructure.services.confidential_ledger.contract import LedgerInterface
 from src.infrastructure.services.pandas_parser.mapping.parse import MappingParser
 from src.infrastructure.repositories.contract import (
-    DrugRepositoryInterface,
-    MappingRepositoryInterface,
     MappingTransactionRepositoryInterface,
 )
 
@@ -22,44 +20,19 @@ def _created_at():
 class MappingImportUseCase:
     def __init__(
         self,
-        drug_repository: DrugRepositoryInterface,
         transaction_repository: MappingTransactionRepositoryInterface,
-        mapping_repository: MappingRepositoryInterface,
         ledger_service: LedgerInterface,
         mapping_parser: MappingParser,
         mapping_id: int,
         central_catalog_id: int,
         related_catalog_id: int,
     ):
-        self._drug_repository = drug_repository
         self._transaction_repository = transaction_repository
-        self._mapping_repository = mapping_repository
         self._ledger_service = ledger_service
         self._mapping_parser = mapping_parser
         self._mapping_id = mapping_id
         self._central_catalog_id = central_catalog_id
         self._related_catalog_id = related_catalog_id
-
-    async def _save_mappings(self, mappings: list[DrugMapping]):
-        for mapping in mappings:
-            central_catalog_drug = (
-                await self._drug_repository.get_by_drug_code_on_catalog_id(
-                    self._central_catalog_id, mapping.drug_code
-                )
-            )
-            if central_catalog_drug:
-                related_catalog_drug = (
-                    await self._drug_repository.get_by_drug_code_on_catalog_id(
-                        self._related_catalog_id, mapping.related_drug_code
-                    )
-                )
-
-                mapping = DrugMapping(
-                    mapping_id=self._mapping_id,
-                    drug_id=central_catalog_drug._id,
-                    related_drug_id=related_catalog_drug._id,
-                )
-                await self._mapping_repository.save(mapping)
 
     async def _update_status(self, status: TaskStatus):
         self._transaction_data["status"] = status
@@ -89,19 +62,19 @@ class MappingImportUseCase:
             related_catalog_id=str(self._related_catalog_id),
         )
         await self._update_status("created")
-        await asyncio.sleep(1)
 
     async def execute(self):
         await self._update_status("processing")
-        await asyncio.sleep(1)
 
-        try:
-            for mappings in self._mapping_parser.parse():
-                await self._save_mappings(mappings)
-            await self._update_status("completed")
+        for mappings in self._mapping_parser.parse():
+            data = MappingsTaskData(
+                mappings=mappings,
+                central_catalog_id=self._central_catalog_id,
+                related_catalog_id=self._related_catalog_id,
+                mapping_id=self._mapping_id
+            )
+            await mapping_import_taskiq.kiq(data.model_dump())
 
-        except Exception:
-            await self._update_status("failed")
-            await self._mapping_repository.delete_all_by_mapping_id(self._mapping_id)
+        await self._update_status("completed")
 
-        await self._drug_repository.close_session()
+        await self._transaction_repository.close_session()

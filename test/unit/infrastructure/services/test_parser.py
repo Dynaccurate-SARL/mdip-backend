@@ -3,7 +3,7 @@ import pandas as pd
 from io import BytesIO
 
 from src.infrastructure.services.pandas_parser.drug.exc import InvalidFileFormat
-from src.infrastructure.services.pandas_parser.mapping.parse import DrugMapping, MappingParser
+from src.infrastructure.services.pandas_parser.mapping.parse import DrugMappingParse, MappingParser
 
 
 def make_csv_bytes(data: pd.DataFrame) -> bytes:
@@ -26,7 +26,7 @@ def test_mapping_parser_parses_valid_csv():
 
     # Assert
     assert len(result) == 2
-    assert isinstance(result[0][0], DrugMapping)
+    assert isinstance(result[0][0], DrugMappingParse)
     assert result[0][0].drug_code == "A"
     assert result[1][0].related_drug_code == "Y"
 

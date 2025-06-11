@@ -30,6 +30,7 @@ class CatalogImportUseCase:
         catalog_id: int,
         parser: PandasParser,
         session: AsyncSession,
+        logger: logging.Logger = logging.getLogger(__name__)
     ):
         self._drug_catalog_repository = drug_catalog_repository
         self._transaction_repository = transaction_repository
@@ -38,7 +39,7 @@ class CatalogImportUseCase:
         self._catalog_id = catalog_id
         self._parser = parser
         self._session = session
-        self._logger = logging.getLogger(__name__)
+        self._logger = logger
 
     async def _update_status(self, status: TaskStatus):
         self._logger.info(
@@ -89,9 +90,8 @@ class CatalogImportUseCase:
             await self._update_status("completed")
 
         except Exception as err:
-            logger = logging.getLogger("uvicorn.error")
-            logger.error(f"Catalog ID: {self._catalog_id}")
-            logger.error("Error during catalog import: %s\n%s",
+            self._logger.error(f"Catalog ID: {self._catalog_id}")
+            self._logger.error("Error during catalog import: %s\n%s",
                          err, traceback.format_exc())
 
             self._logger.info("Updating status to 'failed' due to error")
