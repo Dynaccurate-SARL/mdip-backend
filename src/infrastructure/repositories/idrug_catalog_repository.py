@@ -46,7 +46,7 @@ class IDrugCatalogRepository(DrugCatalogRepositoryInterface):
         offset = (page - 1) * page_size
         stmt = (
             select(DrugCatalog)
-            .order_by(DrugCatalog.country.asc())
+            .order_by(DrugCatalog.country.asc(), DrugCatalog._id)
             .offset(offset)
             .limit(page_size)
         )
