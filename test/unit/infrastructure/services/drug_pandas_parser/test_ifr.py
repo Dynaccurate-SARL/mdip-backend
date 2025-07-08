@@ -1,5 +1,4 @@
 import io
-from numpy import dtype
 import pandas as pd
 
 from src.infrastructure.services.pandas_parser.drug.impl.ifr import FR_Parser

@@ -1,3 +1,4 @@
+import numpy as np
 import pandas as pd
 
 from src.infrastructure.services.pandas_parser.drug.contract import PandasParser
@@ -5,7 +6,9 @@ from src.infrastructure.services.pandas_parser.drug.contract import PandasParser
 
 class CA_Parser(PandasParser):
     def _open(self):
-        return pd.read_json(self._file, dtype={'DRUG_CODE': str, 'BRAND_NAME': str})
+        return pd.read_json(
+            self._file, dtype={'DRUG_CODE': str, 'BRAND_NAME': str}
+        ).where(pd.notnull, None)
 
     def _required_columns(self):
         return ["DRUG_CODE", "BRAND_NAME"]

@@ -15,6 +15,7 @@ class Envs(LedgerEnvs, BlobEnvs, BaseEnvs, BaseSettings): ...
 def get_config(env: Literal["TEST"] | None = getenv("ENVIRONMENT", None)) -> Envs:
     if env == "TEST":
         return Envs(
+            RABBITMQ_URL="amqp://guest:guest@localhost:5672/fake_vhost",
             DATABASE_URL="sqlite+aiosqlite:///:memory:",
             UPLOAD_STRATEGY="DISK",
             _env_file=".env.test",

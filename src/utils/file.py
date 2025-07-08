@@ -1,32 +1,41 @@
-from io import BytesIO
-from typing import IO
 import chardet
+from io import BytesIO
 from pathlib import Path
 
 
 def detect_file_encoding(
-        source: BytesIO | str, sample_size: int = 10000) -> str | None:
+        source: BytesIO | str, sample_size: int = 10000) -> str:
     """
-    Detects the encoding of a file using the chardet library.
+    Detects the encoding of a file or byte stream using chardet.
 
-    Parameters:
-        source (BytesIO | str): Path to the file or the file object.
-        sample_size (int): Number of bytes to read for detection (default: 10000).
+    Args:
+        source (BytesIO | str): File path or BytesIO stream.
+        sample_size (int): Number of bytes to sample.
 
     Returns:
-        str | None: The detected encoding, or None if detection fails.
+        str: Detected encoding. Defaults to 'utf-8' if detection fails.
     """
-    def file_chardet(file: IO):
-        raw_data = file.read(sample_size)
-        result = chardet.detect(raw_data)
-        return result.get('encoding')
-
-    path = Path(source)
-    if not path.exists():
-        return chardet.detect(source.read1(sample_size))["encoding"]
+    def detect_from_bytes(data: bytes) -> str:
+        result = chardet.detect(data)
+        return result.get("encoding") or "utf-8"
 
     try:
-        with open(source, 'rb') as file:
-            return file_chardet(file)
-    except Exception:
-        return None
+        if isinstance(source, BytesIO):
+            # Move to start, read sample
+            source.seek(0)
+            return detect_from_bytes(source.read(sample_size))
+        
+        elif isinstance(source, str):
+            file_path = Path(source)
+            if not file_path.is_file():
+                raise FileNotFoundError(f"File not found: {source}")
+            with open(file_path, "rb") as file:
+                return detect_from_bytes(file.read(sample_size))
+        
+        else:
+            raise TypeError(f"Unsupported source type: {type(source)}")
+
+    except Exception as e:
+        # Log error here if needed
+        # Example fallback
+        return "utf-8"  # fallback to utf-8

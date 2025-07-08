@@ -7,9 +7,21 @@ from src.utils.file import detect_file_encoding
 class NL_Parser(PandasParser):
     def _open(self):
         encoding = detect_file_encoding(self._file)
-        return pd.read_csv(
-            self._file, delimiter="|", encoding=encoding, on_bad_lines="skip"
-        ).where(pd.notnull, None)
+        try:
+            return pd.read_csv(
+                self._file, 
+                delimiter="|", 
+                encoding=encoding, 
+                on_bad_lines="skip"
+            ).where(pd.notnull, None)
+        except UnicodeDecodeError:
+            # Fallback to ISO-8859-1 if the detected encoding fails
+            return pd.read_csv(
+                self._file, 
+                delimiter="|", 
+                encoding="ISO-8859-1", 
+                on_bad_lines="skip"
+            ).where(pd.notnull, None)
 
     def _required_columns(self):
         return ["PRODUCTNAAM"]
