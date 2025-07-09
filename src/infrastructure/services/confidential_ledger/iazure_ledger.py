@@ -1,6 +1,6 @@
 import json
 from typing import Dict, TypedDict
-from azure.identity import DefaultAzureCredential
+from azure.identity import CertificateCredential
 from azure.core.exceptions import HttpResponseError
 from azure.core.exceptions import ResourceNotFoundError
 from azure.confidentialledger import ConfidentialLedgerClient
@@ -18,12 +18,18 @@ class LedgerEntry(TypedDict):
 
 
 class AzureLedger(LedgerInterface):
-    def __init__(self, ledger_url: str, certificate_path: str):
-        credential = DefaultAzureCredential()
+    def __init__(self, ledger_url: str,
+                 azure_credentials_certificate_path: str,
+                 azure_ledger_certificate_path: str):
+        credential = CertificateCredential(
+            tenant_id="68e6df7c-4582-4706-a531-8ec62d76257e",
+            client_id="c0ef0c07-3ff5-47dd-bd96-4b73327b38c1",
+            certificate_path=azure_credentials_certificate_path,
+        )
         ledger_client = ConfidentialLedgerClient(
             endpoint=ledger_url,
             credential=credential,
-            ledger_certificate_path=certificate_path,
+            ledger_certificate_path=azure_ledger_certificate_path
         )
         self.ledger_client = ledger_client
 

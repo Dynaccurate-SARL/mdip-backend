@@ -70,6 +70,7 @@ async def ledger_transaction_verification(
 ):
     ledger_service = ledger_builder(
         get_config().AZURE_LEDGER_URL, 
+        get_config().AZURE_CREDENTIAL_CERTIFICATE_PATH,
         get_config().AZURE_CERTIFICATE_PATH,
         get_config().ENVIRONMENT
     )
