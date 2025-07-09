@@ -26,7 +26,9 @@ async def task(session: AsyncSession, data: ParseTaskData, config: Envs):
     transaction_repository = ICatalogTransactionRepository(session)
     drug_repository = IDrugRepository(session)
     ledger_service = ledger_builder(
-        config.AZURE_LEDGER_URL, config.AZURE_CERTIFICATE_PATH
+        config.AZURE_LEDGER_URL, 
+        config.AZURE_CERTIFICATE_PATH, 
+        config.ENVIRONMENT
     )
 
     use_case = CatalogImportUseCase(

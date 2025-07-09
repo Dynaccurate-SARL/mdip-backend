@@ -16,7 +16,7 @@ async def test_get_payload_by_transaction_id_returns_payload():
     mock_result.scalar_one_or_none.return_value = expected_payload
     mock_session.execute.return_value = mock_result
 
-    transaction_id = uuid4()
+    transaction_id = str(uuid4())
     repo = ITransactionRepository(mock_session)
 
     # Act
@@ -35,7 +35,7 @@ async def test_get_payload_by_transaction_id_returns_none():
     mock_result.scalar_one_or_none.return_value = None
     mock_session.execute.return_value = mock_result
 
-    transaction_id = uuid4()
+    transaction_id = str(uuid4())
     repo = ITransactionRepository(mock_session)
 
     # Act

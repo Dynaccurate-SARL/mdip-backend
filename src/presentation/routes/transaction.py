@@ -1,5 +1,4 @@
 from typing import Annotated, List
-from uuid import UUID
 from fastapi import APIRouter, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -65,12 +64,14 @@ async def get_catalog_mappings_transactions(
     "/transactions/{transaction_id}/verify", response_model=TransactionDto
 )
 async def ledger_transaction_verification(
-    transaction_id: UUID,
+    transaction_id: str,
     session: Annotated[AsyncSession, Depends(get_session)],
     user: Annotated[User, Depends(manager)],
 ):
     ledger_service = ledger_builder(
-        get_config().AZURE_LEDGER_URL, get_config().AZURE_CERTIFICATE_PATH
+        get_config().AZURE_LEDGER_URL, 
+        get_config().AZURE_CERTIFICATE_PATH,
+        get_config().ENVIRONMENT
     )
     ct_repository = ITransactionRepository(session)
     use_case = VerifyTransactionUseCase(ct_repository, ledger_service)

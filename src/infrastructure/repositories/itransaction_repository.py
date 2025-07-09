@@ -1,4 +1,3 @@
-from uuid import UUID
 from sqlalchemy import bindparam, select, union_all
 
 from src.infrastructure.repositories.contract import TransactionRepositoryInterface
@@ -12,7 +11,7 @@ from src.domain.entities.ltransactions import (
 
 class ITransactionRepository(TransactionRepositoryInterface):
     async def get_payload_by_transaction_id(
-        self, transaction_id: UUID
+        self, transaction_id: str
     ) -> MappingTransactionData | CatalogTransactionData:
         stmt1 = select(CatalogTransaction.payload).where(
             CatalogTransaction.transaction_id == bindparam("tid1")

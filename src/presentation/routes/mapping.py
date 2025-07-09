@@ -90,7 +90,9 @@ async def mapping_upload(
     # Prepare other dependencies for the import task use case
     transaction_repository = IMappingTransactionRepository(session)
     ledger_service = ledger_builder(
-        get_config().AZURE_LEDGER_URL, get_config().AZURE_CERTIFICATE_PATH
+        get_config().AZURE_LEDGER_URL, 
+        get_config().AZURE_CERTIFICATE_PATH, 
+        get_config().ENVIRONMENT
     )
 
     use_case = MappingImportUseCase(

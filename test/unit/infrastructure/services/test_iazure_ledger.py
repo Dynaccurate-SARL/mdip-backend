@@ -1,4 +1,3 @@
-import uuid
 import pytest
 from typing import Any, Generator, TypedDict
 from unittest.mock import MagicMock, patch
@@ -45,8 +44,7 @@ def test_insert_transaction(azure_ledger_fixture):
     mock_ledger_client.create_ledger_entry.assert_called_once()
     assert isinstance(result, TransactionInserted)
     assert result.status == "processing"
-    assert result.transaction_id == uuid.UUID(
-        "123e4567-e89b-12d3-a456-426614174000")
+    assert result.transaction_id == "123e4567-e89b-12d3-a456-426614174000"
 
 
 def test_retrieve_transaction_success(azure_ledger_fixture):
@@ -60,7 +58,7 @@ def test_retrieve_transaction_success(azure_ledger_fixture):
     }
 
     # Act
-    transaction_id = uuid.UUID("123e4567-e89b-12d3-a456-426614174000")
+    transaction_id = "123e4567-e89b-12d3-a456-426614174000"
     result = ledger.retrieve_transaction(transaction_id)
 
     # Assert
@@ -80,7 +78,7 @@ def test_retrieve_transaction_not_found(azure_ledger_fixture):
     mock_ledger_client.begin_get_ledger_entry.side_effect = ResourceNotFoundError()
 
     # Act
-    transaction_id = uuid.UUID("123e4567-e89b-12d3-a456-426614174000")
+    transaction_id = "123e4567-e89b-12d3-a456-426614174000"
     result = ledger.retrieve_transaction(transaction_id)
 
     # Assert
@@ -97,7 +95,7 @@ def test_retrieve_transaction_http_error(azure_ledger_fixture):
     mock_ledger_client.begin_get_ledger_entry.side_effect = HttpResponseError()
 
     # Act
-    transaction_id = uuid.UUID("123e4567-e89b-12d3-a456-426614174000")
+    transaction_id = "123e4567-e89b-12d3-a456-426614174000"
     result = ledger.retrieve_transaction(transaction_id)
 
     # Assert

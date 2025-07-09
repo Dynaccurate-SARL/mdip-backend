@@ -1,4 +1,3 @@
-from uuid import UUID
 from typing import Literal
 
 from src.application.dto import BaseSchema
@@ -6,7 +5,7 @@ from src.application.dto.drug_catalog_dto import TaskStatus
 
 
 class BaseTransactionDto(BaseSchema):
-    transaction_id: UUID
+    transaction_id: str
     # Transaction data is stored in JSON string format
     status: TaskStatus
     filename: str

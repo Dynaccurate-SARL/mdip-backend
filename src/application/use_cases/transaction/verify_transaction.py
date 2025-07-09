@@ -1,5 +1,3 @@
-from uuid import UUID
-
 from src.utils.checksum import dict_hash
 from src.application.dto.transaction import TransactionDto
 from src.infrastructure.repositories.contract import TransactionRepositoryInterface
@@ -15,7 +13,7 @@ class VerifyTransactionUseCase:
         self._t_repository = t_repository
         self._ledger_service = ledger_service
 
-    async def execute(self, transaction_id: UUID) -> TransactionDto:
+    async def execute(self, transaction_id: str) -> TransactionDto:
         payload = await self._t_repository.get_payload_by_transaction_id(transaction_id)
         if payload is None:
             return TransactionDto(valid=False)

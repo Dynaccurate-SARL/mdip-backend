@@ -1,5 +1,4 @@
 import pytest
-from uuid import UUID, uuid4
 from unittest.mock import AsyncMock, MagicMock
 
 from src.application.dto.transaction import TransactionDto
@@ -7,7 +6,7 @@ from src.application.use_cases.transaction.verify_transaction import (
     VerifyTransactionUseCase
 )
 
-transaction_id = UUID("ce0795d6-7df0-45b5-9f80-0d50d2eba41b")
+transaction_id = "ce0795d6-7df0-45b5-9f80-0d50d2eba41b"
 payload = {
     "status": "created",
     "created_at": "2025-05-19T19:34:36.268798+00:00",

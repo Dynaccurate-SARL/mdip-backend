@@ -1,11 +1,9 @@
-import uuid
 import sqlalchemy as sq
 from typing import Literal, TypedDict
 from sqlalchemy.orm import Mapped, mapped_column
 
 from src.application.dto.drug_catalog_dto import TaskStatus
 from src.infrastructure.db.base import Base, IdMixin
-from sqlalchemy.dialects.postgresql import UUID
 
 
 class BaseTransactionData(TypedDict):
@@ -29,8 +27,8 @@ class MappingTransactionData(BaseTransactionData):
 class BaseTransaction(IdMixin, Base):
     __abstract__ = True
 
-    transaction_id: Mapped[uuid.UUID] = mapped_column(
-        UUID(as_uuid=True), nullable=False, unique=True
+    transaction_id: Mapped[str] = mapped_column(
+        sq.String, nullable=False, unique=True
     )
 
 
@@ -44,7 +42,7 @@ class CatalogTransaction(BaseTransaction):
 
     def __init__(
         self,
-        transaction_id: uuid.UUID,
+        transaction_id: str,
         catalog_id: int,
         payload: CatalogTransactionData,
     ):
@@ -74,7 +72,7 @@ class MappingTransaction(BaseTransaction):
 
     def __init__(
         self,
-        transaction_id: uuid.UUID,
+        transaction_id: str,
         mapping_id: int,
         catalog_id: int,
         related_catalog_id: int,

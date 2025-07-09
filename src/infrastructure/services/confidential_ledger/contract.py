@@ -1,4 +1,3 @@
-from uuid import UUID
 from typing import Dict, Literal
 from typing_extensions import TypedDict
 from abc import ABC, abstractmethod
@@ -12,7 +11,7 @@ class TransactionData(TypedDict):
 
 
 class TransactionInserted(BaseSchema):
-    transaction_id: UUID
+    transaction_id: str
     status: Literal["ready", "processing"]
     transaction_data: TransactionData | None = None
 
@@ -23,5 +22,5 @@ class LedgerInterface(ABC):
         pass
 
     @abstractmethod
-    def retrieve_transaction(self, transaction_id: UUID) -> TransactionInserted | None:
+    def retrieve_transaction(self, transaction_id: str) -> TransactionInserted | None:
         pass

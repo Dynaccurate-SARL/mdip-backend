@@ -1,5 +1,4 @@
 import json
-from uuid import UUID
 from typing import Dict, TypedDict
 from azure.identity import DefaultAzureCredential
 from azure.core.exceptions import HttpResponseError
@@ -29,20 +28,24 @@ class AzureLedger(LedgerInterface):
         self.ledger_client = ledger_client
 
     def insert_transaction(self, data: Dict):
-        sample_entry = {"contents": {"data": json.dumps(data), "hash": dict_hash(data)}}
+        sample_entry = {"contents": json.dumps({
+            "data": data, "hash": dict_hash(data)
+        })}
+        print(f"Inserting transaction with data: \n {sample_entry}")
 
         self.ledger_client.create_ledger_entry(entry=sample_entry)
         latest_entry: LedgerEntry = self.ledger_client.get_current_ledger_entry()
-        transaction_id = UUID(latest_entry["transactionId"])
+        transaction_id = latest_entry["transactionId"]
 
         return TransactionInserted(
             status="processing",
             transaction_id=transaction_id,
         )
 
-    def retrieve_transaction(self, transaction_id: UUID):
+    def retrieve_transaction(self, transaction_id: str):
         try:
-            poller = self.ledger_client.begin_get_ledger_entry(str(transaction_id))
+            poller = self.ledger_client.begin_get_ledger_entry(
+                str(transaction_id))
             entry = poller.result()
 
             data = TransactionInserted(

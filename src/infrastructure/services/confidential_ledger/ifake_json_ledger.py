@@ -1,5 +1,5 @@
 import json
-from uuid import UUID, uuid4
+from uuid import uuid4
 from pathlib import Path
 
 from src.infrastructure.services.confidential_ledger.contract import (
@@ -29,9 +29,9 @@ class FakeJsonLedger(LedgerInterface):
             json.dump(data, f, default=str, indent=2)
 
     def insert_transaction(self, data: dict) -> TransactionInserted:
-        transaction_id = uuid4()
+        transaction_id = str(uuid4())
         transaction = {
-            "transaction_id": str(transaction_id),
+            "transaction_id": transaction_id,
             "status": "ready",
             "transaction_data": {"data": data, "hash": dict_hash(data)},
         }
@@ -41,7 +41,7 @@ class FakeJsonLedger(LedgerInterface):
 
         return TransactionInserted(**transaction)
 
-    def retrieve_transaction(self, transaction_id: UUID) -> TransactionInserted | None:
+    def retrieve_transaction(self, transaction_id: str) -> TransactionInserted | None:
         db = self._read_db()
         transaction = db.get(str(transaction_id), None)
         if transaction:

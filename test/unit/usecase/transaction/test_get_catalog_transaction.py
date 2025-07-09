@@ -1,4 +1,3 @@
-from uuid import UUID
 import pytest
 from unittest.mock import AsyncMock, MagicMock
 
@@ -12,8 +11,7 @@ async def test_execute_returns_list_of_catalog_transaction_dto():
     # Arrange
     mock_repository = MagicMock()
     mock_transaction = MagicMock()
-    mock_transaction.transaction_id = UUID(
-        "f954b9e5-4416-4585-abb3-ec027f2d3478")
+    mock_transaction.transaction_id = "f954b9e5-4416-4585-abb3-ec027f2d3478"
     mock_transaction.payload = {
         "status": "completed",
         "created_at": "2025-05-19T19:24:54.212976+00:00",
@@ -35,8 +33,7 @@ async def test_execute_returns_list_of_catalog_transaction_dto():
     assert isinstance(result, list)
     assert len(result) == 1
     assert isinstance(result[0], CatalogTransactionDto)
-    assert result[0].transaction_id == UUID(
-        "f954b9e5-4416-4585-abb3-ec027f2d3478")
+    assert result[0].transaction_id == "f954b9e5-4416-4585-abb3-ec027f2d3478"
     assert result[0].status == "completed"
     assert result[0].catalog_id == "7330312504196730881"
     mock_repository.get_all_by_catalog_id.assert_awaited_once_with(catalog_id)

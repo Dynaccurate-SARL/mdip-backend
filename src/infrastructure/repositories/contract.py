@@ -1,4 +1,3 @@
-from uuid import UUID
 from pydantic import EmailStr
 from sqlalchemy import Sequence
 from dataclasses import dataclass
@@ -188,7 +187,7 @@ class DrugMappingCountViewInterface(BaseRepository):
 class TransactionRepositoryInterface(BaseRepository):
     @abstractmethod
     async def get_payload_by_transaction_id(
-        self, transaction_id: UUID
+        self, transaction_id: str
     ) -> MappingTransactionData | CatalogTransactionData | None:
         """Get the payload of a transaction by its ID."""
         ...

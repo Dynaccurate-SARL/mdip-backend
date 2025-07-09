@@ -1,4 +1,4 @@
-import os
+from typing import Literal
 
 from src.infrastructure.services.confidential_ledger.contract import LedgerInterface
 from src.infrastructure.services.confidential_ledger.iazure_ledger import AzureLedger
@@ -8,9 +8,11 @@ from src.infrastructure.services.confidential_ledger.ifake_json_ledger import (
 
 
 def ledger_builder(
-    azure_ledger_url: str, azure_ledger_certificate_path: str
+    azure_ledger_url: str,
+    azure_ledger_certificate_path: str,
+    environment: Literal["PROD", "DEV"] = "DEV"
 ) -> LedgerInterface:
-    if os.getenv("ENVIRONMENT", None) == "PROD":
+    if environment == "PROD":
         return AzureLedger(azure_ledger_url, azure_ledger_certificate_path)
     else:
         return FakeJsonLedger()
