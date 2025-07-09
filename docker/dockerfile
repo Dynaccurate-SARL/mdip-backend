@@ -20,7 +20,6 @@ COPY ./pyproject.toml /app/pyproject.toml
 RUN mkdir -p /app/documents && chown -R appuser:appuser /app
 
 # Set environment variables
-ENV PYTHONPATH=${PYTHONPATH}:/app
 ENV ENVIRONMENT=PROD
 ENV DOCUMENTS_STORAGE_PATH=/app/documents
 
