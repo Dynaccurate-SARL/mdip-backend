@@ -18,16 +18,21 @@ class LedgerEntry(TypedDict):
 
 
 class AzureLedger(LedgerInterface):
-    def __init__(self, ledger_url: str,
-                 azure_credentials_certificate_path: str,
-                 azure_ledger_certificate_path: str):
+    def __init__(
+        self,
+        azure_ledger_url: str,
+        azure_ledger_certificate_path: str,
+        azure_credentials_tenant_id: str,
+        azure_credentials_client_id: str,
+        azure_credentials_certificate_path: str
+    ):
         credential = CertificateCredential(
-            tenant_id="68e6df7c-4582-4706-a531-8ec62d76257e",
-            client_id="c0ef0c07-3ff5-47dd-bd96-4b73327b38c1",
+            tenant_id=azure_credentials_tenant_id,
+            client_id=azure_credentials_client_id,
             certificate_path=azure_credentials_certificate_path,
         )
         ledger_client = ConfidentialLedgerClient(
-            endpoint=ledger_url,
+            endpoint=azure_ledger_url,
             credential=credential,
             ledger_certificate_path=azure_ledger_certificate_path
         )

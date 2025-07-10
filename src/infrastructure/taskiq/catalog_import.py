@@ -27,8 +27,10 @@ async def task(session: AsyncSession, data: ParseTaskData, config: Envs):
     drug_repository = IDrugRepository(session)
     ledger_service = ledger_builder(
         config.AZURE_LEDGER_URL, 
+        config.AZURE_LEDGER_CERTIFICATE_PATH,
+        config.AZURE_CREDENTIAL_TENNANT_ID,
+        config.AZURE_CREDENTIAL_CLIENT_ID,
         config.AZURE_CREDENTIAL_CERTIFICATE_PATH,
-        config.AZURE_CERTIFICATE_PATH,
         config.ENVIRONMENT
     )
 

@@ -91,8 +91,10 @@ async def mapping_upload(
     transaction_repository = IMappingTransactionRepository(session)
     ledger_service = ledger_builder(
         get_config().AZURE_LEDGER_URL, 
+        get_config().AZURE_LEDGER_CERTIFICATE_PATH,
+        get_config().AZURE_CREDENTIAL_TENNANT_ID,
+        get_config().AZURE_CREDENTIAL_CLIENT_ID,
         get_config().AZURE_CREDENTIAL_CERTIFICATE_PATH,
-        get_config().AZURE_CERTIFICATE_PATH,
         get_config().ENVIRONMENT
     )
 
