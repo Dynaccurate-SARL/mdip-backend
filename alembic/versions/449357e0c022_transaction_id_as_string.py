@@ -68,16 +68,20 @@ def downgrade() -> None:
     # Copy and convert data from transaction_id_str (String) to transaction_id (UUID)
     op.execute("""
         UPDATE catalog_transactions
-        SET transaction_id = transaction_id_str::uuid
+        SET transaction_id = 
+            CASE 
+                WHEN transaction_id_str ~* '^[0-9a-fA-F-]{36}$' THEN transaction_id_str::uuid
+                ELSE '00000000-0000-0000-0000-000000000000'::uuid
+            END
     """)
     op.execute("""
         UPDATE mapping_transactions
-        SET transaction_id = transaction_id_str::uuid
+        SET transaction_id = 
+            CASE 
+                WHEN transaction_id_str ~* '^[0-9a-fA-F-]{36}$' THEN transaction_id_str::uuid
+                ELSE '00000000-0000-0000-0000-000000000000'::uuid
+            END
     """)
-
-    # Remove the old column
-    op.drop_column('catalog_transactions', 'transaction_id_str')
-    op.drop_column('mapping_transactions', 'transaction_id_str')
 
     op.alter_column('catalog_transactions', 'transaction_id', nullable=False)
     op.alter_column('mapping_transactions', 'transaction_id', nullable=False)
