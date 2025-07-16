@@ -1,4 +1,3 @@
-from logging import getLogger
 from typing import Dict, List
 from sqlalchemy import delete, func
 from sqlalchemy.future import select

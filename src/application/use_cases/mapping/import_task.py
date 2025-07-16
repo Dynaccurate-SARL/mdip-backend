@@ -76,5 +76,3 @@ class MappingImportUseCase:
             await mapping_import_taskiq.kiq(data.model_dump())
 
         await self._update_status("completed")
-
-        await self._transaction_repository.close_session()

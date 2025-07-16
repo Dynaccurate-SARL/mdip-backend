@@ -1,12 +1,11 @@
 import pytest
 from unittest.mock import AsyncMock, MagicMock
 from sqlalchemy.ext.asyncio import AsyncSession
-from src.domain.entities.user import User
+from src.domain.entities.drug_mapping import DrugMapping
 from src.infrastructure.repositories.imapping_repository import IMappingRepository
 from sqlalchemy.exc import IntegrityError
 
-user = User(email="test@example.com",
-            name="Test User", password="password123")
+mapping = DrugMapping(drug_id=1, related_drug_id=2, mapping_id=3)
 
 
 @pytest.mark.asyncio
@@ -20,12 +19,12 @@ async def test_save():
     repository = IMappingRepository(mock_session)
 
     # Act
-    result = await repository.save(user)
+    result = await repository.save(mapping)
 
     # Assert
-    mock_session.add.assert_called_once_with(user)
+    mock_session.add.assert_called_once_with(mapping)
     mock_session.commit.assert_called_once()
-    assert result == user
+    assert result == True
 
 
 @pytest.mark.asyncio
@@ -40,9 +39,9 @@ async def test_save_with_integrity_error():
     repository = IMappingRepository(mock_session)
 
     # Act & Assert
-    await repository.save(user)
+    await repository.save(mapping)
 
-    mock_session.add.assert_called_once_with(user)
+    mock_session.add.assert_called_once_with(mapping)
     mock_session.commit.assert_called_once()
     mock_session.rollback.assert_called_once()
 

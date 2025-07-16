@@ -116,11 +116,12 @@ async def test_get_paginated_by_catalog_id():
     assert len(result.items) == 1
     assert result.items == [drug]
 
+
 @pytest.mark.asyncio
-async def test_get_by_drug_code_on_catalog_id_found():
+async def test_get_drug_map_by_catalog_id_found():
     # Arrange
     mock_execute_result = AsyncMock(spec=Result)
-    mock_execute_result.scalar_one_or_none.return_value = drug
+    mock_execute_result.all.return_value = [(1, "TD123")]
 
     mock_session = AsyncMock(spec=AsyncSession)
     mock_session.execute.return_value = mock_execute_result
@@ -128,18 +129,20 @@ async def test_get_by_drug_code_on_catalog_id_found():
     repository = IDrugRepository(mock_session)
 
     # Act
-    result = await repository.get_by_drug_code_on_catalog_id(1, "TD123")
+    result = await repository.get_drug_map_by_catalog_id(1, ["TD123"])
 
     # Assert
     mock_session.execute.assert_called_once()
-    assert result == drug
+    assert result == {
+        "TD123": 1,
+    }
 
 
 @pytest.mark.asyncio
-async def test_get_by_drug_code_on_catalog_id_not_found():
+async def test_get_drug_map_by_catalog_id_not_found():
     # Arrange
     mock_execute_result = AsyncMock(spec=Result)
-    mock_execute_result.scalar_one_or_none.return_value = None
+    mock_execute_result.all.return_value = []
 
     mock_session = AsyncMock(spec=AsyncSession)
     mock_session.execute.return_value = mock_execute_result
@@ -147,11 +150,12 @@ async def test_get_by_drug_code_on_catalog_id_not_found():
     repository = IDrugRepository(mock_session)
 
     # Act
-    result = await repository.get_by_drug_code_on_catalog_id(1, "INVALID_CODE")
+    result = await repository.get_drug_map_by_catalog_id(1, ["INVALID_CODE"])
 
     # Assert
     mock_session.execute.assert_called_once()
-    assert result is None
+    assert result == {}
+
 
 @pytest.mark.asyncio
 async def test_delete_all_by_catalog_id():
