@@ -3,6 +3,7 @@ from typing import Dict
 from src.application.dto.drug_catalog_dto import CountryCode as ParserType
 from src.infrastructure.services.pandas_parser.drug.contract import PandasParser
 from src.infrastructure.services.pandas_parser.drug.impl.iat import AT_Parser
+from src.infrastructure.services.pandas_parser.drug.impl.ibg import BG_Parser
 from src.infrastructure.services.pandas_parser.drug.impl.ica import CA_Parser
 from src.infrastructure.services.pandas_parser.drug.impl.ica_pillcheck import (
     CA_PillcheckParser,
@@ -20,6 +21,8 @@ from src.infrastructure.services.pandas_parser.drug.impl.igr import GR_Parser
 from src.infrastructure.services.pandas_parser.drug.impl.ihr import HR_Parser
 from src.infrastructure.services.pandas_parser.drug.impl.ihu import HU_Parser
 from src.infrastructure.services.pandas_parser.drug.impl.iie import IE_Parser
+from src.infrastructure.services.pandas_parser.drug.impl.iit import IT_Parser
+from src.infrastructure.services.pandas_parser.drug.impl.ilt import LT_Parser
 from src.infrastructure.services.pandas_parser.drug.impl.ilu import LU_Parser
 from src.infrastructure.services.pandas_parser.drug.impl.ilv import LV_Parser
 from src.infrastructure.services.pandas_parser.drug.impl.imt import MT_Parser
@@ -28,6 +31,7 @@ from src.infrastructure.services.pandas_parser.drug.impl.ipl import PL_Parser
 from src.infrastructure.services.pandas_parser.drug.impl.ipt import PT_Parser
 from src.infrastructure.services.pandas_parser.drug.impl.iro import RO_Parser
 from src.infrastructure.services.pandas_parser.drug.impl.ise import SE_Parser
+from src.infrastructure.services.pandas_parser.drug.impl.isi import SI_Parser
 from src.infrastructure.services.pandas_parser.drug.impl.isk import SK_Parser
 from src.infrastructure.services.pandas_parser.drug.impl.iuk import UK_Parser
 from src.infrastructure.services.pandas_parser.drug.impl.ius import US_Parser
@@ -52,6 +56,7 @@ def drug_parser_factory(parser_type: ParserType) -> PandasParser:
     } | {
         "AT": AT_Parser,
         "BE": BE_Parser,
+        "BG": BG_Parser,
         "CA": CA_Parser,
         "CY": CY_Parser,
         "CZ": CZ_Parser,
@@ -64,6 +69,8 @@ def drug_parser_factory(parser_type: ParserType) -> PandasParser:
         "HR": HR_Parser,
         "HU": HU_Parser,
         "IE": IE_Parser,
+        "IT": IT_Parser,
+        "LT": LT_Parser,
         "LU": LU_Parser,
         "LV": LV_Parser,
         "MT": MT_Parser,
@@ -72,6 +79,7 @@ def drug_parser_factory(parser_type: ParserType) -> PandasParser:
         "PT": PT_Parser,
         "RO": RO_Parser,
         "SE": SE_Parser,
+        "SI": SI_Parser,
         "SK": SK_Parser,
         "UK": UK_Parser,
         "US": US_Parser,

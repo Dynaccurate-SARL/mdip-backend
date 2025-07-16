@@ -7,6 +7,7 @@ TaskStatus = Literal["created", "processing", "completed", "failed"]
 _CountryCode = Literal[
     "AT",
     "BE",
+    "BG",
     "CA",
     "CY",
     "CZ",
@@ -20,6 +21,8 @@ _CountryCode = Literal[
     "HR",
     "HU",
     "IE",
+    'IT',
+    "LT",
     "LU",
     "LV",
     "MT",
@@ -28,12 +31,13 @@ _CountryCode = Literal[
     "PT",
     "RO",
     "SE",
+    "SI",
     "SK",
     "UK",
     "US",
 ]
 _OtherCode = Literal["XX", "EU"]
-CountryCode = _OtherCode | _CountryCode
+CountryCode =  _CountryCode | _OtherCode
 
 
 class DrugCatalogCreateDto(BaseSchema):
