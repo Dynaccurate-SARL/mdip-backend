@@ -1,7 +1,7 @@
 from io import BytesIO
 import pytest
 import pandas as pd
-from unittest.mock import AsyncMock
+from unittest.mock import AsyncMock, Mock
 
 from src.infrastructure.services.pandas_parser.drug.contract import PandasParser
 from src.infrastructure.services.pandas_parser.drug.exc import (
@@ -50,7 +50,7 @@ async def test_save_all():
     file = b"dummy content"
     parser = DummyParser(file)
 
-    mock_session = AsyncMock()
+    mock_session = AsyncMock(add=Mock())
     mock_connection = AsyncMock()
     mock_session.connection.return_value = mock_connection
     mock_connection.run_sync = AsyncMock()

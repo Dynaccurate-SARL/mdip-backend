@@ -14,16 +14,28 @@ class AzureLedgerFixture(TypedDict):
 
 @pytest.fixture
 def azure_ledger_fixture() -> Generator[AzureLedgerFixture, Any, None]:
-    ledger_url = "https://test-ledger-url"
-    certificate_path = "/path/to/certificate"
+    azure_ledger_url = "https://test-ledger-url",
+    azure_ledger_certificate_path = "/path/to/certificate",
+    azure_credentials_tenant_id = "123e4567-e89b-12d3-a456-426614174000",
+    azure_credentials_client_id = "123e4567-e89b-12d3-a456-426614174001",
+    azure_credentials_certificate_path = "/path/to/certificate"
+
+    mock_credential = MagicMock()
     mock_ledger_client = MagicMock()
 
-    with patch("src.infrastructure.services.confidential_ledger.iazure_ledger.ConfidentialLedgerClient", return_value=mock_ledger_client):
-        ledger = AzureLedger(ledger_url, certificate_path)
-        yield {
-            "ledger": ledger,
-            "mock_ledger_client": mock_ledger_client
-        }
+    with patch("src.infrastructure.services.confidential_ledger.iazure_ledger.CertificateCredential", return_value=mock_credential):
+        with patch("src.infrastructure.services.confidential_ledger.iazure_ledger.ConfidentialLedgerClient", return_value=mock_ledger_client):
+            ledger = AzureLedger(
+                azure_ledger_url,
+                azure_ledger_certificate_path,
+                azure_credentials_tenant_id,
+                azure_credentials_client_id,
+                azure_credentials_certificate_path
+            )
+            yield {
+                "ledger": ledger,
+                "mock_ledger_client": mock_ledger_client
+            }
 
 
 def test_insert_transaction(azure_ledger_fixture):

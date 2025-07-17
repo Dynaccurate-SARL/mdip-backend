@@ -1,18 +1,27 @@
 import pytest
 from io import BytesIO
-from fastapi import UploadFile
 
 from src.utils.checksum import filepath_checksum, dict_hash
+import tempfile
+import os
+
+
+def create_temp_file(filename: str, file: BytesIO) -> str:
+    file.seek(0)
+    with tempfile.NamedTemporaryFile(
+            delete=False, suffix=os.path.splitext(filename)[1]) as tmp_file:
+        tmp_file.write(file.read())
+        return tmp_file.name
+
 
 @pytest.mark.asyncio
 async def test_file_checksum_consistent_hashing():
     # Arrange
     file_content = b"Test content for checksum"
-    file = UploadFile(filename="test.txt", file=BytesIO(file_content))
+    file = create_temp_file(filename="test.txt", file=BytesIO(file_content))
 
     # Act
     hash1 = await filepath_checksum(file)
-    file.file.seek(0)  # Reset file pointer
     hash2 = await filepath_checksum(file)
 
     # Assert
@@ -23,8 +32,8 @@ async def test_file_checksum_consistent_hashing():
 @pytest.mark.asyncio
 async def test_file_checksum_different_content_different_hash():
     # Arrange
-    file1 = UploadFile(filename="test1.txt", file=BytesIO(b"Content A"))
-    file2 = UploadFile(filename="test2.txt", file=BytesIO(b"Content B"))
+    file1 = create_temp_file(filename="test1.txt", file=BytesIO(b"Content A"))
+    file2 = create_temp_file(filename="test2.txt", file=BytesIO(b"Content B"))
 
     # Act
     hash1 = await filepath_checksum(file1)
@@ -38,7 +47,7 @@ async def test_file_checksum_different_content_different_hash():
 @pytest.mark.asyncio
 async def test_file_checksum_empty_file():
     # Arrange
-    file = UploadFile(filename="empty.txt", file=BytesIO(b""))
+    file = create_temp_file(filename="empty.txt", file=BytesIO(b""))
 
     # Act
     hash_value = await filepath_checksum(file)
@@ -53,11 +62,10 @@ async def test_file_checksum_empty_file():
 async def test_file_checksum_custom_algorithm():
     # Arrange
     file_content = b"Test content for checksum"
-    file = UploadFile(filename="test.txt", file=BytesIO(file_content))
+    file = create_temp_file(filename="test.txt", file=BytesIO(file_content))
 
     # Act
     hash_sha256 = await filepath_checksum(file, algorithm="sha256")
-    file.file.seek(0)  # Reset file pointer
     hash_md5 = await filepath_checksum(file, algorithm="md5")
 
     # Assert
@@ -93,7 +101,7 @@ def test_dict_hash_algorithm_length(data, algorithm, expected_length):
 )
 async def test_file_checksum_algorithm_length(file_content, algorithm, expected_length):
     # Arrange
-    file = UploadFile(filename="test.txt", file=BytesIO(file_content))
+    file = create_temp_file(filename="test.txt", file=BytesIO(file_content))
 
     # Act
     hash_value = await filepath_checksum(file, algorithm=algorithm)

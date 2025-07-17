@@ -85,7 +85,7 @@ async def mapping_upload(
     # rename filename to ensure uniqueness
     filename = f"{str(uuid.uuid4())}_{file.filename}"
     # Upload file to the appropriate storage strategy
-    source = await upload_file(filename, file)
+    await upload_file(filename, file)
 
     # Prepare other dependencies for the import task use case
     transaction_repository = IMappingTransactionRepository(session)

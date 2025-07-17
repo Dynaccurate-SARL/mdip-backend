@@ -3,6 +3,16 @@ from io import BytesIO
 from pathlib import Path
 
 
+def _read_sample_or_all(source: BytesIO, sample_size: int = 10_000):
+    source.seek(0)
+    sample = source.read(sample_size)
+    if len(sample) < sample_size:
+        source.seek(0)
+        sample = source.read()
+    source.seek(0)
+    return sample
+
+
 def detect_file_encoding(
         source: BytesIO | str, sample_size: int = 10000) -> str:
     """
@@ -22,8 +32,8 @@ def detect_file_encoding(
     try:
         if isinstance(source, BytesIO):
             # Move to start, read sample
-            source.seek(0)
-            return detect_from_bytes(source.read(sample_size))
+            data = _read_sample_or_all(source, sample_size)
+            return detect_from_bytes(data)
         
         elif isinstance(source, str):
             file_path = Path(source)
@@ -35,7 +45,7 @@ def detect_file_encoding(
         else:
             raise TypeError(f"Unsupported source type: {type(source)}")
 
-    except Exception as e:
+    except Exception:
         # Log error here if needed
         # Example fallback
         return "utf-8"  # fallback to utf-8
