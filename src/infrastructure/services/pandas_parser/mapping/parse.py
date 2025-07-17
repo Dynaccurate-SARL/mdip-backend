@@ -22,7 +22,7 @@ class MappingParser:
 
     def _open_and_validate(self):
         try:
-            self._df = pd.read_csv(self._file, delimiter=",")
+            self._df = pd.read_csv(self._file, delimiter=",", dtype=str)
 
             required_columns = self._required_columns()
             if not all([col in self._df.columns for col in required_columns]):
