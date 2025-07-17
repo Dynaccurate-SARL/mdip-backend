@@ -1,4 +1,3 @@
-import numpy as np
 import pandas as pd
 
 from src.infrastructure.services.pandas_parser.drug.contract import PandasParser
