@@ -35,18 +35,28 @@ def test_fi_parse_valid_data():
     # Arrange
     mock_file = io.BytesIO(
         b"""
-        <Data>
-            <Laakevalmiste>
-                <id>A2</id>
-                <Kauppanimi>Attack 2</Kauppanimi>
-                <Extra>android</Extra>
-            </Laakevalmiste>
-            <Laakevalmiste>
-                <id>2B</id>
-                <Kauppanimi>2 Mo. Battle</Kauppanimi>
-                <Extra>android</Extra>
-            </Laakevalmiste>
-        </Data>
+        <Root>
+            <Laakevalmisteet>
+                <Laakevalmiste id="123">
+                    <Kauppanimi>Paracetamol</Kauppanimi>
+                    <ATC-koodi id="N02BE01"/>
+                    <Laakemuoto value="Tabletti"/>
+                    <Myyntilupa>
+                        <Myontipaiva>2020-01-01</Myontipaiva>
+                        <LuvanHaltija>Pharma Oy</LuvanHaltija>
+                    </Myyntilupa>
+                </Laakevalmiste>
+                <Laakevalmiste id="456">
+                    <Kauppanimi>Ibuprofeeni</Kauppanimi>
+                    <ATC-koodi id="M01AE01"/>
+                    <Laakemuoto value="Tabletti"/>
+                    <Myyntilupa>
+                        <Myontipaiva>2019-05-10</Myontipaiva>
+                        <LuvanHaltija>MedCo</LuvanHaltija>
+                    </Myyntilupa>
+                </Laakevalmiste>
+            </Laakevalmisteet>
+        </Root>
         """
     )
 
@@ -57,6 +67,13 @@ def test_fi_parse_valid_data():
     # Assert
     assert sorted(parser._df.columns) == [
         "drug_code", "drug_name", "properties"]
-    assert parser._df.iloc[0]["drug_code"] == "A2"
-    assert parser._df.iloc[0]["drug_name"] == "Attack 2"
-    assert parser._df.iloc[0]["properties"] == {"Extra": "android"}
+    assert parser._df.iloc[0]["drug_code"] == "123"
+    assert parser._df.iloc[0]["drug_name"] == "Paracetamol"
+    assert parser._df.iloc[0]["properties"] == {
+        'ATC-koodi': 'N02BE01',
+        'Laakemuoto': 'Tabletti',
+        'Myyntilupa': {
+            'LuvanHaltija': 'Pharma Oy',
+            'Myontipaiva': '2020-01-01'
+        }
+    }

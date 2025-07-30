@@ -66,6 +66,7 @@ omit = [
     'src\config\*',
     'src\utils\exc.py',
     'src\application\dto\*',
+    'src\presentation\routes\*', # API routes
     'src\infrastructure\db\base.py',
     'src\infrastructure\db\engine.py',
     'src\infrastructure\services\blob_storage\azure_storage.py',

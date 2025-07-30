@@ -43,8 +43,6 @@ class PandasParser(ABC):
         df_columns = self._df.columns.tolist()
         missing = [item for item in r_columns if item not in df_columns]
         if missing:
-            # print(f"Dataframe columns: {df_columns}")
-            # print(f"Required columns: {r_columns}")
             raise InvalidFileFormat(f"Missing required columns: {missing}")
 
     async def save_all(self, session: AsyncSession, catalog_id: int):

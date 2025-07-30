@@ -2,12 +2,12 @@ import io
 import pytest
 import pandas as pd
 
-from src.infrastructure.services.pandas_parser.drug.impl.ihu import HU_Parser
+from src.infrastructure.services.pandas_parser.drug.impl.isi import SI_Parser
 from src.infrastructure.services.pandas_parser.drug.exc import (
     InvalidFileFormat)
 
 
-def test_hu_open_and_validate_invalid_file():
+def test_cz_open_and_validate_invalid_file():
     # Arrange
     mock_file = io.BytesIO()
     invalid_data = pd.DataFrame([
@@ -21,15 +21,17 @@ def test_hu_open_and_validate_invalid_file():
     with pytest.raises(
             InvalidFileFormat,
             match="Missing required columns"):
-        HU_Parser(mock_file)
+        SI_Parser(mock_file)
 
 
-def test_hu_parse_valid_data():
+def test_cz_parse_valid_data():
     # Arrange
     mock_file = io.BytesIO()
     valid_data = pd.DataFrame([
-        {' Név': "Attack 2", "Extra": "android"},
-        {' Név': "2 Mo. Battle", "Extra": "android"},
+        {"Nacionalna šifra ": "A2",
+            "Poimenovanje zdravila": "Attack 2", "Extra": "android"},
+        {"Nacionalna šifra ": "2B",
+            "Poimenovanje zdravila": "2 Mo. Battle", "Extra": "android"},
     ])
     csv_str = valid_data.to_csv(sep=";", index=False)
     mock_file.write('\ufeff'.encode('utf-8'))
@@ -37,12 +39,12 @@ def test_hu_parse_valid_data():
     mock_file.seek(0)
 
     # Act
-    parser = HU_Parser(mock_file)
+    parser = SI_Parser(mock_file)
     parser.parse()
 
     # Assert
     assert sorted(parser._df.columns) == [
         "drug_code", "drug_name", "properties"]
-    assert parser._df.iloc[0]["drug_code"] == "HU_1"
+    assert parser._df.iloc[0]["drug_code"] == "A2"
     assert parser._df.iloc[0]["drug_name"] == "Attack 2"
     assert parser._df.iloc[0]["properties"] == {"Extra": "android"}
