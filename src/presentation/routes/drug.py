@@ -13,11 +13,9 @@ from src.infrastructure.db.engine import get_session
 from src.infrastructure.repositories.idrug_catalog_repository import (
     IDrugCatalogRepository,
 )
-from src.infrastructure.repositories.idrug_mapping_count_repository import (
-    IDrugMappingCountViewInterface,
-)
 from src.infrastructure.repositories.idrug_repository import IDrugRepository
 from src.utils.exc import ResourceNotFound
+from test.unit.usecase import drug_catalog
 
 
 drug_router = APIRouter()
@@ -59,10 +57,11 @@ async def get_all_by_name_or_code(
     limit: Annotated[int, Query(ge=0)] = 0,
 ):
     # Prepare the repository
-    drug_mapping_count_repository = IDrugMappingCountViewInterface(session)
+    drug_catalog_repository = IDrugCatalogRepository(session)
+    drug_repository = IDrugRepository(session)
 
     # Fetch the drug by ID
-    use_case = GetDrugsUseCase(drug_mapping_count_repository)
+    use_case = GetDrugsUseCase(drug_catalog_repository, drug_repository)
     return await use_case.execute(drugnc, limit)
 
 

@@ -7,7 +7,6 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.application.dto.drug_catalog_dto import CountryCode, TaskStatus
 from src.domain.entities.drug import Drug
-from src.domain.entities.drug_mapping_count_view import DrugMappingCountView
 from src.domain.entities.ltransactions import (
     CatalogTransaction,
     CatalogTransactionData,
@@ -118,7 +117,7 @@ class DrugRepositoryInterface(BaseRepository):
 
     @abstractmethod
     async def get_all_like_code_or_name_by_catalog_id(
-        self, name_or_code: str
+        self, catalog_id: int, name_or_code: str
     ) -> List[Drug]:
         """Get all drugs that match the given name or code."""
         ...
@@ -172,15 +171,6 @@ class MappingRepositoryInterface(BaseRepository):
     @abstractmethod
     async def delete_all_by_mapping_id(self, mapping_id: int):
         """Delete all mappings associated with a specific mapping ID."""
-        ...
-
-
-class DrugMappingCountViewInterface(BaseRepository):
-    @abstractmethod
-    async def get_all_like_code_or_name(
-        self, name_or_code_filter: str = "", limit: int = 0
-    ) -> List[DrugMappingCountView]:
-        """Get all drugs that match the given name or code."""
         ...
 
 
