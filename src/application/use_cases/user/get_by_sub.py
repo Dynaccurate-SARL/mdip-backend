@@ -1,0 +1,14 @@
+from src.application.dto.user_dto import UserDto
+from src.infrastructure.repositories.contract import UserRepositoryInterface
+
+
+class GetUserBySubUseCase:
+    def __init__(self, user_repository: UserRepositoryInterface):
+        self.user_repository = user_repository
+
+    async def execute(self, sub: int) -> UserDto | None:
+        if not sub:
+            raise ValueError("Sub cannot be empty")
+        user = await self.user_repository.get_by_sub(sub)
+        if user:
+            return UserDto.model_validate(user)

@@ -1,15 +1,13 @@
-from sqlalchemy import func, select
-from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy import func, select, update
 
-from src.domain.entities.drug_catalog import DrugCatalog
+from src.domain.entities.drug_catalog import DrugCatalog, TaskStatus
 from src.infrastructure.repositories.contract import (
-    DrugCatalogRepositoryInterface, PagedItems)
+    DrugCatalogRepositoryInterface,
+    PagedItems,
+)
 
 
 class IDrugCatalogRepository(DrugCatalogRepositoryInterface):
-    def __init__(self, session: AsyncSession):
-        self.session = session
-
     async def save(self, drug_catalog: DrugCatalog):
         self.session.add(drug_catalog)
         await self.session.commit()
@@ -17,22 +15,41 @@ class IDrugCatalogRepository(DrugCatalogRepositoryInterface):
         return drug_catalog
 
     async def get_by_id(self, drug_catalog_id: int):
-        statement = select(DrugCatalog).where(
-            DrugCatalog._id == drug_catalog_id)
-        result = await self.session.execute(statement)
+        stmt = select(DrugCatalog).where(DrugCatalog._id == drug_catalog_id)
+        result = await self.session.execute(stmt)
+        return result.scalars().one_or_none()
+
+    async def status_update(self, drug_catalog_id: int, status: TaskStatus):
+        stmt = (
+            update(DrugCatalog)
+            .where(DrugCatalog._id == drug_catalog_id)
+            .values(status=status)
+        )
+        if status == "failed":
+            stmt = stmt.values(is_central=False)
+        await self.session.execute(stmt)
+
+    async def get_central(self):
+        stmt = select(DrugCatalog).where(DrugCatalog.is_central.is_(True))
+        result = await self.session.execute(stmt)
         return result.scalars().one_or_none()
 
     async def get_total_count(self, name_filter: str = None) -> int:
-        count_statement = select(func.count(DrugCatalog._id))
+        count_stmt = select(func.count(DrugCatalog._id))
         if name_filter:
-            count_statement = count_statement.where(
+            count_stmt = count_stmt.where(
                 DrugCatalog.name.ilike(f"%{name_filter}%"))
-        return await self.session.scalar(count_statement)
+        return await self.session.scalar(count_stmt)
 
-    async def get_paginated(self, page: int, page_size: int,
-                            name_filter: str = None):
+    async def get_paginated(
+            self, page: int, page_size: int, name_filter: str = None):
         offset = (page - 1) * page_size
-        stmt = select(DrugCatalog).offset(offset).limit(page_size)
+        stmt = (
+            select(DrugCatalog)
+            .order_by(DrugCatalog.country.asc(), DrugCatalog._id)
+            .offset(offset)
+            .limit(page_size)
+        )
 
         if name_filter:
             stmt = stmt.where(DrugCatalog.name.ilike(f"%{name_filter}%"))
@@ -43,8 +60,6 @@ class IDrugCatalogRepository(DrugCatalogRepositoryInterface):
         total_count = await self.get_total_count(name_filter)
 
         return PagedItems[DrugCatalog](
-            current_page=page,
-            page_size=page_size,
-            total_count=total_count,
-            items=items
+            current_page=page, page_size=page_size, 
+            total_count=total_count, items=items
         )

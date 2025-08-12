@@ -62,7 +62,12 @@ def upgrade() -> None:
         sa.column('password', sa.String)
     )
     default_user = User("John Doe", "johndoe@example.com", "mysecretpassword")
-    op.bulk_insert(users_table, [default_user._alembic_user()])
+    op.bulk_insert(users_table, [{
+        'sub': default_user.sub,
+        'name': default_user.name,
+        'email': default_user.email,
+        'password': default_user.password
+    }])
     # ### end Alembic commands ###
 
 

@@ -9,7 +9,8 @@ _async_engine = create_async_engine(
 )
 
 AsyncLocalSession = async_sessionmaker(
-    _async_engine, autoflush=False, expire_on_commit=False)
+    _async_engine, autoflush=False, expire_on_commit=False
+)
 
 
 class Base(DeclarativeBase):
@@ -20,7 +21,7 @@ async def get_session():
     async with AsyncLocalSession() as session:
         try:
             yield session
-        except Exception as e:
+        except Exception:
             await session.rollback()
             raise
         finally:

@@ -8,6 +8,7 @@ class UserCreateDto(BaseSchema):
     email: EmailStr
     password: str
 
-class UserResponseDto(BaseSchema):
+
+class UserDto(BaseSchema):
     name: str
     email: EmailStr

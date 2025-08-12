@@ -1,23 +1,30 @@
-from typing import Literal
 from pydantic import model_validator
 
-LedgerStrategy = Literal['DB', 'AZURE']
+from src.config.settings.base import BaseEnvs
 
 
 class LedgerEnvs:
-    LEDGER_STRATEGY: LedgerStrategy
-    # strategy: azure
     AZURE_LEDGER_URL: str | None = None
-    AZURE_CERTIFICATE_PATH: str | None = None
+    AZURE_LEDGER_CERTIFICATE_PATH: str | None = None
+    AZURE_CREDENTIAL_TENNANT_ID: str | None = None
+    AZURE_CREDENTIAL_CLIENT_ID: str | None = None
+    AZURE_CREDENTIAL_CERTIFICATE_PATH: str | None = None
 
-    @model_validator(mode='after')
-    def check_upload_strategy(cls, values: 'LedgerEnvs') -> 'LedgerEnvs':
-        strategy = values.LEDGER_STRATEGY
+    @model_validator(mode="after")
+    def check_upload_strategy(cls, values: "BaseEnvs") -> "LedgerEnvs":
+        environment = values.ENVIRONMENT
 
-        if strategy == "AZURE":
-            required = ["AZURE_LEDGER_URL", "AZURE_CERTIFICATE_PATH"]
+        if environment == "PROD":
+            required = [
+                "AZURE_LEDGER_URL",
+                "AZURE_LEDGER_CERTIFICATE_PATH",
+                "AZURE_CREDENTIAL_TENNANT_ID",
+                "AZURE_CREDENTIAL_CLIENT_ID",
+                "AZURE_CREDENTIAL_CERTIFICATE_PATH"
+            ]
             for field in required:
                 if not getattr(values, field):
                     raise ValueError(
-                        f"'{field}' is required when 'LEDGER_STRATEGY' is 'AZURE'\n")
+                        f"'{field}' is required when 'ENVIRONMENT' is 'PROD'\n"
+                    )
         return values

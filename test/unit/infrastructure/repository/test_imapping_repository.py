@@ -1,0 +1,123 @@
+import pytest
+from unittest.mock import AsyncMock, MagicMock
+from sqlalchemy.ext.asyncio import AsyncSession
+from src.domain.entities.drug_mapping import DrugMapping
+from src.infrastructure.repositories.imapping_repository import IMappingRepository
+from sqlalchemy.exc import IntegrityError
+
+mapping = DrugMapping(drug_id=1, related_drug_id=2, mapping_id=3)
+
+
+@pytest.mark.asyncio
+async def test_save():
+    # Arrange
+    mock_session = AsyncMock(spec=AsyncSession)
+    mock_session.add.return_value = None
+    mock_session.commit.return_value = None
+    mock_session.refresh.return_value = None
+
+    repository = IMappingRepository(mock_session)
+
+    # Act
+    result = await repository.save(mapping)
+
+    # Assert
+    mock_session.add.assert_called_once_with(mapping)
+    mock_session.commit.assert_called_once()
+    assert result == True
+
+
+@pytest.mark.asyncio
+async def test_save_with_integrity_error():
+    # Arrange
+    mock_session = AsyncMock(spec=AsyncSession)
+    mock_session.add.return_value = None
+    mock_session.commit.side_effect = IntegrityError(
+        "Integrity error", None, None)
+    mock_session.rollback.return_value = None
+
+    repository = IMappingRepository(mock_session)
+
+    # Act & Assert
+    await repository.save(mapping)
+
+    mock_session.add.assert_called_once_with(mapping)
+    mock_session.commit.assert_called_once()
+    mock_session.rollback.assert_called_once()
+
+
+@pytest.mark.asyncio
+async def test_get_total_count():
+    # Arrange
+    mock_session = AsyncMock(spec=AsyncSession)
+    mock_session.scalar.return_value = 10
+
+    repository = IMappingRepository(mock_session)
+
+    # Act
+    result = await repository.get_total_count()
+
+    # Assert
+    mock_session.scalar.assert_called_once()
+    assert result == 10
+
+@pytest.mark.asyncio
+async def test_get_mappings_by_central_drug_id():
+    # Arrange
+    central_drug_id = 1
+    mock_session = AsyncMock(spec=AsyncSession)
+    mock_result = MagicMock()
+    mock_session.execute.return_value = mock_result
+    mock_result.fetchall.return_value = [
+        MagicMock(
+            id=1,
+            drug_code="D001",
+            drug_name="Drug A",
+            country="US",
+            properties={"key": "value"}
+        ),
+        MagicMock(
+            id=2,
+            drug_code="D002",
+            drug_name="Drug B",
+            country="CA",
+            properties={"key": "value2"}
+        )
+    ]
+
+    repository = IMappingRepository(mock_session)
+
+    # Act
+    result = await repository.get_mappings_by_central_drug_id(central_drug_id)
+
+    # Assert
+    mock_session.execute.assert_called_once()
+    mock_result.fetchall.assert_called_once()
+    assert len(result) == 2
+    assert result[0].id == 1
+    assert result[0].drug_code == "D001"
+    assert result[0].drug_name == "Drug A"
+    assert result[0].country == "US"
+    assert result[0].properties == {"key": "value"}
+    assert result[1].id == 2
+    assert result[1].drug_code == "D002"
+    assert result[1].drug_name == "Drug B"
+    assert result[1].country == "CA"
+    assert result[1].properties == {"key": "value2"}
+
+
+@pytest.mark.asyncio
+async def test_delete_all_by_mapping_id():
+    # Arrange
+    mock_session = AsyncMock(spec=AsyncSession)
+    mock_session.execute.return_value = None
+    mock_session.commit.return_value = None
+
+    repository = IMappingRepository(mock_session)
+
+    # Act
+    await repository.delete_all_by_mapping_id(1)
+
+    # Assert
+    mock_session.execute.assert_called_once()
+    mock_session.commit.assert_called_once()

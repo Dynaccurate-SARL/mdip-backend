@@ -1,27 +1,31 @@
 import jwt
-
 from typing import List, Dict
-from dataclasses import dataclass
 from abc import ABC, abstractmethod
 from datetime import datetime, timedelta, timezone
+
+from pydantic import BaseModel
 
 
 ALGORITHM = "HS256"
 
 
-@dataclass
-class TokenPayload:
-    sub: str
+class TokenPayload(BaseModel):
+    sub: int
     scopes: List[str]
-    extra: Dict | None
+    extra: Dict | None = None
 
 
 class TokenServiceInterface(ABC):
     """Interface for TokenServices."""
+
     @abstractmethod
-    def generate_token(self, sub: str, scopes: List[str],
-                       extra: Dict = None,
-                       expiration: datetime = None) -> str:
+    def generate_token(
+        self,
+        sub: int,
+        scopes: List[str],
+        extra: Dict = None,
+        expiration: datetime = None,
+    ) -> str:
         pass
 
     @abstractmethod
@@ -48,9 +52,13 @@ class IAccessTokenService(TokenServiceInterface):
         self._expiration = expiration
         self._algorithm = algorithm
 
-    def generate_token(self, sub: str, scopes: List[str],
-                       extra: Dict = None,
-                       expiration: datetime = None) -> str:
+    def generate_token(
+        self,
+        sub: int,
+        scopes: List[str],
+        extra: Dict = None,
+        expiration: datetime = None,
+    ) -> str:
         # Set the expiration time to the default if not provided
         if expiration is None:
             expiration = datetime.now(timezone.utc) + timedelta(
@@ -58,18 +66,18 @@ class IAccessTokenService(TokenServiceInterface):
             )
 
         # Create the payload with the user ID and expiration time
-        payload = {'sub': sub, 'scopes': scopes, 'exp': expiration}
+        payload = {"sub": sub, "scopes": scopes, "exp": expiration}
         if extra:
             payload.update({"extra": extra})
 
         # Generate the token using the JWT library
-        token = jwt.encode(payload, self._secret_key,
-                           algorithm=self._algorithm)
+        token = jwt.encode(payload, self._secret_key, algorithm=self._algorithm)
         return token
 
     def get_token_payload(self, token: str) -> TokenPayload:
         payload: Dict = jwt.decode(
-            token, self._secret_key, algorithms=[self._algorithm])
+            token, self._secret_key, algorithms=[self._algorithm]
+        )
         return TokenPayload(
             sub=payload.get("sub"),
             scopes=payload.get("scopes", []),
@@ -104,11 +112,10 @@ class IRefreshTokenService(TokenServiceInterface):
             )
 
         # Create the payload with the user ID and expiration time
-        payload = {'sub': sub, 'exp': expiration}
+        payload = {"sub": sub, "exp": expiration}
 
         # Generate the token using the JWT library
-        token = jwt.encode(payload, self._secret_key,
-                           algorithm=self._algorithm)
+        token = jwt.encode(payload, self._secret_key, algorithm=self._algorithm)
         return token
 
     def get_token_payload(self, token: str) -> TokenPayload:

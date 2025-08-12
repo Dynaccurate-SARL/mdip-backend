@@ -1,15 +1,15 @@
 import json
-from typing import TypedDict
-from azure.identity import DefaultAzureCredential
-from azure.confidentialledger import ConfidentialLedgerClient
-from azure.core.exceptions import ResourceNotFoundError
+from typing import Dict, TypedDict
+from azure.identity import CertificateCredential
 from azure.core.exceptions import HttpResponseError
-from src.domain.entities.ledger_transaction import LedgerTransaction
-from src.infrastructure.repositories.contract import LedgerTransactionRepositoryInterface
+from azure.core.exceptions import ResourceNotFoundError
+from azure.confidentialledger import ConfidentialLedgerClient
+
+from src.utils.checksum import dict_hash
 from src.infrastructure.services.confidential_ledger.contract import (
-    Ledger,
-    TransactionData,
-    TransactionInserted)
+    LedgerInterface,
+    TransactionInserted,
+)
 
 
 class LedgerEntry(TypedDict):
@@ -17,51 +17,56 @@ class LedgerEntry(TypedDict):
     contents: str
 
 
-class AzureLedger(Ledger):
-    def __init__(self, ledger_url: str, certificate_path: str,
-                 lt_repository: LedgerTransactionRepositoryInterface):
-        credential = DefaultAzureCredential()
+class AzureLedger(LedgerInterface):
+    def __init__(
+        self,
+        azure_ledger_url: str,
+        azure_ledger_certificate_path: str,
+        azure_credentials_tenant_id: str,
+        azure_credentials_client_id: str,
+        azure_credentials_certificate_path: str
+    ):
+        credential = CertificateCredential(
+            tenant_id=azure_credentials_tenant_id,
+            client_id=azure_credentials_client_id,
+            certificate_path=azure_credentials_certificate_path,
+        )
         ledger_client = ConfidentialLedgerClient(
-            endpoint=ledger_url,
+            endpoint=azure_ledger_url,
             credential=credential,
-            ledger_certificate_path=certificate_path
+            ledger_certificate_path=azure_ledger_certificate_path
         )
         self.ledger_client = ledger_client
-        self.lt_repository = lt_repository
 
-    async def insert_transaction(self, data: TransactionData):
-        sample_entry = {"contents": json.dumps(
-            data.model_dump(exclude_none=True, exclude={
-                'entity_name', 'entity_id'}))}
+    def insert_transaction(self, data: Dict):
+        sample_entry = {"contents": json.dumps({
+            "data": data, "hash": dict_hash(data)
+        })}
+        print(f"Inserting transaction with data: \n {sample_entry}")
 
         self.ledger_client.create_ledger_entry(entry=sample_entry)
         latest_entry: LedgerEntry = self.ledger_client.get_current_ledger_entry()
-        transaction_id = latest_entry['transactionId']
-
-        ltransaction = LedgerTransaction(
-            transaction_id=transaction_id,
-            entity_name=data.entity_name,
-            entity_id=data.entity_id,
-        )
-        ltransaction = await self.lt_repository.save(ltransaction)
+        transaction_id = latest_entry["transactionId"]
 
         return TransactionInserted(
-            status='processing',
+            status="processing",
             transaction_id=transaction_id,
-            content=json.loads(latest_entry['contents'])
         )
 
-    async def retrieve_transaction(self, transaction_id: str):
+    def retrieve_transaction(self, transaction_id: str):
         try:
-            poller = self.ledger_client.begin_get_ledger_entry(transaction_id)
+            poller = self.ledger_client.begin_get_ledger_entry(
+                str(transaction_id))
             entry = poller.result()
 
-            data = TransactionInserted(status='processing')
-            if (entry["state"] == 'Ready'):
-                data.transaction_id = transaction_id
-                data.content = json.loads(entry['entry']['contents'])
+            data = TransactionInserted(
+                transaction_id=transaction_id, status="processing"
+            )
+            if entry["state"] == "Ready":
+                data.status = "ready"
+                data.transaction_data = json.loads(entry["entry"]["contents"])
             return data
         except ResourceNotFoundError:
             return None
-        except HttpResponseError as e:
+        except HttpResponseError:
             return None

@@ -1,22 +1,43 @@
 from typing import Literal
-from fastapi import UploadFile
 
 from src.application.dto import BaseSchema
 
 
-CountryCode = Literal[
-    "AF", "AL", "DZ", "AD", "AO", "AR", "AM", "AU", "AT", "AZ", "BH",
-    "BD", "BY", "BE", "BZ", "BJ", "BO", "BA", "BR", "BG", "CA", "CL",
-    "CN", "CO", "HR", "CU", "CY", "CZ", "DK", "EG", "EE", "FI", "FR",
-    "DE", "GR", "HU", "IS", "IN", "ID", "IR", "IQ", "IE", "IL", "IT",
-    "JP", "JO", "KZ", "KE", "KW", "LV", "LB", "LY", "LT", "LU", "MG",
-    "MY", "MX", "MC", "MA", "NL", "NZ", "NG", "KP", "NO", "OM", "PK",
-    "PA", "PE", "PH", "PL", "PT", "QA", "RO", "RU", "SA", "SN", "RS",
-    "SG", "SK", "SI", "ZA", "KR", "ES", "SE", "CH", "TH", "TN", "TR",
-    "UA", "AE", "GB", "US", "UY", "VE", "VN", "YE", "ZW"
+TaskStatus = Literal["created", "processing", "completed", "failed"]
+_CountryCode = Literal[
+    "AT",
+    "BE",
+    "BG",
+    "CA",
+    "CY",
+    "CZ",
+    "DK",
+    "EE",
+    "ES",
+    "EU",
+    "FI",
+    "FR",
+    "GR",
+    "HR",
+    "HU",
+    "IE",
+    'IT',
+    "LT",
+    "LU",
+    "LV",
+    "MT",
+    "NL",
+    "PL",
+    "PT",
+    "RO",
+    "SE",
+    "SI",
+    "SK",
+    "UK",
+    "US",
 ]
-
-Status = Literal['created', 'processing', 'completed']
+_OtherCode = Literal["XX", "EU"]
+CountryCode =  _CountryCode | _OtherCode
 
 
 class DrugCatalogCreateDto(BaseSchema):
@@ -24,7 +45,7 @@ class DrugCatalogCreateDto(BaseSchema):
     country: CountryCode
     version: str
     notes: str
-    file: UploadFile
+    is_central: bool
 
 
 class DrugCatalogCreatedDto(BaseSchema):
@@ -33,8 +54,8 @@ class DrugCatalogCreatedDto(BaseSchema):
     country: CountryCode
     version: str
     notes: str
-    status: Status
-    transaction_id: str = ''
+    is_central: bool
+    status: TaskStatus
 
 
 class DrugCatalogDto(BaseSchema):
@@ -43,7 +64,9 @@ class DrugCatalogDto(BaseSchema):
     country: CountryCode
     version: str
     notes: str
-    status: Status
+    is_central: bool
+    status: TaskStatus
+
 
 class DrugCatalogPaginatedDto(BaseSchema):
     data: list[DrugCatalogDto]

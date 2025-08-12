@@ -1,17 +1,27 @@
-from src.config.settings.ledger import LedgerStrategy
-from src.infrastructure.repositories.contract import LedgerTransactionRepositoryInterface
-from src.infrastructure.services.confidential_ledger.contract import Ledger
+from typing import Literal
+
+from src.infrastructure.services.confidential_ledger.contract import LedgerInterface
 from src.infrastructure.services.confidential_ledger.iazure_ledger import AzureLedger
-from src.infrastructure.services.confidential_ledger.idb_ledger import DBLedgerService
+from src.infrastructure.services.confidential_ledger.ifake_json_ledger import (
+    FakeJsonLedger,
+)
 
 
-def get_confidential_ledger(
-        strategy: LedgerStrategy,
-        db_lt_repository: LedgerTransactionRepositoryInterface,
-        azure_ledger_url: str,
-        azure_ledger_certificate_path: str,
-) -> Ledger:
-    if strategy == 'DB':
-        return DBLedgerService(db_lt_repository)
-    return AzureLedger(
-        azure_ledger_url, azure_ledger_certificate_path, db_lt_repository)
+def ledger_builder(
+    azure_ledger_url: str,
+    azure_ledger_certificate_path: str,
+    azure_credentials_tenant_id: str,
+    azure_credentials_client_id: str,
+    azure_credentials_certificate_path: str,
+    environment: Literal["PROD", "DEV"] = "DEV"
+) -> LedgerInterface:
+    if environment == "PROD":
+        return AzureLedger(
+            azure_ledger_url,
+            azure_ledger_certificate_path,
+            azure_credentials_tenant_id,
+            azure_credentials_client_id,
+            azure_credentials_certificate_path
+        )
+    else:
+        return FakeJsonLedger()
