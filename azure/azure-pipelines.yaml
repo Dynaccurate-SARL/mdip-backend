@@ -1,7 +1,3 @@
-trigger:
-  - develop
-  - feature/taskiq
-
 resources:
   - repo: self
 
