@@ -15,7 +15,6 @@ from src.infrastructure.repositories.idrug_catalog_repository import (
 )
 from src.infrastructure.repositories.idrug_repository import IDrugRepository
 from src.utils.exc import ResourceNotFound
-from test.unit.usecase import drug_catalog
 
 
 drug_router = APIRouter()
@@ -75,7 +74,8 @@ async def get_drugs(
     user: Annotated[User, Depends(manager)],
     session: Annotated[AsyncSession, Depends(get_session)],
     drugnc: Annotated[
-        str, Query(min_length=3, description="Filter by 'drug name' or 'drud code'")
+        str, Query(
+            min_length=3, description="Filter by 'drug name' or 'drud code'")
     ] = "",
     page: Annotated[int, Query(gt=0, example=1)] = 1,
     psize: Annotated[int, Query(gt=0, le=100, example=10)] = 10,
@@ -87,7 +87,8 @@ async def get_drugs(
 
     # Fetch paginated drugs
     try:
-        use_case = GetPaginatedDrugsUseCase(drug_catalog_repository, drug_repository)
+        use_case = GetPaginatedDrugsUseCase(
+            drug_catalog_repository, drug_repository)
         return await use_case.execute(page, psize, drugnc, catalog)
     except ResourceNotFound as err:
         return err.as_response(status.HTTP_404_NOT_FOUND)

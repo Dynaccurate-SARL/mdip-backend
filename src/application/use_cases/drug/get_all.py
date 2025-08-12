@@ -1,4 +1,3 @@
-from re import M
 from typing import List
 
 from src.application.dto.drug_dto import DrugMappingsCount
