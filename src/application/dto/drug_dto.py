@@ -21,7 +21,6 @@ class DrugMappingsCount(BaseSchema):
     drug_name: str
     drug_code: str
     drug_id: str
-    mapping_count: int
 
     @field_validator("drug_id", mode="before")
     def convert_timestamp_to_datetime(cls, value, values):

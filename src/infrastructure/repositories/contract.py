@@ -71,6 +71,11 @@ class DrugCatalogRepositoryInterface(BaseRepository):
         ...
 
     @abstractmethod
+    async def get_first_by_country(self, country: CountryCode) -> DrugCatalog | None:
+        """Get the first drug catalog filtered by country."""
+        ...
+
+    @abstractmethod
     async def status_update(self, drug_catalog_id: int, status: TaskStatus):
         """Update the import status of a drug catalog."""
         ...

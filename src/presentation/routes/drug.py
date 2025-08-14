@@ -1,9 +1,9 @@
-from typing import Annotated, List
+from typing import Annotated, List, Literal
 from fastapi import APIRouter, Depends, Query, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.application.dto.drug_dto import DrugDto, DrugMappingsCount, DrugPaginatedDto
-from src.application.use_cases.drug.get_all import GetDrugsUseCase
+from src.application.use_cases.drug.get_all_by_country import DrugCountry, GetDrugsByCountryUseCase
 from src.application.use_cases.drug.get_by_id import GetDrugByIdUseCase
 from src.application.use_cases.drug.get_paginated import GetPaginatedDrugsUseCase
 from src.domain.entities.user import User
@@ -43,25 +43,26 @@ async def get_drug_by_id(
 
 
 @drug_router.get(
-    "/drugs",
+    "/drugs/country/{country}",
     status_code=status.HTTP_200_OK,
     response_model=List[DrugMappingsCount],
     summary="Get all drugs filtered by name or code",
 )
 async def get_all_by_name_or_code(
     session: Annotated[AsyncSession, Depends(get_session)],
+    country: DrugCountry,
     drugnc: Annotated[
         str, Query(description="Filter by 'drug name' or 'drud code'")
     ] = "",
-    limit: Annotated[int, Query(ge=0)] = 0,
 ):
     # Prepare the repository
     drug_catalog_repository = IDrugCatalogRepository(session)
     drug_repository = IDrugRepository(session)
 
     # Fetch the drug by ID
-    use_case = GetDrugsUseCase(drug_catalog_repository, drug_repository)
-    return await use_case.execute(drugnc, limit)
+    use_case = GetDrugsByCountryUseCase(
+        drug_catalog_repository, drug_repository)
+    return await use_case.execute(country, drugnc)
 
 
 @drug_router.get(
