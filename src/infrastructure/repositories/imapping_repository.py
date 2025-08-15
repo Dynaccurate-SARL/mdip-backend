@@ -26,6 +26,16 @@ class IMappingRepository(MappingRepositoryInterface):
         count_statement = select(func.count(DrugMapping._drug_id))
         return await self.session.scalar(count_statement)
 
+    async def get_drugs_id_by_related_to(self, related_to: int) -> List[int]:
+        stmt = (
+            select(DrugMapping._drug_id.label("id"))
+            .select_from(DrugMapping)
+            .where(DrugMapping._related_drug_id == related_to)
+        )
+        result = await self.session.execute(stmt)
+        rows = result.fetchall()
+        return [row.id for row in rows]
+
     async def get_mappings_by_central_drug_id(
         self, central_drug_id: int
     ) -> List[CentralDrugMapping]:
@@ -57,6 +67,7 @@ class IMappingRepository(MappingRepositoryInterface):
         ]
 
     async def delete_all_by_mapping_id(self, mapping_id: int):
-        query = delete(DrugMapping).where(DrugMapping._mapping_id == mapping_id)
+        query = delete(DrugMapping).where(
+            DrugMapping._mapping_id == mapping_id)
         await self.session.execute(query)
         await self.session.commit()

@@ -1,7 +1,9 @@
 import sqlalchemy as sq
 from sqlalchemy.orm import Mapped
-from sqlalchemy.orm import mapped_column
+from sqlalchemy.orm import mapped_column, relationship
 
+from src.application.dto.drug_catalog_dto import CountryCode
+from src.domain.entities.drug_catalog import DrugCatalog
 from src.infrastructure.db.base import Base, IdMixin
 
 
@@ -15,6 +17,12 @@ class Drug(IdMixin, Base):
     drug_code: Mapped[str] = mapped_column(sq.String, nullable=False)
     drug_name: Mapped[str] = mapped_column(sq.String, nullable=False)
     properties: Mapped[dict] = mapped_column(sq.JSON, nullable=True)
+
+    rel_catalog: Mapped[DrugCatalog] = relationship(lazy="subquery")
+
+    @property
+    def country(self) -> CountryCode:
+        return self.rel_catalog.country
 
     @property
     def catalog_id(self) -> str:

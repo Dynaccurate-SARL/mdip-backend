@@ -1,5 +1,6 @@
 from sqlalchemy import func, select, update
 
+from src.application.dto.drug_catalog_dto import CountryCode
 from src.domain.entities.drug_catalog import DrugCatalog, TaskStatus
 from src.infrastructure.repositories.contract import (
     DrugCatalogRepositoryInterface,
@@ -41,6 +42,11 @@ class IDrugCatalogRepository(DrugCatalogRepositoryInterface):
                 DrugCatalog.name.ilike(f"%{name_filter}%"))
         return await self.session.scalar(count_stmt)
 
+    async def get_first_by_country(self, country: CountryCode):
+        stmt = select(DrugCatalog).where(DrugCatalog.country == country)
+        result = await self.session.execute(stmt)
+        return result.scalars().first()
+
     async def get_paginated(
             self, page: int, page_size: int, name_filter: str = None):
         offset = (page - 1) * page_size
@@ -60,6 +66,6 @@ class IDrugCatalogRepository(DrugCatalogRepositoryInterface):
         total_count = await self.get_total_count(name_filter)
 
         return PagedItems[DrugCatalog](
-            current_page=page, page_size=page_size, 
+            current_page=page, page_size=page_size,
             total_count=total_count, items=items
         )
