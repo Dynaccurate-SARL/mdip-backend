@@ -5,6 +5,7 @@ from src.application.dto.drug_catalog_dto import CountryCode
 
 class BaseDrugDto(BaseSchema):
     id: str
+    country: CountryCode
     drug_name: str
     drug_code: str
     properties: Dict

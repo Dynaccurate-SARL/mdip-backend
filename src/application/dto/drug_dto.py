@@ -1,10 +1,14 @@
+from typing import List
 from pydantic import field_validator
 from src.application.dto import BaseSchema
+from src.application.dto.drug_catalog_dto import CountryCode
 
 
 class DrugDto(BaseSchema):
     id: str
     catalog_id: str
+    country: CountryCode
+    mapping_parents: List[str] = []
     drug_code: str
     drug_name: str
     properties: dict

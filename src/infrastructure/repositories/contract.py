@@ -162,6 +162,11 @@ class MappingRepositoryInterface(BaseRepository):
         ...
 
     @abstractmethod
+    async def get_drugs_id_by_related_to(self, related_to: int) -> List[int]:
+        """Get all drugs id associated with a specific related_to ID."""
+        ...
+
+    @abstractmethod
     async def get_mappings_by_central_drug_id(
         self, central_drug_id: int
     ) -> List[CentralDrugMapping]:

@@ -14,6 +14,7 @@ from src.infrastructure.repositories.idrug_catalog_repository import (
     IDrugCatalogRepository,
 )
 from src.infrastructure.repositories.idrug_repository import IDrugRepository
+from src.infrastructure.repositories.imapping_repository import IMappingRepository
 from src.utils.exc import ResourceNotFound
 
 
@@ -31,9 +32,11 @@ async def get_drug_by_id(
 ):
     # Prepare the repository
     drug_catalog_repository = IDrugRepository(session)
+    mapping_repository_repository = IMappingRepository(session)
 
     # Fetch the drug by ID
-    use_case = GetDrugByIdUseCase(drug_catalog_repository)
+    use_case = GetDrugByIdUseCase(
+        drug_catalog_repository, mapping_repository_repository)
     drug = await use_case.execute(drug_id)
     if not drug:
         return ResourceNotFound(detail="Drug not found").as_response(
