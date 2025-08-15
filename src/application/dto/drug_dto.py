@@ -7,7 +7,7 @@ from src.application.dto.drug_catalog_dto import CountryCode
 class DrugDto(BaseSchema):
     id: str
     catalog_id: str
-    country: CountryCode
+    country: CountryCode = "XX"
     mapping_parents: List[str] = []
     drug_code: str
     drug_name: str
