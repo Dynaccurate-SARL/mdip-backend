@@ -7,9 +7,10 @@ Create Date: 2025-08-29 12:45:54.660955
 """
 import secrets
 import string
+import logging
 from typing import Sequence, Union
 
-from alembic import op, context
+from alembic import op
 import sqlalchemy as sa
 from sqlalchemy.sql import table
 
@@ -27,7 +28,7 @@ def _generate_password():
     alphabet = string.ascii_letters + string.digits
     password = "".join(secrets.choice(alphabet) for _ in range(16))
 
-    logger = context.get_context().impl.get_bind().engine.logger
+    logger = logging.getLogger("alembic")
     logger.info(f"- New password for root user: {password}")
     return password
 
