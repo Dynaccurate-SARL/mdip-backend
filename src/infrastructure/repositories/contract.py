@@ -71,6 +71,11 @@ class DrugCatalogRepositoryInterface(BaseRepository):
         ...
 
     @abstractmethod
+    async def get_first_by_country(self, country: CountryCode) -> DrugCatalog | None:
+        """Get the first drug catalog filtered by country."""
+        ...
+
+    @abstractmethod
     async def status_update(self, drug_catalog_id: int, status: TaskStatus):
         """Update the import status of a drug catalog."""
         ...
@@ -154,6 +159,11 @@ class MappingRepositoryInterface(BaseRepository):
     @abstractmethod
     async def save(self, mapping: DrugMapping) -> bool:
         """Save a drug to the database."""
+        ...
+
+    @abstractmethod
+    async def get_drugs_id_by_related_to(self, related_to: int) -> List[int]:
+        """Get all drugs id associated with a specific related_to ID."""
         ...
 
     @abstractmethod

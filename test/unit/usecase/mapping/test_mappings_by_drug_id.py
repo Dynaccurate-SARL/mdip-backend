@@ -16,7 +16,7 @@ async def test_execute_success():
     central_catalog = MagicMock(id=1)
     central_drug = MagicMock(
         id='10', catalog_id=1, drug_name="Paracetamol", drug_code="PCT",
-        properties={"dose": "500mg"})
+        properties={"dose": "500mg"}, country="XX")
     mapping1 = MagicMock(
         id='100', drug_name="Acetaminophen", drug_code="ACT",
         properties={"dose": "500mg"}, country="US"

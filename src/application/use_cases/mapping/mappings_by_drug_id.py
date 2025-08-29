@@ -41,6 +41,7 @@ class DrugMappingsUseCase:
                 drug_name=central_drug.drug_name,
                 drug_code=central_drug.drug_code,
                 properties=central_drug.properties,
+                country=central_drug.country,
             ),
             mappings=[
                 MappingDrugDto(
