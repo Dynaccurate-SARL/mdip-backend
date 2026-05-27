@@ -39,7 +39,7 @@ async def get_drug_by_id(
         drug_catalog_repository, mapping_repository_repository)
     drug = await use_case.execute(drug_id)
     if not drug:
-        return ResourceNotFound(detail="Drug not found").as_response(
+        return ResourceNotFound("Drug not found").as_response(
             status.HTTP_404_NOT_FOUND
         )
     return drug
